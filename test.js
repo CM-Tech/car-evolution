@@ -50,7 +50,9 @@ var defaultCategory = 0x0001,
                 render: {
                 fillStyle: "#424242",
                 strokeStyle:"#212121"
-            }
+            },
+            friction: 1,
+            frictionStatic: 10
 
             }),Bodies.circle(460,-40,30,{collisionFilter: {
                     category: wheelCategory,
@@ -59,7 +61,9 @@ var defaultCategory = 0x0001,
                 render: {
                 fillStyle: "#424242",
                 strokeStyle:"#212121"
-            }
+            },
+            friction: 1,
+            frictionStatic: 10
             })];
 
 
@@ -77,7 +81,8 @@ var defaultCategory = 0x0001,
         bodyB: wheels[i],
         pointA:{x:wheels[i].position.x-car.position.x,y:wheels[i].position.y-car.position.y},
         pointB:{x:0,y:0},
-        stiffness:0.1,
+        length: 0,
+        stiffness:0.7,
         damping:1
     });
     wheelConstraints.push(constraint);
@@ -107,7 +112,7 @@ var defaultCategory = 0x0001,
         World.add(world, [rect]);
     }
     var currentPoint={x:startIndex*50,y:0};
-    for( var i=startIndex+1;i<100;i++){
+    for( var i=startIndex+1;i<20;i++){
         var x=i*50;
         var nextPoint={x:x,y:terrain(x-startIndex*50)};
         var delta={x:nextPoint.x-currentPoint.x,y:nextPoint.y-currentPoint.y};
@@ -125,10 +130,21 @@ var defaultCategory = 0x0001,
         }
         for(var i=0;i<wheels.length;i++){
         //wheels[i].constraintImpulse.angle = Math.PI;
-        wheels[i].torque=0.1;
+        if(wheels[1].angularSpeed<0.5){
+        wheels[i].torque=0.5;
+        }
 
         }
         var px = 400 + 100 * Math.sin(counter);
+        var x=currentPoint.x+50;
+        if(car.position.x>x-400){
+        var nextPoint={x:x,y:terrain(x-startIndex*50)};
+        var delta={x:nextPoint.x-currentPoint.x,y:nextPoint.y-currentPoint.y};
+        var rect=Bodies.rectangle(nextPoint.x/2+currentPoint.x/2, nextPoint.y/2+currentPoint.y/2, Math.sqrt(delta.x*delta.x+delta.y*delta.y)+10, 10, { isStatic: true,chamfer:{radius:5,quality:12},friction: 0.1,frictionStatic:0.5 });
+        Body.rotate(rect,Math.atan2(delta.y,delta.x));
+        World.add(world, [rect]);
+    currentPoint=nextPoint;
+        }
 
         // body is static so must manually update velocity for friction to work
         //Body.setVelocity(body, { x: px - body.position.x, y: 0 });
