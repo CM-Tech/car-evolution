@@ -41,10 +41,10 @@ var defaultCategory = 0x0001,
     var body = Bodies.rectangle(400, 500, 200, 60, { isStatic: true, chamfer: 10 }),
         size = 50,
         counter = -1;
-    var car=Bodies.rectangle(400,-60,100,50,{collisionFilter: {
+    var car=Bodies.rectangle(400,-50,130,30,{collisionFilter: {
                     category: carCategory
-                }});
-    var wheels=[Bodies.circle(340,-40,30,{collisionFilter: {
+                },chamfer:{radius:15,quality:12}});
+    var wheels=[Bodies.circle(340,-50,30,{collisionFilter: {
                     category: wheelCategory,
                     mask: defaultCategory
                 },
@@ -55,7 +55,7 @@ var defaultCategory = 0x0001,
             friction: 1,
             frictionStatic: 10
 
-            }),Bodies.circle(460,-40,30,{collisionFilter: {
+            }),Bodies.circle(460,-50,30,{collisionFilter: {
                     category: wheelCategory,
                     mask: defaultCategory
                 },
