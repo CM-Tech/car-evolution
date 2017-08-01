@@ -10,6 +10,7 @@
         Mouse = Matter.Mouse,
         World = Matter.World,
         Bodies = Matter.Bodies;
+        noise.seed(3);
 var defaultCategory = 0x0001,
         wheelCategory = 0x0004,
         carCategory = 0x0002;
@@ -25,7 +26,7 @@ var defaultCategory = 0x0001,
         options: {
             width: 1200,
             height: 1350/2,
-            showVelocity: true,
+            //showVelocity: true,
             wireframes:false
         }
     });
@@ -82,8 +83,12 @@ var defaultCategory = 0x0001,
         pointA:{x:wheels[i].position.x-car.position.x,y:wheels[i].position.y-car.position.y},
         pointB:{x:0,y:0},
         length: 0,
-        stiffness:0.7,
-        damping:1
+        stiffness:0.1,
+        render:{
+            type:'pin',
+            size:10,
+            radius:10
+        }
     });
     wheelConstraints.push(constraint);
     }
@@ -100,9 +105,10 @@ var defaultCategory = 0x0001,
     World.add(world,wheels);
     World.add(world,wheelConstraints);
     function terrain(x){
-        return Math.sin(x/400)*100;
+        var p=1.2;
+        return noise.simplex2(Math.pow(x,p)/Math.pow(1000,p),0)*200;//-(Math.sin(x/400)+Math.sin(x/200)/2+Math.sin(x/100)/4)*100;
     }
-    var startIndex=5;
+    var startIndex=15;
         for( var i=-40;i<startIndex;i++){
         var x=i*50+25;
         //var nextPoint={x:x,y:terrain(x)};
@@ -131,7 +137,7 @@ var defaultCategory = 0x0001,
         for(var i=0;i<wheels.length;i++){
         //wheels[i].constraintImpulse.angle = Math.PI;
         if(wheels[1].angularSpeed<0.5){
-        wheels[i].torque=0.5;
+        wheels[i].torque+=0.5;
         }
 
         }
