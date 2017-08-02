@@ -8,7 +8,7 @@ function Car(data){
             this.data.angleWeights.push(0.5);
             this.data.wheels.push({index:i,r:this.maxRadius/2,o:true,axelAngle:i/this.bodyParts*Math.PI*2});
         }
-        
+
     }
 }
 Car.prototype.bodyParts=8;
