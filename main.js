@@ -54,8 +54,8 @@ var wheels = [Bodies.circle(340, -50, 30, {
 		mask: defaultCategory
 	},
 	render: {
-		fillStyle: "rgba(66, 66, 66,0.5)",
-		strokeStyle: "#212121",
+		fillStyle: "rgba(66, 66, 66, 0.5)",
+		strokeStyle: "rgb(66, 66, 66)",
 		showAngleIndicator: true
 	},
 	friction: 1,
@@ -66,8 +66,8 @@ var wheels = [Bodies.circle(340, -50, 30, {
 		mask: defaultCategory
 	},
 	render: {
-		fillStyle: "rgba(66, 66, 66,0.5)",
-		strokeStyle: "#212121",
+		fillStyle: "rgba(66, 66, 66, 0.5)",
+		strokeStyle: "rgb(66, 66, 66)",
 		showAngleIndicator: true
 	},
 	friction: 1,
