@@ -145,7 +145,7 @@ planck.testbed('Car', function (testbed) {
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.99
-				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(0, 1)));
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.axelAngle)/1 , Math.sin(wheelData.axelAngle)/1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);
