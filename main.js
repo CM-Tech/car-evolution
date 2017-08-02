@@ -133,6 +133,7 @@ planck.testbed('Car', function (testbed) {
 		Vec2(-1.15, 0.9),
 		Vec2(-1.5, 0.2)
 	]), 1.0);
+	car.render = {fill: 'rgba(255, 51, 0, 0.2)', stroke: '#ffffff'};
 
 	/*var boxCar = world.createDynamicBody(Vec2(0.0, 5.0));
 	boxCar.createFixture(pl.Polygon([
@@ -155,15 +156,19 @@ planck.testbed('Car', function (testbed) {
   var m_shape2 = pl.Box(0.5, 0.5, Vec2(0.5, 0.0), 0.0);
   var m_piece2 = boxCar.createFixture(m_shape2, 1.0);
 
-	var wheelFD = {};
-	wheelFD.density = 1.0;
-	wheelFD.friction = 0.9;
+	var wheelFD = {
+		density: 1.0,
+		friction: 0.9
+	};
 
 	var wheelBack = world.createDynamicBody(Vec2(-1.0, 0.35));
 	wheelBack.createFixture(pl.Circle(0.4), wheelFD);
 
 	var wheelFront = world.createDynamicBody(Vec2(1.0, 0.4));
 	wheelFront.createFixture(pl.Circle(0.4), wheelFD);
+
+	wheelBack.render = {fill: 'rgba(255, 51, 0, 0.2)', stroke: '#ffffff'};
+	wheelFront.render = {fill: 'rgba(255, 51, 0, 0.2)', stroke: '#ffffff'};
 
 	var springBack = world.createJoint(pl.WheelJoint({
 		motorSpeed: 0.0,
@@ -213,12 +218,8 @@ planck.testbed('Car', function (testbed) {
 		}
 
 		var cp = car.getPosition();
-		if (cp.x > testbed.x + 10) {
-			testbed.x = cp.x - 10;
-
-		} else if (cp.x < testbed.x - 10) {
-			testbed.x = cp.x + 10;
-		}
+		testbed.x = cp.x;
+		testbed.y = -cp.y;
 	};
 
 	testbed.info('←/→: Accelerate car, ↑/↓: Change spring frequency');
