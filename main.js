@@ -128,6 +128,7 @@ window.boxCar=boxCar;
 	
 
 var connectedParts=[];
+var connectedPartsI=[];
 var connectedPartsOld=[];
 var connectedShapes=[];
 var wheels=[];
@@ -151,6 +152,7 @@ var connectedPartsWheels=[];
 	
 		  var m_piece = boxCar.createFixture(m_shape, 1.0);
 		  connectedParts.push(m_piece);
+			 connectedPartsI.push(i);
 			connectedShapes.push(m_shape);
 			var wheelsThere=carData.wheelsAt(i);
 			var totWheelAdditions=[];
@@ -177,7 +179,7 @@ var connectedPartsWheels=[];
 	
 			}
 			}
-		connectedPartsWheels.push(totWheelAdditions);
+		connectedPartsWheels.push([totWheelAdditions]);
 p_angle=new_p_angle;
   }
   /*var partsToBreak=[];
@@ -241,6 +243,7 @@ world.on('post-solve', function (contact, impulse) {
 			}
 			var mIndex = connectedParts.indexOf(m_piece);
 			var m_shape = connectedShapes.splice(connectedParts.indexOf(m_piece), 1)[0];
+			var m_index = connectedPartsI.splice(connectedParts.indexOf(m_piece), 1)[0];
 			var m_wheels = connectedPartsWheels.splice(connectedParts.indexOf(m_piece), 1)[0];
 			connectedParts.splice(connectedParts.indexOf(m_piece), 1);
 			// Create two bodies from one.
@@ -257,8 +260,19 @@ world.on('post-solve', function (contact, impulse) {
 			window.body1 = body1;
 			var center = body1.getWorldCenter();
 			console.log("M", m_piece);
-			for(var j=0;j<m_wheels.length;j++){
-			world.destroyJoint(m_wheels[j]);
+			if(m_wheels[1]){
+			for(var j=0;j<m_wheels[1].length;j++){
+			world.destroyJoint(m_wheels[1][j]);
+			}
+			}
+		var prevIndexInList=connectedPartsI.indexOf((m_index+carData.bodyParts-1)%carData.bodyParts);
+		if(prevIndexInList>=0){
+			connectedPartsWheels[prevIndexInList][1]=m_wheels[0];
+			
+			}else{
+				for(var j=0;j<m_wheels[0].length;j++){
+			world.destroyJoint(m_wheels[0][j]);
+			}
 			}
 			boxCar.destroyFixture(m_piece);
 			//boxCar.destroyFixture(f1);
