@@ -133,6 +133,7 @@ window.world=world;
 		Vec2(-1.15, 0.9),
 		Vec2(-1.5, 0.2)
 	]), 1.0);
+	car.render = {fill: 'rgba(255, 51, 0, 0.2)', stroke: '#ffffff'};
 
 	/*var boxCar = world.createDynamicBody(Vec2(0.0, 5.0));
 	boxCar.createFixture(pl.Polygon([
@@ -310,6 +311,9 @@ if(a.m_fixtureA==m_piece2||a.m_fixtureB==m_piece2){
 
 	var wheelFront = world.createDynamicBody(Vec2(1.0, 0.4));
 	wheelFront.createFixture(pl.Circle(0.4), wheelFD);
+
+	wheelBack.render = {fill: 'rgba(255, 51, 0, 0.2)', stroke: '#ffffff'};
+	wheelFront.render = {fill: 'rgba(255, 51, 0, 0.2)', stroke: '#ffffff'};
 
 	var springBack = world.createJoint(pl.WheelJoint({
 		motorSpeed: 0.0,
