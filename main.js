@@ -16,6 +16,7 @@ var defaultCategory = 0x0001,
 // create engine
 var engine = Engine.create(),
 	world = engine.world;
+engine.timing.timeScale=2;
 // create renderer
 var render = Render.create({
 	element: document.body,
@@ -23,7 +24,8 @@ var render = Render.create({
 	options: {
 		width: 1200,
 		height: 1350 / 2,
-		wireframes: false
+		wireframes: false,
+		showAngleIndicator: true
 	}
 });
 Render.run(render);
@@ -53,7 +55,8 @@ var wheels = [Bodies.circle(340, -50, 30, {
 	},
 	render: {
 		fillStyle: "rgba(66, 66, 66,0.5)",
-		strokeStyle: "#212121"
+		strokeStyle: "#212121",
+		showAngleIndicator: true
 	},
 	friction: 1,
 	frictionStatic: 10
@@ -64,7 +67,8 @@ var wheels = [Bodies.circle(340, -50, 30, {
 	},
 	render: {
 		fillStyle: "rgba(66, 66, 66,0.5)",
-		strokeStyle: "#212121"
+		strokeStyle: "#212121",
+		showAngleIndicator: true
 	},
 	friction: 1,
 	frictionStatic: 10
