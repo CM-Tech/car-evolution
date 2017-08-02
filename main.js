@@ -92,7 +92,7 @@ planck.testbed('Car', function(testbed) {
 	world.createDynamicBody(Vec2(230.0, 3.5)).createFixture(box, 0.5);
 	world.createDynamicBody(Vec2(230.0, 4.5)).createFixture(box, 0.5);
 	// Car
-	var car = world.createDynamicBody(Vec2(0.0, 1.0));
+	/*var car = world.createDynamicBody(Vec2(0.0, 1.0));
 	car.createFixture(pl.Polygon([
 		Vec2(-1.5, -0.5),
 		Vec2(1.5, -0.5),
@@ -104,7 +104,7 @@ planck.testbed('Car', function(testbed) {
 	car.render = {
 		fill: 'rgba(255, 51, 0, 0.2)',
 		stroke: '#ffffff'
-	};
+	};*/
 
 	var carData = new Car();
 	// Breakable dynamic body
@@ -128,12 +128,15 @@ window.boxCar=boxCar;
 	
 
 var connectedParts=[];
+var connectedPartsOld=[];
 var connectedShapes=[];
 var wheels=[];
+var wheelsF=[];
 var wheelJoints=[];
-var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
-		  var m_piece_base =window.base= boxCar.createFixture(m_shape_base, 1.0);
-			var center_vec=base.m_body.getWorldCenter().clone();
+var connectedPartsWheels=[];
+//var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
+		  //var m_piece_base =window.base= boxCar.createFixture(m_shape_base, 1.0);
+			var center_vec=boxCar.getWorldCenter().clone();
 			//create car from data
 			var p_angle=0;
 			var scale=1/10;
@@ -150,6 +153,7 @@ var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
 		  connectedParts.push(m_piece);
 			connectedShapes.push(m_shape);
 			var wheelsThere=carData.wheelsAt(i);
+			var totWheelAdditions=[];
 			for(var j=0;j<wheelsThere.length;j++){
 				var wheelData=wheelsThere[j];
 				if(wheelData.o){
@@ -165,12 +169,15 @@ var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
 		dampingRatio: 0.99
 	},m_piece.m_body, wheel,wheel.getWorldCenter(),Vec2( 0,1)));
 	wheelJoints.push(spring);
+	totWheelAdditions.push(spring);
 	//boxCar.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
 	wheels.push(wheel);
+	wheelsF.push(w_fix);
 	
 	
 			}
 			}
+		connectedPartsWheels.push(totWheelAdditions);
 p_angle=new_p_angle;
   }
   /*var partsToBreak=[];
@@ -213,11 +220,12 @@ world.on('post-solve', function (contact, impulse) {
 		while (a) {
 			for (var j = 0; j < connectedParts.length; j++) {
 				var m_piece = connectedParts[j];
-				if (a.m_fixtureA == m_piece || a.m_fixtureB == m_piece) {
+				if ((a.m_fixtureA == m_piece&& connectedPartsOld.indexOf(a.m_fixtureB)<0&& wheelsF.indexOf(a.m_fixtureB)<0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA)<0&& wheelsF.indexOf(a.m_fixtureA)<0)) {
 					var partBreak = false;
 					var impulseSum = 0;
 					for (var i = 0; i < a.v_points.length; i++) {
-						if (a.v_points[i].normalImpulse > 0.25) partBreak = true;
+						if (a.v_points[i].normalImpulse >50) partBreak = true;
+						//console.log(a.v_points[i].normalImpulse);
 					}
 					if (partBreak) partsToBreak.push(m_piece);
 				}
@@ -233,9 +241,10 @@ world.on('post-solve', function (contact, impulse) {
 			}
 			var mIndex = connectedParts.indexOf(m_piece);
 			var m_shape = connectedShapes.splice(connectedParts.indexOf(m_piece), 1)[0];
+			var m_wheels = connectedPartsWheels.splice(connectedParts.indexOf(m_piece), 1)[0];
 			connectedParts.splice(connectedParts.indexOf(m_piece), 1);
 			// Create two bodies from one.
-			var f1 = m_piece_base;
+			var f1 = boxCar.m_fixtureList;//m_piece_base;
 			if (!f1.m_shape) {
 				return;
 			}
@@ -248,6 +257,9 @@ world.on('post-solve', function (contact, impulse) {
 			window.body1 = body1;
 			var center = body1.getWorldCenter();
 			console.log("M", m_piece);
+			for(var j=0;j<m_wheels.length;j++){
+			world.destroyJoint(m_wheels[j]);
+			}
 			boxCar.destroyFixture(m_piece);
 			//boxCar.destroyFixture(f1);
 			//m_piece_base = boxCar.createFixture(f1s, 1.0);
@@ -258,6 +270,7 @@ world.on('post-solve', function (contact, impulse) {
 				angle: body1.getAngle()
 			});
 			m_piece = body2.createFixture(m_shape, 1.0);
+			connectedPartsOld.push(m_piece);
 			// Compute consistent velocities for new bodies based on
 			// cached velocity.
 			var center1 = body1.getWorldCenter();
@@ -271,7 +284,7 @@ world.on('post-solve', function (contact, impulse) {
 			body2.setLinearVelocity(velocity2);
 		}
 	}
-	var wheelFD = {};
+	/*var wheelFD = {};
 	wheelFD.density = 1.0;
 	wheelFD.friction = 0.9;
 	var wheelBack = world.createDynamicBody(Vec2(-1.0, 0.35));
@@ -300,7 +313,8 @@ world.on('post-solve', function (contact, impulse) {
 		frequencyHz: HZ,
 		dampingRatio: ZETA
 	}, car, wheelFront, wheelFront.getPosition(), Vec2(0.0, 1.0)));
-	testbed.keydown = function() {
+	*/
+	/*testbed.keydown = function() {
 		if (testbed.activeKeys.down) {
 			HZ = Math.max(0.0, HZ - 1.0);
 			springBack.setSpringFrequencyHz(HZ);
@@ -310,9 +324,9 @@ world.on('post-solve', function (contact, impulse) {
 			springBack.setSpringFrequencyHz(HZ);
 			springFront.setSpringFrequencyHz(HZ);
 		}
-	};
+	};*/
 	testbed.step = function() {
-		if (testbed.activeKeys.right && testbed.activeKeys.left) {
+		/*if (testbed.activeKeys.right && testbed.activeKeys.left) {
 			springBack.setMotorSpeed(0);
 			springBack.enableMotor(true);
 		} else if (testbed.activeKeys.right) {
@@ -324,7 +338,7 @@ world.on('post-solve', function (contact, impulse) {
 		} else {
 			springBack.setMotorSpeed(0);
 			springBack.enableMotor(false);
-		}
+		}*/
 		if (testbed.activeKeys.right && testbed.activeKeys.left) {
 			for(var j=0;j<wheelJoints.length;j++){
 			wheelJoints[j].setMotorSpeed(0);
@@ -350,7 +364,7 @@ world.on('post-solve', function (contact, impulse) {
 			}
 		}
 
-		var cp = car.getPosition();
+		var cp = boxCar.getPosition();
 		if (cp.x > testbed.x + 10) {
 			testbed.x = cp.x - 10;
 		} else if (cp.x < testbed.x - 10) {
