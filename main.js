@@ -264,11 +264,9 @@ planck.testbed('Car', function (testbed) {
 		}
 
 		var cp = boxCar.getPosition();
-		if (cp.x > testbed.x + 10) {
-			testbed.x = cp.x - 10;
-		} else if (cp.x < testbed.x - 10) {
-			testbed.x = cp.x + 10;
-		}
+		testbed.x = cp.x;
+		testbed.y = -cp.y;
+		
 		if (partsToBreak.length > 0) {
 			for (var i = 0; i < partsToBreak.length; i++) {
 				Break(partsToBreak[i]);
