@@ -163,7 +163,7 @@ Events.on(engine, 'beforeUpdate', function(event) {
 	}
 	var px = 400 + 100 * Math.sin(counter);
 	var x = currentPoint.x + 50;
-	if (car.position.x > x - 400) {
+	if (car.position.x > x - 1000) {
 		var nextPoint = {
 			x: x,
 			y: terrain(x - startIndex * 50)
