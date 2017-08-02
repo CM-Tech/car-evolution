@@ -134,6 +134,27 @@ planck.testbed('Car', function (testbed) {
 		Vec2(-1.5, 0.2)
 	]), 1.0);
 
+	/*var boxCar = world.createDynamicBody(Vec2(0.0, 5.0));
+	boxCar.createFixture(pl.Polygon([
+		Vec2(-1.5, -0.5),
+		Vec2(1.5, -0.5),
+		Vec2(1.5, 0.0),
+		Vec2(0.0, 0.9),
+		Vec2(-1.15, 0.9),
+		Vec2(-1.5, 0.2)
+	]), 1.0);*/
+	var carData=new Car();
+	// Breakable dynamic body
+  var boxCar = world.createDynamicBody({
+    position : Vec2(0.0, 5.0)
+  });
+
+  var m_shape1 = pl.Box(0.5, 0.5, Vec2(-0.5, 0.0), 0.0);
+  var m_piece1 = boxCar.createFixture(m_shape1, 1.0);
+
+  var m_shape2 = pl.Box(0.5, 0.5, Vec2(0.5, 0.0), 0.0);
+  var m_piece2 = boxCar.createFixture(m_shape2, 1.0);
+
 	var wheelFD = {};
 	wheelFD.density = 1.0;
 	wheelFD.friction = 0.9;
