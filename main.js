@@ -16,7 +16,7 @@ var defaultCategory = 0x0001,
 // create engine
 var engine = Engine.create(),
 	world = engine.world;
-engine.timing.timeScale=2;
+//engine.timing.timeScale=1;
 // create renderer
 var render = Render.create({
 	element: document.body,
