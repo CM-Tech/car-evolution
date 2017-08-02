@@ -1,4 +1,4 @@
-function car(data){
+function Car(data){
     if(data){
         this.data=data;
     }else{
