@@ -31,7 +31,8 @@ var render = Render.create({
 Render.run(render);
 // create runner
 var runner = Runner.create();
-Runner.run(runner, engine);
+window.setInterval(function(){Engine.update(engine)},0)
+//Runner.run(runner, engine);
 // add bodies
 var body = Bodies.rectangle(400, 500, 200, 60, {
 		isStatic: true,
