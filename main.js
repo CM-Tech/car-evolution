@@ -155,7 +155,7 @@ var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
 				if(wheelData.o){
 				//console.log(boxCar.getWorldCenter(),center_vec);
 				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle)*carData.data.lengths[i]*scale, Math.sin(p_angle)*carData.data.lengths[i]*scale).add(center_vec));
-	wheel.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
+	var w_fix=wheel.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
 
 	var spring = world.createJoint(pl.RevoluteJoint({
 		motorSpeed: 0.0,
@@ -168,11 +168,12 @@ var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
 	//boxCar.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
 	wheels.push(wheel);
 	
+	
 			}
 			}
 p_angle=new_p_angle;
   }
-  var partsToBreak=[];
+  /*var partsToBreak=[];
 world.on('post-solve', function (contact, impulse) {
 	window.contact=contact;
 	var a=contact;
@@ -196,27 +197,15 @@ world.on('post-solve', function (contact, impulse) {
 		//console.log("break",a);
 		partsToBreak.push(m_piece);
 	}
+		}
+
+	}a=a.m_next;	
+	}
+}
+		);
 	window.boxCar = boxCar;
 
-	var connectedParts = [];
-	var connectedShapes = [];
-	var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
-	var m_piece_base = boxCar.createFixture(m_shape_base, 1.0);
-	//create car from data
-	var p_angle = 0;
-	var scale = 1 / 10;
-	for (var i = 0; i < carData.bodyParts; i++) {
-		var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
-		var m_shape = pl.Polygon([
-			Vec2(0, 0),
-			Vec2(Math.cos(p_angle) * carData.data.lengths[i] * scale, Math.sin(p_angle) * carData.data.lengths[i] * scale),
-			Vec2(Math.cos(new_p_angle) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale, Math.sin(new_p_angle) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale),
-		]);
-		p_angle = new_p_angle;
-		var m_piece = boxCar.createFixture(m_shape, 1.0);
-		connectedParts.push(m_piece);
-		connectedShapes.push(m_shape);
-	}
+	*/
 	var partsToBreak = [];
 	world.on('post-solve', function(contact, impulse) {
 		window.contact = contact;
@@ -260,8 +249,8 @@ world.on('post-solve', function (contact, impulse) {
 			var center = body1.getWorldCenter();
 			console.log("M", m_piece);
 			boxCar.destroyFixture(m_piece);
-			boxCar.destroyFixture(f1);
-			m_piece_base = boxCar.createFixture(f1s, 1.0);
+			//boxCar.destroyFixture(f1);
+			//m_piece_base = boxCar.createFixture(f1s, 1.0);
 			m_piece = null;
 			var body2 = world.createBody({
 				type: 'dynamic',
