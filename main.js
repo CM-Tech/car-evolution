@@ -37,7 +37,7 @@ var body = Bodies.rectangle(400, 500, 200, 60, {
 	}),
 	size = 50,
 	counter = -1;
-var car = Bodies.rectangle(400, -50, 130, 30, {
+var car = Bodies.rectangle(400, -50, 150, 30, {
 	collisionFilter: {
 		category: carCategory
 	},
@@ -52,7 +52,7 @@ var wheels = [Bodies.circle(340, -50, 30, {
 		mask: defaultCategory
 	},
 	render: {
-		fillStyle: "#424242",
+		fillStyle: "rgba(66, 66, 66,0.5)",
 		strokeStyle: "#212121"
 	},
 	friction: 1,
@@ -63,7 +63,7 @@ var wheels = [Bodies.circle(340, -50, 30, {
 		mask: defaultCategory
 	},
 	render: {
-		fillStyle: "#424242",
+		fillStyle: "rgba(66, 66, 66,0.5)",
 		strokeStyle: "#212121"
 	},
 	friction: 1,
