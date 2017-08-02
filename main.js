@@ -18,7 +18,7 @@
  */
 
 // This is a fun demo that shows off the wheel joint
-planck.testbed('Car', function(testbed) {
+planck.testbed('Car', function (testbed) {
 	testbed.speed = 1.3;
 	testbed.hz = 50;
 	var pl = planck,
@@ -109,124 +109,124 @@ planck.testbed('Car', function(testbed) {
 	var carData = new Car();
 	// Breakable dynamic body
 	var m_velocity;
-  var m_angularVelocity;
-  var boxCar = world.createDynamicBody({
-    position : Vec2(0.0, 20.0)
-  });
+	var m_angularVelocity;
+	var boxCar = world.createDynamicBody({
+		position: Vec2(0.0, 20.0)
+	});
 
-window.boxCar=boxCar;
+	window.boxCar = boxCar;
 
-  /*var m_shape1 =window.m_shape1= pl.Box(0.5, 0.5, Vec2(-0.5, 0.0), 0.0);
-  var m_piece1 = boxCar.createFixture(m_shape1, 1.0);
-
-  var m_shape2 = pl.Box(0.5, 0.5, Vec2(0.5, 0.0), 0.0);
-  var m_piece2 = boxCar.createFixture(m_shape2, 1.0);*/
-  var wheelFD = {};
+	/*var m_shape1 =window.m_shape1= pl.Box(0.5, 0.5, Vec2(-0.5, 0.0), 0.0);
+	var m_piece1 = boxCar.createFixture(m_shape1, 1.0);
+  
+	var m_shape2 = pl.Box(0.5, 0.5, Vec2(0.5, 0.0), 0.0);
+	var m_piece2 = boxCar.createFixture(m_shape2, 1.0);*/
+	var wheelFD = {};
 	wheelFD.density = 1.0;
 	wheelFD.friction = 0.9;
 
-	
 
-var connectedParts=[];
-var connectedPartsI=[];
-var connectedPartsOld=[];
-var connectedShapes=[];
-var wheels=[];
-var wheelsF=[];
-var wheelJoints=[];
-var connectedPartsWheels=[];
-//var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
-		  //var m_piece_base =window.base= boxCar.createFixture(m_shape_base, 1.0);
-			var center_vec=boxCar.getWorldCenter().clone();
-			//create car from data
-			var p_angle=0;
-			var scale=1/10;
-  for(var i=0;i<carData.bodyParts;i++){
-	  //p_angle+=carData.data.angleWeights[i]/carData.totalAngleWeights()*Math.PI*2;
-	  var new_p_angle=p_angle+carData.data.angleWeights[i]/carData.totalAngleWeights()*Math.PI*2;
-	  var m_shape = pl.Polygon([
-		Vec2(0, 0),
-		Vec2(Math.cos(p_angle+0)*carData.data.lengths[i]*scale, Math.sin(p_angle+0)*carData.data.lengths[i]*scale),
-		Vec2(Math.cos(new_p_angle+0)*carData.data.lengths[(i+1)%carData.data.lengths.length]*scale, Math.sin(new_p_angle+0)*carData.data.lengths[(i+1)%carData.data.lengths.length]*scale),
-	]);
-	
-		  var m_piece = boxCar.createFixture(m_shape, 1.0);
-		  connectedParts.push(m_piece);
-			 connectedPartsI.push(i);
-			connectedShapes.push(m_shape);
-			var wheelsThere=carData.wheelsAt(i);
-			var totWheelAdditions=[];
-			for(var j=0;j<wheelsThere.length;j++){
-				var wheelData=wheelsThere[j];
-				if(wheelData.o){
+
+	var connectedParts = [];
+	var connectedPartsI = [];
+	var connectedPartsOld = [];
+	var connectedShapes = [];
+	var wheels = [];
+	var wheelsF = [];
+	var wheelJoints = [];
+	var connectedPartsWheels = [];
+	//var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
+	//var m_piece_base =window.base= boxCar.createFixture(m_shape_base, 1.0);
+	var center_vec = boxCar.getWorldCenter().clone();
+	//create car from data
+	var p_angle = 0;
+	var scale = 1 / 10;
+	for (var i = 0; i < carData.bodyParts; i++) {
+		//p_angle+=carData.data.angleWeights[i]/carData.totalAngleWeights()*Math.PI*2;
+		var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
+		var m_shape = pl.Polygon([
+			Vec2(0, 0),
+			Vec2(Math.cos(p_angle + 0) * carData.data.lengths[i] * scale, Math.sin(p_angle + 0) * carData.data.lengths[i] * scale),
+			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale),
+		]);
+
+		var m_piece = boxCar.createFixture(m_shape, 1.0);
+		connectedParts.push(m_piece);
+		connectedPartsI.push(i);
+		connectedShapes.push(m_shape);
+		var wheelsThere = carData.wheelsAt(i);
+		var totWheelAdditions = [];
+		for (var j = 0; j < wheelsThere.length; j++) {
+			var wheelData = wheelsThere[j];
+			if (wheelData.o) {
 				//console.log(boxCar.getWorldCenter(),center_vec);
-				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle)*carData.data.lengths[i]*scale, Math.sin(p_angle)*carData.data.lengths[i]*scale).add(center_vec));
-	var w_fix=wheel.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
+				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * scale, Math.sin(p_angle) * carData.data.lengths[i] * scale).add(center_vec));
+				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * scale), wheelFD);
 
-	var spring = world.createJoint(pl.RevoluteJoint({
-		motorSpeed: 0.0,
-		maxMotorTorque: 200.0,
-		enableMotor: true,
-		frequencyHz: 4,
-		dampingRatio: 0.99
-	},m_piece.m_body, wheel,wheel.getWorldCenter(),Vec2( 0,1)));
-	wheelJoints.push(spring);
-	totWheelAdditions.push(spring);
-	//boxCar.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
-	wheels.push(wheel);
-	wheelsF.push(w_fix);
-	
-	
+				var spring = world.createJoint(pl.RevoluteJoint({
+					motorSpeed: 0.0,
+					maxMotorTorque: 200.0,
+					enableMotor: true,
+					frequencyHz: 4,
+					dampingRatio: 0.99
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(0, 1)));
+				wheelJoints.push(spring);
+				totWheelAdditions.push(spring);
+				//boxCar.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
+				wheels.push(wheel);
+				wheelsF.push(w_fix);
+
+
 			}
-			}
+		}
 		connectedPartsWheels.push([totWheelAdditions]);
-p_angle=new_p_angle;
+		p_angle = new_p_angle;
+	}
+	/*var partsToBreak=[];
+  world.on('post-solve', function (contact, impulse) {
+	  window.contact=contact;
+	  var a=contact;
+	  while(a){
+	  for(var j=0;j<connectedParts.length;j++){
+		  var m_piece=connectedParts[j];
+		  if(a.m_fixtureA==m_piece||a.m_fixtureB==m_piece){
+  	
+	  var partBreak=false;
+	  var impulseSum=0;
+	  for(var i=0;i<a.v_points.length;i++){
+		  //impulseSum+=a.v_points[i].normalImpulse;
+		  if(a.v_points[i].normalImpulse>0.25){
+			  partBreak=true;
+		  }
+	  }
+	  if(impulseSum>0.2){
+			  //partBreak=true;
+		  }
+	  if(partBreak){
+		  //console.log("break",a);
+		  partsToBreak.push(m_piece);
+	  }
+		  }
+  
+	  }a=a.m_next;	
+	  }
   }
-  /*var partsToBreak=[];
-world.on('post-solve', function (contact, impulse) {
-	window.contact=contact;
-	var a=contact;
-	while(a){
-	for(var j=0;j<connectedParts.length;j++){
-		var m_piece=connectedParts[j];
-		if(a.m_fixtureA==m_piece||a.m_fixtureB==m_piece){
-	
-	var partBreak=false;
-	var impulseSum=0;
-	for(var i=0;i<a.v_points.length;i++){
-		//impulseSum+=a.v_points[i].normalImpulse;
-		if(a.v_points[i].normalImpulse>0.25){
-			partBreak=true;
-		}
-	}
-	if(impulseSum>0.2){
-			//partBreak=true;
-		}
-	if(partBreak){
-		//console.log("break",a);
-		partsToBreak.push(m_piece);
-	}
-		}
-
-	}a=a.m_next;	
-	}
-}
-		);
-	window.boxCar = boxCar;
-
-	*/
+		  );
+	  window.boxCar = boxCar;
+  
+	  */
 	var partsToBreak = [];
-	world.on('post-solve', function(contact, impulse) {
+	world.on('post-solve', function (contact, impulse) {
 		window.contact = contact;
 		var a = contact;
 		while (a) {
 			for (var j = 0; j < connectedParts.length; j++) {
 				var m_piece = connectedParts[j];
-				if ((a.m_fixtureA == m_piece&& connectedPartsOld.indexOf(a.m_fixtureB)<0&& wheelsF.indexOf(a.m_fixtureB)<0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA)<0&& wheelsF.indexOf(a.m_fixtureA)<0)) {
+				if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 					var partBreak = false;
 					var impulseSum = 0;
 					for (var i = 0; i < a.v_points.length; i++) {
-						if (a.v_points[i].normalImpulse >50) partBreak = true;
+						if (a.v_points[i].normalImpulse > 50) partBreak = true;
 						//console.log(a.v_points[i].normalImpulse);
 					}
 					if (partBreak) partsToBreak.push(m_piece);
@@ -260,19 +260,19 @@ world.on('post-solve', function (contact, impulse) {
 			window.body1 = body1;
 			var center = body1.getWorldCenter();
 			console.log("M", m_piece);
-			if(m_wheels[1]){
-			for(var j=0;j<m_wheels[1].length;j++){
-			world.destroyJoint(m_wheels[1][j]);
+			if (m_wheels[1]) {
+				for (var j = 0; j < m_wheels[1].length; j++) {
+					world.destroyJoint(m_wheels[1][j]);
+				}
 			}
-			}
-		var prevIndexInList=connectedPartsI.indexOf((m_index+carData.bodyParts-1)%carData.bodyParts);
-		if(prevIndexInList>=0){
-			connectedPartsWheels[prevIndexInList][1]=m_wheels[0];
-			
-			}else{
-				for(var j=0;j<m_wheels[0].length;j++){
-			world.destroyJoint(m_wheels[0][j]);
-			}
+			var prevIndexInList = connectedPartsI.indexOf((m_index + carData.bodyParts - 1) % carData.bodyParts);
+			if (prevIndexInList >= 0) {
+				connectedPartsWheels[prevIndexInList][1] = m_wheels[0];
+
+			} else {
+				for (var j = 0; j < m_wheels[0].length; j++) {
+					world.destroyJoint(m_wheels[0][j]);
+				}
 			}
 			boxCar.destroyFixture(m_piece);
 			//boxCar.destroyFixture(f1);
@@ -339,7 +339,7 @@ world.on('post-solve', function (contact, impulse) {
 			springFront.setSpringFrequencyHz(HZ);
 		}
 	};*/
-	testbed.step = function() {
+	testbed.step = function () {
 		/*if (testbed.activeKeys.right && testbed.activeKeys.left) {
 			springBack.setMotorSpeed(0);
 			springBack.enableMotor(true);
@@ -354,27 +354,27 @@ world.on('post-solve', function (contact, impulse) {
 			springBack.enableMotor(false);
 		}*/
 		if (testbed.activeKeys.right && testbed.activeKeys.left) {
-			for(var j=0;j<wheelJoints.length;j++){
-			wheelJoints[j].setMotorSpeed(0);
-			wheelJoints[j].enableMotor(true);
+			for (var j = 0; j < wheelJoints.length; j++) {
+				wheelJoints[j].setMotorSpeed(0);
+				wheelJoints[j].enableMotor(true);
 			}
 
 		} else if (testbed.activeKeys.right) {
-			for(var j=0;j<wheelJoints.length;j++){
-			wheelJoints[j].setMotorSpeed(-SPEED);
-			wheelJoints[j].enableMotor(true);
+			for (var j = 0; j < wheelJoints.length; j++) {
+				wheelJoints[j].setMotorSpeed(-SPEED);
+				wheelJoints[j].enableMotor(true);
 			}
 
 		} else if (testbed.activeKeys.left) {
-			for(var j=0;j<wheelJoints.length;j++){
-			wheelJoints[j].setMotorSpeed(SPEED);
-			wheelJoints[j].enableMotor(true);
+			for (var j = 0; j < wheelJoints.length; j++) {
+				wheelJoints[j].setMotorSpeed(SPEED);
+				wheelJoints[j].enableMotor(true);
 			}
 
 		} else {
-			for(var j=0;j<wheelJoints.length;j++){
-			wheelJoints[j].setMotorSpeed(0);
-			wheelJoints[j].enableMotor(false);
+			for (var j = 0; j < wheelJoints.length; j++) {
+				wheelJoints[j].setMotorSpeed(0);
+				wheelJoints[j].enableMotor(false);
 			}
 		}
 
