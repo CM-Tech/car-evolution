@@ -183,8 +183,18 @@ var connectedParts=[];
 var connectedShapes=[];
 var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
 		  var m_piece_base = boxCar.createFixture(m_shape_base, 1.0);
-  for(var i=0;i<6;i++){
-	  var m_shape = pl.Box(0.5, 0.5, Vec2((i-2.5), 0.0), 0.0);
+			//create car from data
+			var p_angle=0;
+			var scale=1/10;
+  for(var i=0;i<carData.bodyParts;i++){
+	  //p_angle+=carData.data.angleWeights[i]/carData.totalAngleWeights()*Math.PI*2;
+	  var new_p_angle=p_angle+carData.data.angleWeights[i]/carData.totalAngleWeights()*Math.PI*2;
+	  var m_shape = pl.Polygon([
+		Vec2(0, 0),
+		Vec2(Math.cos(p_angle)*carData.data.lengths[i]*scale, Math.sin(p_angle)*carData.data.lengths[i]*scale),
+		Vec2(Math.cos(new_p_angle)*carData.data.lengths[(i+1)%carData.data.lengths.length]*scale, Math.sin(new_p_angle)*carData.data.lengths[(i+1)%carData.data.lengths.length]*scale),
+	]);
+	p_angle=new_p_angle;
 		  var m_piece = boxCar.createFixture(m_shape, 1.0);
 		  connectedParts.push(m_piece);
 			connectedShapes.push(m_shape);
