@@ -29,7 +29,7 @@ planck.testbed('Car', function (testbed) {
 	var world = new pl.World({
 		gravity: Vec2(0, -10)
 	});
-
+window.world=world;
 	// wheel spring settings
 	var HZ = 4.0;
 	var ZETA = 0.7;
@@ -145,16 +145,162 @@ planck.testbed('Car', function (testbed) {
 	]), 1.0);*/
 	var carData=new Car();
 	// Breakable dynamic body
+	var m_velocity;
+  var m_angularVelocity;
   var boxCar = world.createDynamicBody({
-    position : Vec2(0.0, 5.0)
+    position : Vec2(0.0, 20.0)
   });
+function fixedDestroyFixture(parent,fixture){
+	var fix=parent.m_fixtureList;
+	if(fix==fixture){
+		var temp=fix;
+		var tempFix=fix.m_next;
+		parent.m_fixtureList=fix.m_next;
+		parent.destroyFixture(temp);
+		}else{
+		
+	while(fix.m_next){
+		if(fix.m_next==fixture){
+var temp=fix.m_next;
+		var tempFix=fix.m_next.m_next;
+		fix.m_next==fix.m_next.m_next;
+		parent.destroyFixture(temp);
+		break;
+		}
+		fix=fix.m_next;
+	}
+		}
+}
+window.boxCar=boxCar;
 
-  var m_shape1 = pl.Box(0.5, 0.5, Vec2(-0.5, 0.0), 0.0);
+  /*var m_shape1 =window.m_shape1= pl.Box(0.5, 0.5, Vec2(-0.5, 0.0), 0.0);
   var m_piece1 = boxCar.createFixture(m_shape1, 1.0);
 
   var m_shape2 = pl.Box(0.5, 0.5, Vec2(0.5, 0.0), 0.0);
-  var m_piece2 = boxCar.createFixture(m_shape2, 1.0);
+  var m_piece2 = boxCar.createFixture(m_shape2, 1.0);*/
+var connectedParts=[];
+var connectedShapes=[];
+var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
+		  var m_piece_base = boxCar.createFixture(m_shape_base, 1.0);
+  for(var i=0;i<6;i++){
+	  var m_shape = pl.Box(0.5, 0.5, Vec2((i-2.5), 0.0), 0.0);
+		  var m_piece = boxCar.createFixture(m_shape, 1.0);
+		  connectedParts.push(m_piece);
+			connectedShapes.push(m_shape);
+  }
+  var partsToBreak=[];
+world.on('post-solve', function (contact, impulse) {
+	window.contact=contact;
+	var a=contact;
+	while(a){
+	for(var j=0;j<connectedParts.length;j++){
+		var m_piece=connectedParts[j];
+		if(a.m_fixtureA==m_piece||a.m_fixtureB==m_piece){
+	
+	var partBreak=false;
+	var impulseSum=0;
+	for(var i=0;i<a.v_points.length;i++){
+		//impulseSum+=a.v_points[i].normalImpulse;
+		if(a.v_points[i].normalImpulse>0.25){
+			partBreak=true;
+		}
+	}
+	if(impulseSum>0.2){
+			//partBreak=true;
+		}
+	if(partBreak){
+		//console.log("break",a);
+		partsToBreak.push(m_piece);
+	}
+}
+	}
+a=a.m_next;
+	}
+	
+  });
+//Break can only be called in step
+function Break(m_piece) {
+	if(connectedParts.indexOf(m_piece)>=0){
+		//if(connectedParts.length<3){
+			if(m_piece==boxCar.m_fixtureList){
+				//m_piece=connectedParts[(connectedParts.indexOf(m_piece)+1)%connectedParts.length];
+				console.log("switch");
+			}
+		//}
+		var mIndex=connectedParts.indexOf(m_piece);
+		var m_shape=connectedShapes.splice(connectedParts.indexOf(m_piece),1)[0];
+			connectedParts.splice(connectedParts.indexOf(m_piece),1);
+	// Create two bodies from one.
+	var f1=m_piece_base;//connectedParts[mIndex%connectedParts.length];
+	if(!f1.m_shape){
+		return;
+	}
+	var f1s=f1.m_shape;
+	var index=connectedParts.indexOf(f1);
+	if(!f1.getBody()){
+		return;
+	}
+	var body1 = f1.getBody();
+	window.body1=body1;
+    var center = body1.getWorldCenter();
+console.log("M",m_piece);
+//fixedDestroyFixture(boxCar,m_piece);
+	boxCar.destroyFixture(m_piece);
+	boxCar.destroyFixture(f1);
+	//fixedDestroyFixture(boxCar,f1);
+	m_piece_base=boxCar.createFixture(f1s, 1.0);
+	//connectedParts[index]=boxCar.createFixture(f1s, 1.0);
+	//connectedShapes[index]=f1s;
+	m_piece = null;
 
+    var body2 = world.createBody({
+      type : 'dynamic',
+      position : body1.getPosition(),
+      angle : body1.getAngle()
+    });
+//console.log(body1,body1.getPosition(),body2);
+    m_piece = body2.createFixture(m_shape, 1.0);
+
+    // Compute consistent velocities for new bodies based on
+    // cached velocity.
+    var center1 = body1.getWorldCenter();
+    var center2 = body2.getWorldCenter();
+
+    var velocity1 = Vec2.add(m_velocity, Vec2.cross(m_angularVelocity, Vec2.sub(center1, center)));
+    var velocity2 = Vec2.add(m_velocity, Vec2.cross(m_angularVelocity, Vec2.sub(center2, center)));
+
+    console.log(velocity1, velocity2);
+
+    body1.setAngularVelocity(m_angularVelocity);
+    body1.setLinearVelocity(velocity1);
+
+    body2.setAngularVelocity(m_angularVelocity);
+	body2.setLinearVelocity(velocity2);
+	}
+  }
+world.on('begin-contact',function(a){
+	
+	
+/*
+if(a.m_fixtureA==m_piece2||a.m_fixtureB==m_piece2){
+	console.log("p2 collide",a);
+	var partBreak=false;
+	var impulseSum=0;
+	for(var i=0;i<a.v_points.length;i++){
+		//impulseSum+=a.v_points[i].normalImpulse;
+		if(a.v_points[i].normalImpulse>0.25){
+			partBreak=true;
+		}
+	}
+	if(impulseSum>0.2){
+			//partBreak=true;
+		}
+	if(partBreak){
+		console.log("p2 break",a);
+		partsToBreak.push(m_piece2);
+	}
+}*/
+});
 	var wheelFD = {};
 	wheelFD.density = 1.0;
 	wheelFD.friction = 0.9;
@@ -219,6 +365,14 @@ planck.testbed('Car', function (testbed) {
 		} else if (cp.x < testbed.x - 10) {
 			testbed.x = cp.x + 10;
 		}
+		if(partsToBreak.length>0){
+			for(var i=0;i<partsToBreak.length;i++){
+			Break(partsToBreak[i]);
+			}
+			partsToBreak=[];
+		}
+		m_velocity = boxCar.getLinearVelocity();
+      	m_angularVelocity = boxCar.getAngularVelocity();
 	};
 
 	testbed.info('←/→: Accelerate car, ↑/↓: Change spring frequency');
