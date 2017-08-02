@@ -23,7 +23,6 @@ var render = Render.create({
 	options: {
 		width: 1200,
 		height: 1350 / 2,
-		//showVelocity: true,
 		wireframes: false
 	}
 });
@@ -100,28 +99,17 @@ for (var i = 0; i < wheels.length; i++) {
 	});
 	wheelConstraints.push(constraint);
 }
-World.add(world, [
-	//body, 
-	//stack,
-	car,
-	// walls
-	//Bodies.rectangle(400, 0, 800, 50, { isStatic: true }),
-	//Bodies.rectangle(400, 600, 800, 50, { isStatic: true }),
-	//Bodies.rectangle(800, 300, 50, 600, { isStatic: true }),
-	//Bodies.rectangle(0, 300, 50, 600, { isStatic: true })
-]);
+World.add(world, car);
 World.add(world, wheels);
 World.add(world, wheelConstraints);
 
 function terrain(x) {
 	var p = 1.2;
-	return noise.simplex2(Math.pow(x, p) / Math.pow(1000, p), 0) * 200; //-(Math.sin(x/400)+Math.sin(x/200)/2+Math.sin(x/100)/4)*100;
+	return -(Math.sin(x / 400) + Math.sin(x / 200) / 2 + Math.sin(x / 100) / 4) * 100;
 }
 var startIndex = 15;
 for (var i = -40; i < startIndex; i++) {
 	var x = i * 50 + 25;
-	//var nextPoint={x:x,y:terrain(x)};
-	//var delta={x:nextPoint.x-currentPoint.x,y:nextPoint.y-currentPoint.y};
 	var rect = Bodies.rectangle(x, 0, 50 + 10, 10, {
 		isStatic: true,
 		chamfer: {
@@ -129,7 +117,7 @@ for (var i = -40; i < startIndex; i++) {
 			quality: 12
 		}
 	});
-	World.add(world, [rect]);
+	World.add(world, rect);
 }
 var currentPoint = {
 	x: startIndex * 50,
@@ -155,7 +143,7 @@ for (var i = startIndex + 1; i < 20; i++) {
 		frictionStatic: 0.5
 	});
 	Body.rotate(rect, Math.atan2(delta.y, delta.x));
-	World.add(world, [rect]);
+	World.add(world, rect);
 	currentPoint = nextPoint;
 }
 Events.on(engine, 'beforeUpdate', function(event) {
@@ -164,7 +152,6 @@ Events.on(engine, 'beforeUpdate', function(event) {
 		return;
 	}
 	for (var i = 0; i < wheels.length; i++) {
-		//wheels[i].constraintImpulse.angle = Math.PI;
 		if (wheels[1].angularSpeed < 0.5) {
 			wheels[i].torque += 0.5;
 		}
@@ -190,12 +177,9 @@ Events.on(engine, 'beforeUpdate', function(event) {
 			frictionStatic: 0.5
 		});
 		Body.rotate(rect, Math.atan2(delta.y, delta.x));
-		World.add(world, [rect]);
+		World.add(world, rect);
 		currentPoint = nextPoint;
 	}
-	// body is static so must manually update velocity for friction to work
-	//Body.setVelocity(body, { x: px - body.position.x, y: 0 });
-	//Body.setPosition(body, { x: px, y: body.position.y });
 });
 Events.on(render, 'beforeRender', function(event) {
 	var viewCenter = car.position;
@@ -211,23 +195,6 @@ Events.on(render, 'beforeRender', function(event) {
 		}
 	};
 });
-// add mouse control
-/*var mouse = Mouse.create(render.canvas),
-    mouseConstraint = MouseConstraint.create(engine, {
-        mouse: mouse,
-        constraint: {
-            stiffness: 0.2,
-            render: {
-                visible: false
-            }
-        }
-    });
-
-World.add(world, mouseConstraint);
-
-// keep the mouse in sync with rendering
-render.mouse = mouse;
-*/
 // fit the render viewport to the scene
 var viewCenter = {
 	x: 0,
@@ -244,8 +211,3 @@ render.bounds = {
 		y: viewCenter.y + 1350 / 2 / 2
 	}
 };
-// context for MatterTools.Demo
-function stop() {
-	Matter.Render.stop(render);
-	Matter.Runner.stop(runner);
-}
