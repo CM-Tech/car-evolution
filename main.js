@@ -92,19 +92,6 @@ planck.testbed('Car', function (testbed) {
 	world.createDynamicBody(Vec2(230.0, 3.5)).createFixture(box, 0.5);
 	world.createDynamicBody(Vec2(230.0, 4.5)).createFixture(box, 0.5);
 	// Car
-	/*var car = world.createDynamicBody(Vec2(0.0, 1.0));
-	car.createFixture(pl.Polygon([
-		Vec2(-1.5, -0.5),
-		Vec2(1.5, -0.5),
-		Vec2(1.5, 0.0),
-		Vec2(0.0, 0.9),
-		Vec2(-1.15, 0.9),
-		Vec2(-1.5, 0.2)
-	]), 1.0);
-	car.render = {
-		fill: 'rgba(255, 51, 0, 0.2)',
-		stroke: '#ffffff'
-	};*/
 
 	var carData = new Car();
 	// Breakable dynamic body
@@ -116,16 +103,9 @@ planck.testbed('Car', function (testbed) {
 
 	window.boxCar = boxCar;
 
-	/*var m_shape1 =window.m_shape1= pl.Box(0.5, 0.5, Vec2(-0.5, 0.0), 0.0);
-	var m_piece1 = boxCar.createFixture(m_shape1, 1.0);
-  
-	var m_shape2 = pl.Box(0.5, 0.5, Vec2(0.5, 0.0), 0.0);
-	var m_piece2 = boxCar.createFixture(m_shape2, 1.0);*/
 	var wheelFD = {};
 	wheelFD.density = 1.0;
 	wheelFD.friction = 0.9;
-
-
 
 	var connectedParts = [];
 	var connectedPartsI = [];
@@ -135,14 +115,11 @@ planck.testbed('Car', function (testbed) {
 	var wheelsF = [];
 	var wheelJoints = [];
 	var connectedPartsWheels = [];
-	//var m_shape_base = pl.Circle(0.1, Vec2(0, 0.0), 0.0);
-	//var m_piece_base =window.base= boxCar.createFixture(m_shape_base, 1.0);
 	var center_vec = boxCar.getWorldCenter().clone();
 	//create car from data
 	var p_angle = 0;
 	var scale = 1 / 10;
 	for (var i = 0; i < carData.bodyParts; i++) {
-		//p_angle+=carData.data.angleWeights[i]/carData.totalAngleWeights()*Math.PI*2;
 		var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
 		var m_shape = pl.Polygon([
 			Vec2(0, 0),
@@ -159,7 +136,6 @@ planck.testbed('Car', function (testbed) {
 		for (var j = 0; j < wheelsThere.length; j++) {
 			var wheelData = wheelsThere[j];
 			if (wheelData.o) {
-				//console.log(boxCar.getWorldCenter(),center_vec);
 				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * scale, Math.sin(p_angle) * carData.data.lengths[i] * scale).add(center_vec));
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * scale), wheelFD);
 
@@ -172,7 +148,6 @@ planck.testbed('Car', function (testbed) {
 				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(0, 1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
-				//boxCar.createFixture(pl.Circle(wheelData.r*scale), wheelFD);
 				wheels.push(wheel);
 				wheelsF.push(w_fix);
 
@@ -182,39 +157,6 @@ planck.testbed('Car', function (testbed) {
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
-	/*var partsToBreak=[];
-  world.on('post-solve', function (contact, impulse) {
-	  window.contact=contact;
-	  var a=contact;
-	  while(a){
-	  for(var j=0;j<connectedParts.length;j++){
-		  var m_piece=connectedParts[j];
-		  if(a.m_fixtureA==m_piece||a.m_fixtureB==m_piece){
-  	
-	  var partBreak=false;
-	  var impulseSum=0;
-	  for(var i=0;i<a.v_points.length;i++){
-		  //impulseSum+=a.v_points[i].normalImpulse;
-		  if(a.v_points[i].normalImpulse>0.25){
-			  partBreak=true;
-		  }
-	  }
-	  if(impulseSum>0.2){
-			  //partBreak=true;
-		  }
-	  if(partBreak){
-		  //console.log("break",a);
-		  partsToBreak.push(m_piece);
-	  }
-		  }
-  
-	  }a=a.m_next;	
-	  }
-  }
-		  );
-	  window.boxCar = boxCar;
-  
-	  */
 	var partsToBreak = [];
 	world.on('post-solve', function (contact, impulse) {
 		window.contact = contact;
@@ -227,7 +169,6 @@ planck.testbed('Car', function (testbed) {
 					var impulseSum = 0;
 					for (var i = 0; i < a.v_points.length; i++) {
 						if (a.v_points[i].normalImpulse > 50) partBreak = true;
-						//console.log(a.v_points[i].normalImpulse);
 					}
 					if (partBreak) partsToBreak.push(m_piece);
 				}
@@ -247,7 +188,7 @@ planck.testbed('Car', function (testbed) {
 			var m_wheels = connectedPartsWheels.splice(connectedParts.indexOf(m_piece), 1)[0];
 			connectedParts.splice(connectedParts.indexOf(m_piece), 1);
 			// Create two bodies from one.
-			var f1 = boxCar.m_fixtureList;//m_piece_base;
+			var f1 = boxCar.m_fixtureList;
 			if (!f1.m_shape) {
 				return;
 			}
@@ -275,8 +216,6 @@ planck.testbed('Car', function (testbed) {
 				}
 			}
 			boxCar.destroyFixture(m_piece);
-			//boxCar.destroyFixture(f1);
-			//m_piece_base = boxCar.createFixture(f1s, 1.0);
 			m_piece = null;
 			var body2 = world.createBody({
 				type: 'dynamic',
@@ -298,61 +237,7 @@ planck.testbed('Car', function (testbed) {
 			body2.setLinearVelocity(velocity2);
 		}
 	}
-	/*var wheelFD = {};
-	wheelFD.density = 1.0;
-	wheelFD.friction = 0.9;
-	var wheelBack = world.createDynamicBody(Vec2(-1.0, 0.35));
-	wheelBack.createFixture(pl.Circle(0.4), wheelFD);
-	var wheelFront = world.createDynamicBody(Vec2(1.0, 0.4));
-	wheelFront.createFixture(pl.Circle(0.4), wheelFD);
-	wheelBack.render = {
-		fill: 'rgba(255, 51, 0, 0.2)',
-		stroke: '#ffffff'
-	};
-	wheelFront.render = {
-		fill: 'rgba(255, 51, 0, 0.2)',
-		stroke: '#ffffff'
-	};
-	var springBack = world.createJoint(pl.WheelJoint({
-		motorSpeed: 0.0,
-		maxMotorTorque: 20.0,
-		enableMotor: true,
-		frequencyHz: HZ,
-		dampingRatio: ZETA
-	}, car, wheelBack, wheelBack.getPosition(), Vec2(0.0, 1.0)));
-	var springFront = world.createJoint(pl.WheelJoint({
-		motorSpeed: 0.0,
-		maxMotorTorque: 10.0,
-		enableMotor: false,
-		frequencyHz: HZ,
-		dampingRatio: ZETA
-	}, car, wheelFront, wheelFront.getPosition(), Vec2(0.0, 1.0)));
-	*/
-	/*testbed.keydown = function() {
-		if (testbed.activeKeys.down) {
-			HZ = Math.max(0.0, HZ - 1.0);
-			springBack.setSpringFrequencyHz(HZ);
-			springFront.setSpringFrequencyHz(HZ);
-		} else if (testbed.activeKeys.up) {
-			HZ += 1.0;
-			springBack.setSpringFrequencyHz(HZ);
-			springFront.setSpringFrequencyHz(HZ);
-		}
-	};*/
 	testbed.step = function () {
-		/*if (testbed.activeKeys.right && testbed.activeKeys.left) {
-			springBack.setMotorSpeed(0);
-			springBack.enableMotor(true);
-		} else if (testbed.activeKeys.right) {
-			springBack.setMotorSpeed(-SPEED);
-			springBack.enableMotor(true);
-		} else if (testbed.activeKeys.left) {
-			springBack.setMotorSpeed(+SPEED);
-			springBack.enableMotor(true);
-		} else {
-			springBack.setMotorSpeed(0);
-			springBack.enableMotor(false);
-		}*/
 		if (testbed.activeKeys.right && testbed.activeKeys.left) {
 			for (var j = 0; j < wheelJoints.length; j++) {
 				wheelJoints[j].setMotorSpeed(0);
