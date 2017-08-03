@@ -117,14 +117,12 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
         lerp = mutationRate;
         dirIndex = { x: dirIndexA.x * lerp + dirIndexB.x * (1 - lerp), y: dirIndexA.y * lerp + dirIndexB.y * (1 - lerp) };
         newIndex = Math.floor(Math.atan2(dirIndex.y, dirIndex.x) / Math.PI / 2 * this.bodyParts);
-        if (isNaN(newIndex)) console.log("P1", dirIndex, lerp, dirIndexA, dirIndexB);
         if (Math.random() < explorationRate) newIndex = Math.floor(Math.random() * this.bodyParts);
         if (newR <= this.minRadius) newO = false;
         if (Math.random() < explorationRate) {
             newO = Math.random() > 0.1;
             newR = (this.maxRadius - this.minRadius) * Math.random() + this.minRadius;
         }
-        if (isNaN(newIndex)) console.log("P2", dirIndex, lerp, dirIndexA, dirIndexB);
         var newWheel = { index: newIndex, r: newR, o: newO, axelAngle: newIndex / this.bodyParts * Math.PI * 2 };
         offspring.data.wheels.push(newWheel);
     }

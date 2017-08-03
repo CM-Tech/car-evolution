@@ -17,14 +17,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// This is a fun demo that shows off the wheel joint
 noise.seed(3);
-var pl = planck,
-	Vec2 = pl.Vec2;
-var world = new pl.World({
-	gravity: Vec2(0, -10)
-});
-window.world = world;
+
 var camera = { x: 0, y: 0 };
 var SMALL_GROUP = 1;
 var LARGE_GROUP = -1;
@@ -54,7 +48,7 @@ var pl = planck,
 var world = new pl.World({
 	gravity: Vec2(0, -10)
 });
-window.world = world;
+
 // wheel spring settings
 var HZ = 4.0;
 var ZETA = 0.7;
@@ -73,7 +67,6 @@ function updateProgress(x) {
 	if (carScore < x - 3) {
 		restartCurrent = 0;
 		carScore = x + 0;
-		console.log("progress");
 	}
 }
 
@@ -273,7 +266,6 @@ function createCar(carData) {
 }
 switchCar(true);
 world.on('post-solve', function (contact, impulse) {
-	window.contact = contact;
 	var a = contact;
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
@@ -305,7 +297,6 @@ function Break(m_piece) {
 		if (!f1.getBody()) return;
 		var index = connectedParts.indexOf(f1);
 		var body1 = f1.getBody();
-		window.body1 = body1;
 		var center = body1.getWorldCenter();
 		if (m_wheels[1]) {
 			for (var j = 0; j < m_wheels[1].length; j++) {
@@ -374,7 +365,6 @@ function tick() {
 	}
 	m_velocity = boxCar.getLinearVelocity();
 	m_angularVelocity = boxCar.getAngularVelocity();
-
 }
 window.setInterval(function () {
 	world.step(1 / 60);
