@@ -17,14 +17,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-// This is a fun demo that shows off the wheel joint
 noise.seed(3);
-var pl = planck,
-	Vec2 = pl.Vec2;
-var world = new pl.World({
-	gravity: Vec2(0, -10)
-});
-window.world = world;
+
 var camera = { x: 0, y: 0 };
 var SMALL_GROUP = 1;
 var LARGE_GROUP = -1;
@@ -34,37 +28,34 @@ var WHEEL_CATEGORY = 0x0004;
 var BODY_MASK = 0xFFFF;
 var BODY_BROKE_MASK = 0xFFFF ^ BODY_CATEGORY ^ WHEEL_CATEGORY;
 var WHEEL_MASK = 0xFFFF ^ WHEEL_CATEGORY;
-var wheelShapeDef = {};
 
+var wheelShapeDef = {};
 wheelShapeDef.filterCategoryBits = WHEEL_CATEGORY;
 wheelShapeDef.filterMaskBits = WHEEL_MASK;
+
 var bodyShapeDef = {};
-
 bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
 bodyShapeDef.filterMaskBits = BODY_MASK;
 bodyShapeDef.density = 0.1;
-var bodyBrokeShapeDef = {};
+bodyShapeDef.friction = 5.0;
 
-bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
-bodyShapeDef.filterMaskBits = BODY_MASK;
-bodyShapeDef.density = 0.1;
 var bodyBrokeShapeDef = {};
-
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
 bodyBrokeShapeDef.density = 0.1;
+
 var pl = planck,
 	Vec2 = pl.Vec2;
 var world = new pl.World({
 	gravity: Vec2(0, -10)
 });
-window.world = world;
+
 // wheel spring settings
 var HZ = 4.0;
 var ZETA = 0.7;
 var SPEED = 50.0;
 var ground = world.createBody();
 var genX = -200;
-var flatLandEndX=25;
+var flatLandEndX = 25;
 var groundFD = {
 	density: 0.0,
 	friction: 10.0
@@ -76,15 +67,14 @@ function updateProgress(x) {
 	if (carScore < x - 3) {
 		restartCurrent = 0;
 		carScore = x + 0;
-		console.log("progress");
 	}
 }
 
 function terrain1(x) {
-	if(x<flatLandEndX){
+	if (x < flatLandEndX) {
 		return 0;
 	}
-	return noise.perlin2((x -flatLandEndX)/ 20, 0) * 10;
+	return noise.perlin2((x - flatLandEndX) / 20, 0) * 10 - Math.max(x - flatLandEndX, 0) / 4;
 }
 function resetGround(){
 	
@@ -99,66 +89,66 @@ function genGround() {
 genGround();
 
 // Car
-var scoreRecord=[];
-var topScores=[];
-var prevGen=[];
-var curGen=[];
-var maxTops=8;
-var genSize=10;
+var scoreRecord = [];
+var topScores = [];
+var prevGen = [];
+var curGen = [];
+var maxTops = 8;
+var genSize = 10;
 var carDNA = new Car();
-function genCarFromOldParents(){
-	var parentPool=[];
-	for(var i=0;i<topScores.length;i++){
+function genCarFromOldParents() {
+	var parentPool = [];
+	for (var i = 0; i < topScores.length; i++) {
 		parentPool.push(topScores[i].car);
 	}
-	for(var i=0;i<prevGen.length;i++){
+	for (var i = 0; i < prevGen.length; i++) {
 		parentPool.push(prevGen[i].car);
 	}
-	return parentPool[Math.floor(Math.random()*parentPool.length)].breed(parentPool[Math.floor(Math.random()*parentPool.length)].breed(parentPool[Math.floor(Math.random()*parentPool.length)]));
+	return parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)]));
 }
-function bestScore(){
-	var s=0;
-	for(var i=0;i<topScores.length;i++){
-		s=Math.max(s,topScores[i].score);
+function bestScore() {
+	var s = 0;
+	for (var i = 0; i < topScores.length; i++) {
+		s = Math.max(s, topScores[i].score);
 	}
 	return s;
 }
-function insertNewCarScore(car,score){
-	topScores.push({score:score,car:car});
-	topScores.sort(function(a,b){return a.score-b.score;});
-	if(topScores.length>maxTops){
-	topScores.splice(0,topScores.length-maxTops);
+function insertNewCarScore(car, score) {
+	topScores.push({ score: score, car: car });
+	topScores.sort(function (a, b) { return a.score - b.score; });
+	if (topScores.length > maxTops) {
+		topScores.splice(0, topScores.length - maxTops);
 	}
 }
-function switchCar(first){
-	var score=carScore+0;
-	if(first){
-		scoreRecord=[];
-topScores=[];
-prevGen=[];
-curGen=[];
-		carDNA = new Car(JSON.parse('{"lengths":[42.770920284154656,28.10634870189157,37.70090371171085,31.58754426135798,40.1972913579539,27.518875789381887,28.555655869809925,24.214077349778314],"angleWeights":[0.6373400201112963,0.5,0.5428777393345816,0.5357153973826854,0.5686564551868033,0.5,2,0.5],"wheels":[{"index":6,"r":15.690915931352244,"o":true,"axelAngle":4.71238898038469},{"index":2,"r":15.445672123035283,"o":true,"axelAngle":1.5707963267948966},{"index":-4,"r":5.775511803450055,"o":true,"axelAngle":-3.141592653589793},{"index":0,"r":17.820058810282625,"o":true,"axelAngle":0},{"index":0,"r":9.466463449198177,"o":false,"axelAngle":0}]}'));
+function switchCar(first) {
+	var score = carScore + 0;
+	if (first) {
+		scoreRecord = [];
+		topScores = [];
+		prevGen = [];
+		curGen = [];
+		carDNA = new Car();
 		createCar(carDNA);
-	}else{
-		if(score>0){
-		curGen.push({score:score,car:carDNA.clone()});
-		insertNewCarScore(carDNA.clone(),score);
+	} else {
+		if (score > 0) {
+			curGen.push({ score: score, car: carDNA.clone() });
+			insertNewCarScore(carDNA.clone(), score);
 		}
-		if(curGen.length>=genSize){
-			prevGen=curGen;
-			curGen=[];
+		if (curGen.length >= genSize) {
+			prevGen = curGen;
+			curGen = [];
 		}
-	if(prevGen.length===0){
-		if(topScores.length>0){
-		carDNA=genCarFromOldParents();
-		}else{
-			carDNA = new Car();
+		if (prevGen.length === 0) {
+			if (topScores.length > 0) {
+				carDNA = genCarFromOldParents();
+			} else {
+				carDNA = new Car();
+			}
+			createCar(carDNA);
+		} else {
+			carDNA = genCarFromOldParents();
+			createCar(carDNA);
 		}
-	createCar(carDNA);
-	}else{
-	carDNA=genCarFromOldParents();
-	createCar(carDNA);
-	}
 	}
 }
 // Breakable dynamic body
@@ -190,8 +180,6 @@ function removeOldCar() {
 	}
 	for (var i = 0; i < connectedPartsOld.length; i++) {
 		world.destroyBody(connectedPartsOld[i].m_body);
-		//world.destroyFixture(connectedPartsOld[i]);
-		//world.destroyFixture(connectedPartsOld[i]);
 	}
 	for (var i = 0; i < wheels.length; i++) {
 		world.destroyBody(wheels[i]);
@@ -234,7 +222,7 @@ function createCar(carData) {
 	connectedPartsWheels = [];
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
-var lowestY=carCreationPoint.y+0;
+	var lowestY = carCreationPoint.y + 0;
 	var p_angle = 0;
 	var carScale = 1 / 10;
 	for (var i = 0; i < carData.bodyParts; i++) {
@@ -246,7 +234,7 @@ var lowestY=carCreationPoint.y+0;
 		]);
 
 		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
-		lowestY=Math.min(lowestY,m_piece.getAABB(0).lowerBound.y);
+		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
 		m_piece.render = { fill: "hsla(" + Math.random() * 360 + ",100%,50%,0.5)" };
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
@@ -265,25 +253,22 @@ var lowestY=carCreationPoint.y+0;
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.1
-				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index/carData.bodyParts*Math.PI*2) / 1, Math.sin(wheelData.index/carData.bodyParts*Math.PI*2) / 1)));
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index / carData.bodyParts * Math.PI * 2) / 1, Math.sin(wheelData.index / carData.bodyParts * Math.PI * 2) / 1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);
 				wheelsF.push(w_fix);
-				//console.log(wheelData.r * carScale,w_fix.getAABB(0).lowerBound.y);
-				lowestY=Math.min(lowestY,w_fix.getAABB(0).lowerBound.y);
+				lowestY = Math.min(lowestY, w_fix.getAABB(0).lowerBound.y);
 			}
 		}
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
-	//boxCar.setPosition(boxCar.getPosition().add(Vec2(0,-lowestY+1)));
 	carScore = 0;
 	restartCurrent = 0;
 }
 switchCar(true);
 world.on('post-solve', function (contact, impulse) {
-	window.contact = contact;
 	var a = contact;
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
@@ -315,7 +300,6 @@ function Break(m_piece) {
 		if (!f1.getBody()) return;
 		var index = connectedParts.indexOf(f1);
 		var body1 = f1.getBody();
-		window.body1 = body1;
 		var center = body1.getWorldCenter();
 		if (m_wheels[1]) {
 			for (var j = 0; j < m_wheels[1].length; j++) {
@@ -384,7 +368,6 @@ function tick() {
 	}
 	m_velocity = boxCar.getLinearVelocity();
 	m_angularVelocity = boxCar.getAngularVelocity();
-
 }
 window.setInterval(function () {
 	world.step(1 / 60);
