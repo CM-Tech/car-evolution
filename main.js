@@ -68,13 +68,13 @@ var groundFD = {
 	density: 0.0,
 	friction: 10.0
 };
-var restartTicks=444;
-var restartCurrent=0;
-var carProgress=0;
-function updateProgress(x){
-	if(carProgress<x-3){
-		restartCurrent=0;
-		carProgress=x+0;
+var restartTicks = 200;
+var restartCurrent = 0;
+var carProgress = 0;
+function updateProgress(x) {
+	if (carProgress < x - 3) {
+		restartCurrent = 0;
+		carProgress = x + 0;
 		console.log("progress");
 	}
 }
@@ -84,7 +84,7 @@ function terrain1(x) {
 }
 function genGround() {
 	while (genX < camera.x + 400) {
-		var nextX = genX + 2;
+		var nextX = genX + 6;
 		ground.createFixture(pl.Edge(Vec2(genX, terrain1(genX)), Vec2(nextX, terrain1(nextX))), groundFD);
 		genX = nextX;
 	}
@@ -135,7 +135,6 @@ function removeOldCar() {
 	});
 	partsToBreak = [];
 
-
 	connectedParts = [];
 	connectedPartsI = [];
 	connectedPartsOld = [];
@@ -146,17 +145,14 @@ function removeOldCar() {
 	connectedPartsWheels = [];
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
-
 }
 function createCar(carData) {
-	restartCurrent=0;
-	carDNA=carData;
+	restartCurrent = 0;
+	carDNA = carData;
 	removeOldCar();
 	boxCar = world.createDynamicBody({
 		position: carCreationPoint.clone()
 	});
-
-
 
 	connectedParts = [];
 	connectedPartsI = [];
@@ -196,7 +192,7 @@ function createCar(carData) {
 					motorSpeed: 0.0,
 					maxMotorTorque: 42 / 2,
 					enableMotor: true,
-					frequencyHz: 42,
+					frequencyHz: 4,
 					dampingRatio: 0.75
 				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.axelAngle) / 1, Math.sin(wheelData.axelAngle) / 1)));
 				wheelJoints.push(spring);
@@ -208,8 +204,8 @@ function createCar(carData) {
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
-	carProgress=0;
-	restartCurrent=0;
+	carProgress = 0;
+	restartCurrent = 0;
 }
 createCar(carDNA);
 world.on('post-solve', function (contact, impulse) {
@@ -240,14 +236,10 @@ function Break(m_piece) {
 		connectedParts.splice(connectedParts.indexOf(m_piece), 1);
 		// Create two bodies from one.
 		var f1 = boxCar.m_fixtureList;
-		if (!f1.m_shape) {
-			return;
-		}
 		var f1s = f1.m_shape;
+		if (!f1.m_shape) return;
+		if (!f1.getBody()) return;
 		var index = connectedParts.indexOf(f1);
-		if (!f1.getBody()) {
-			return;
-		}
 		var body1 = f1.getBody();
 		window.body1 = body1;
 		var center = body1.getWorldCenter();
@@ -294,7 +286,7 @@ function Break(m_piece) {
 }
 
 function tick() {
-	
+
 	genGround();
 
 	for (var j = 0; j < wheelJoints.length; j++) {
@@ -306,7 +298,7 @@ function tick() {
 	camera.x = cp.x;
 	camera.y = -cp.y;
 	updateProgress(cp.x);
-	if(restartCurrent>=restartTicks){
+	if (restartCurrent >= restartTicks) {
 		carDNA = new Car();
 		createCar(carDNA);
 	}
@@ -324,7 +316,7 @@ function tick() {
 window.setInterval(function () {
 	world.step(1 / 60);
 	tick();
-}, 1000 / 60);
+}, 0);
 
 var c = document.getElementById("c");
 var ctx = c.getContext("2d");
