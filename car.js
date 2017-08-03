@@ -5,18 +5,14 @@ function Car(data) {
         this.data = { lengths: [], angleWeights: [], wheels: [] };
         for (var i = 0; i < this.bodyParts; i++) {
             this.data.lengths.push(this.maxLength / 2 * (Math.random() / 4 * 3 + 0.25));
-            this.data.angleWeights.push(0.5+Math.random());
-            if (Math.random() > 0.1) {
-                //this.data.wheels.push({ index: i, r: this.maxRadius / 4, o: true, axelAngle: i / this.bodyParts * Math.PI * 2 });
-            }
+            this.data.angleWeights.push(0.5 + Math.random());
         }
-        for(var i=0;i<4;i++){
-            this.data.wheels.push({ index: Math.floor(Math.random()*this.bodyParts), r: (this.maxRadius-this.minRadius)*Math.random()+this.minRadius, o: true, axelAngle: i / this.bodyParts * Math.PI * 2 });
+        for (var i = 0; i < 4; i++) {
+            this.data.wheels.push({ index: Math.floor(Math.random() * this.bodyParts), r: (this.maxRadius - this.minRadius) * Math.random() + this.minRadius, o: true, axelAngle: i / this.bodyParts * Math.PI * 2 });
         }
-        for(var i=0;i<2;i++){
-            this.data.wheels.push({ index: Math.floor(Math.random()*this.bodyParts), r: (this.maxRadius-this.minRadius)*Math.random()+this.minRadius, o: Math.random()<0.1, axelAngle: i / this.bodyParts * Math.PI * 2 });
+        for (var i = 0; i < 2; i++) {
+            this.data.wheels.push({ index: Math.floor(Math.random() * this.bodyParts), r: (this.maxRadius - this.minRadius) * Math.random() + this.minRadius, o: Math.random() < 0.1, axelAngle: i / this.bodyParts * Math.PI * 2 });
         }
-
     }
 }
 Car.prototype.bodyParts = 8;

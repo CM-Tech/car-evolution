@@ -45,72 +45,41 @@ bodyShapeDef.filterMaskBits = BODY_MASK;
 bodyShapeDef.density = 0.1;
 var bodyBrokeShapeDef = {};
 
-  // Small circle
+bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
+bodyShapeDef.filterMaskBits = BODY_MASK;
+bodyShapeDef.density = 0.1;
+var bodyBrokeShapeDef = {};
 
-  //bodyShapeDef.filterGroupIndex = SMALL_GROUP;
-  bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
-  bodyShapeDef.filterMaskBits = BODY_MASK;
-  bodyShapeDef.density=0.1;
-  var bodyBrokeShapeDef = {};
+bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
+bodyBrokeShapeDef.density = 0.1;
+var pl = planck,
+	Vec2 = pl.Vec2;
+var world = new pl.World({
+	gravity: Vec2(0, -10)
+});
+window.world = world;
+// wheel spring settings
+var HZ = 4.0;
+var ZETA = 0.7;
+var SPEED = 50.0;
+var ground = world.createBody();
+var genX = -100;
+var groundFD = {
+	density: 0.0,
+	friction: 0.6
+};
 
-  // Small circle
-
-  //bodyShapeDef.filterGroupIndex = SMALL_GROUP;
-  //bodyBrokeShapeDef.filterCategoryBits = BODY_CATEGORY;
-  bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
-  bodyBrokeShapeDef.density=0.1;
-	var pl = planck,
-		Vec2 = pl.Vec2;
-	var world = new pl.World({
-		gravity: Vec2(0, -10)
-	});
-	window.world = world;
-	// wheel spring settings
-	var HZ = 4.0;
-	var ZETA = 0.7;
-	var SPEED = 50.0;
-	var ground = world.createBody();
-	var genX=-100;
-	var groundFD = {
-		density: 0.0,
-		friction: 0.6
-	};
-	/*ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
-	var hs = [0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0];
-	var x = 20.0,
-		y1 = 0.0,
-		dx = 5.0;
-	for (var i = 0; i < 10; ++i) {
-		var y2 = hs[i];
-		ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
-		y1 = y2;
-		x += dx;
-	}
-
-	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-	x += 0.0;
-	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-	x += 40.0;
-	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
-	x += 20.0;
-	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-	x += 40.0;
-	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x, 20.0)), groundFD);
-	*/
-	function terrain1(x){
-		
-return noise.simplex2(x / 60, 0)*10	;	
-	}
-	function genGround(){
-		while(genX<camera.x+400){
-			var nextX=genX+2;
+function terrain1(x) {
+	return noise.simplex2(x / 60, 0) * 10;
+}
+function genGround() {
+	while (genX < camera.x + 400) {
+		var nextX = genX + 2;
 		ground.createFixture(pl.Edge(Vec2(genX, terrain1(genX)), Vec2(nextX, terrain1(nextX))), groundFD);
-		genX=nextX;
-		}
+		genX = nextX;
 	}
-	genGround();
-	
-	// Car
+}
+genGround();
 
 // Car
 var carData = new Car();
@@ -171,8 +140,6 @@ for (var i = 0; i < carData.bodyParts; i++) {
 			totWheelAdditions.push(spring);
 			wheels.push(wheel);
 			wheelsF.push(w_fix);
-
-
 		}
 	}
 	connectedPartsWheels.push([totWheelAdditions]);
@@ -274,32 +241,7 @@ ctx.fillRect(0, 0, 10, 10);
 
 function tick() {
 	genGround();
-	/*
-	if (testbed.activeKeys.right && testbed.activeKeys.left) {
-			for (var j = 0; j < wheelJoints.length; j++) {
-				wheelJoints[j].setMotorSpeed(0);
-				wheelJoints[j].enableMotor(true);
-			}
 
-		} else if (testbed.activeKeys.right) {
-			for (var j = 0; j < wheelJoints.length; j++) {
-				wheelJoints[j].setMotorSpeed(-SPEED);
-				wheelJoints[j].enableMotor(true);
-			}
-
-		} else if (testbed.activeKeys.left) {
-			for (var j = 0; j < wheelJoints.length; j++) {
-				wheelJoints[j].setMotorSpeed(SPEED);
-				wheelJoints[j].enableMotor(true);
-			}
-
-		} else {
-			for (var j = 0; j < wheelJoints.length; j++) {
-				wheelJoints[j].setMotorSpeed(0);
-				wheelJoints[j].enableMotor(false);
-			}
-		}
-		*/
 	for (var j = 0; j < wheelJoints.length; j++) {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
