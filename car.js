@@ -10,7 +10,7 @@ function Car(data) {
                 //this.data.wheels.push({ index: i, r: this.maxRadius / 4, o: true, axelAngle: i / this.bodyParts * Math.PI * 2 });
             }
         }
-        for(var i=0;i<2;i++){
+        for(var i=0;i<4;i++){
             this.data.wheels.push({ index: Math.floor(Math.random()*this.bodyParts), r: (this.maxRadius-this.minRadius)*Math.random()+this.minRadius, o: true, axelAngle: i / this.bodyParts * Math.PI * 2 });
         }
         for(var i=0;i<2;i++){
@@ -21,7 +21,7 @@ function Car(data) {
 }
 Car.prototype.bodyParts = 8;
 Car.prototype.maxLength = 100;
-Car.prototype.maxRadius = 50;
+Car.prototype.maxRadius = 20;
 Car.prototype.minRadius = 5;
 Car.prototype.totalAngleWeights = function () {
     var total = 0;

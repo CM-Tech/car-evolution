@@ -73,14 +73,9 @@ var camera = { x: 0, y: 0 };
 		y1 = y2;
 		x += dx;
 	}
-	for (var i = 0; i < 10; ++i) {
-		var y2 = hs[i];
-		ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
-		y1 = y2;
-		x += dx;
-	}
+
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-	x += 80.0;
+	x += 0.0;
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 	x += 40.0;
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
@@ -96,14 +91,14 @@ var camera = { x: 0, y: 0 };
 	var m_velocity;
 	var m_angularVelocity;
 	var boxCar = world.createDynamicBody({
-		position: Vec2(0.0, 20.0)
+		position: Vec2(0.0, 10.0)
 	});
 
 	window.boxCar = boxCar;
 
 	var wheelFD = wheelShapeDef;
-	wheelFD.density = 0.5;
-	wheelFD.friction = 0.9;
+	wheelFD.density = 0.05;
+	wheelFD.friction = 1;
 
 	var connectedParts = [];
 	var connectedPartsI = [];
@@ -125,7 +120,7 @@ var camera = { x: 0, y: 0 };
 			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale),
 		]);
 
-		var m_piece = boxCar.createFixture(m_shape, 1.0);
+		var m_piece = boxCar.createFixture(m_shape, 0.1);
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
 		connectedShapes.push(m_shape);
@@ -139,7 +134,7 @@ var camera = { x: 0, y: 0 };
 
 				var spring = world.createJoint(pl.RevoluteJoint({
 					motorSpeed: 0.0,
-					maxMotorTorque: 500.0,
+					maxMotorTorque: 25.0,
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.99
