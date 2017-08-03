@@ -87,7 +87,7 @@ var carData = new Car();
 var m_velocity;
 var m_angularVelocity;
 var boxCar = world.createDynamicBody({
-	position: Vec2(0.0, 20.0)
+	position: Vec2(0.0, 30.0)
 });
 
 window.boxCar = boxCar;
