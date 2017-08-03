@@ -223,10 +223,10 @@ function createCar(carData) {
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
 	var lowestY = carCreationPoint.y + 0;
-	var p_angle = 0;
+	var p_angle = carData.data.angleWeights[0] / carData.totalAngleWeights() * Math.PI * 2;
 	var carScale = 1 / 10;
 	for (var i = 0; i < carData.bodyParts; i++) {
-		var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
+		var new_p_angle = p_angle + carData.data.angleWeights[(i+1)%carData.data.angleWeights.length] / carData.totalAngleWeights() * Math.PI * 2;
 		var m_shape = pl.Polygon([
 			Vec2(0, 0),
 			Vec2(Math.cos(p_angle + 0) * carData.data.lengths[i] * carScale, Math.sin(p_angle + 0) * carData.data.lengths[i] * carScale),
@@ -264,6 +264,8 @@ function createCar(carData) {
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
+	console.log(0);
+	boxCar.resetMassData();
 	carScore = 0;
 	restartCurrent = 0;
 }
@@ -277,7 +279,7 @@ world.on('post-solve', function (contact, impulse) {
 				var partBreak = false;
 				var impulseSum = 0;
 				for (var i = 0; i < a.v_points.length; i++) {
-					if (a.v_points[i].normalImpulse > 24) partBreak = true;
+					if (a.v_points[i].normalImpulse > 42) partBreak = true;
 				}
 				if (partBreak) partsToBreak.push(m_piece);
 			}
@@ -340,6 +342,7 @@ function Break(m_piece) {
 		body1.setLinearVelocity(velocity1);
 		body2.setAngularVelocity(m_angularVelocity);
 		body2.setLinearVelocity(velocity2);
+		boxCar.resetMassData();
 	}
 }
 

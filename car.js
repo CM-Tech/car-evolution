@@ -8,7 +8,7 @@ function Car(data, maxWheels, wheelProbablity) {
     } else {
         this.data = { lengths: [], angleWeights: [], wheels: [] };
         for (var i = 0; i < this.bodyParts; i++) {
-            this.data.lengths.push(this.maxLength / 2 * (Math.random() / 4 * 3 + 0.25));
+            this.data.lengths.push(this.maxLength  * (Math.random() / 4 * 3 + 0.25));
             this.data.angleWeights.push(0.5 + Math.random());
         }
         for (var i = 0; i < 2; i++) {
@@ -24,8 +24,8 @@ Car.prototype.bodyParts = 8;
 Car.prototype.maxWheels = 4;
 Car.prototype.wheelProb = 0.5;
 Car.prototype.maxLength = 100;
-Car.prototype.maxRadius = 20;
-Car.prototype.minRadius = 5;
+Car.prototype.maxRadius = 50;
+Car.prototype.minRadius = 2;
 Car.prototype.minAngleWeight = 0.5;
 Car.prototype.maxAngleWeight = 2;
 Car.prototype.fixAngleWeights = function () {
@@ -68,6 +68,50 @@ Car.prototype.bestMap = function (other) {
     for (var i = 0; i < this.bodyParts; i++) {
         mapping.push(i);
     }
+}
+Car.prototype.exportBoxCar2D = function () {
+    var string=[];
+    var curAngle=0;
+    this.fixAngleWeights();
+     var total = 0;
+    for (var i = 0; i < this.bodyParts; i++) {
+        total += this.data.angleWeights[i];
+    }
+    var angles=[];
+    for (var i = 0; i < this.bodyParts; i++) {
+        
+        string.push(Math.PI*2*this.data.angleWeights[i]/total);
+        string.push(this.data.lengths[i]/this.maxLength*3);
+        curAngle+=Math.PI*2*this.data.angleWeights[i]/total;
+        angles.push(curAngle);
+    }
+    angles.push(curAngle);
+    var wheelCount=0;
+    for (var i = 0; i < this.data.wheels.length; i++) {
+        if(this.data.wheels[i].o){
+            string.push(this.data.wheels[i].index);
+            string.push(angles[this.data.wheels[i].index]+Math.PI);
+            string.push(this.data.wheels[i].r/this.maxRadius*1.5)
+            console.log("wheel");
+            wheelCount++;
+        }
+    }
+    for (var i = 0; i < this.bodyParts-wheelCount; i++) {
+        
+            string.push("NaN");
+            string.push(0.1);
+            string.push(0.1);
+        
+    }
+    for (var i = 0; i < this.bodyParts; i++) {
+        string.push(21334);
+        string.push(1111);
+    }
+    string.push(wheelCount);
+    for(var i=0;i<string.length;i++){
+        //string[i]=Math.round(string[i]*100)/100;
+    }
+    return string.join(",");
 }
 Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     var wheelMax = this.maxWheels;
@@ -116,7 +160,7 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
         var dirIndexB = { x: Math.cos(newIndex * Math.PI * 2 / this.bodyParts), y: Math.sin(newIndex * Math.PI * 2 / this.bodyParts) };
         lerp = mutationRate;
         dirIndex = { x: dirIndexA.x * lerp + dirIndexB.x * (1 - lerp), y: dirIndexA.y * lerp + dirIndexB.y * (1 - lerp) };
-        newIndex = Math.floor(Math.atan2(dirIndex.y, dirIndex.x) / Math.PI / 2 * this.bodyParts);
+        newIndex = (Math.floor(Math.atan2(dirIndex.y, dirIndex.x) / Math.PI / 2 * this.bodyParts)+this.bodyParts+this.bodyParts)%this.bodyParts;
         if (Math.random() < explorationRate) newIndex = Math.floor(Math.random() * this.bodyParts);
         if (newR <= this.minRadius) newO = false;
         if (Math.random() < explorationRate) {
