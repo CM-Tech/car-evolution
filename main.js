@@ -167,9 +167,6 @@ world.on('post-solve', function (contact, impulse) {
 //Break can only be called in step
 function Break(m_piece) {
 	if (connectedParts.indexOf(m_piece) >= 0) {
-		if (m_piece == boxCar.m_fixtureList) {
-			console.log("switch");
-		}
 		var mIndex = connectedParts.indexOf(m_piece);
 		var m_shape = connectedShapes.splice(connectedParts.indexOf(m_piece), 1)[0];
 		var m_index = connectedPartsI.splice(connectedParts.indexOf(m_piece), 1)[0];
@@ -188,7 +185,6 @@ function Break(m_piece) {
 		var body1 = f1.getBody();
 		window.body1 = body1;
 		var center = body1.getWorldCenter();
-		console.log("M", m_piece);
 		if (m_wheels[1]) {
 			for (var j = 0; j < m_wheels[1].length; j++) {
 				world.destroyJoint(m_wheels[1][j]);
@@ -199,9 +195,7 @@ function Break(m_piece) {
 			connectedPartsWheels[prevIndexInList][1] = m_wheels[0];
 			for (var j = 0; j < m_wheels[0].length; j++) {
 				m_wheels[0][j].m_bodyA = connectedParts[prevIndexInList].m_body;
-				console.log(m_wheels[0][j]);
 			}
-
 		} else {
 			for (var j = 0; j < m_wheels[0].length; j++) {
 				world.destroyJoint(m_wheels[0][j]);
@@ -224,7 +218,6 @@ function Break(m_piece) {
 		var center2 = body2.getWorldCenter();
 		var velocity1 = Vec2.add(m_velocity, Vec2.cross(m_angularVelocity, Vec2.sub(center1, center)));
 		var velocity2 = Vec2.add(m_velocity, Vec2.cross(m_angularVelocity, Vec2.sub(center2, center)));
-		console.log(velocity1, velocity2);
 		body1.setAngularVelocity(m_angularVelocity);
 		body1.setLinearVelocity(velocity1);
 		body2.setAngularVelocity(m_angularVelocity);
