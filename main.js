@@ -18,7 +18,7 @@
  */
 
 // This is a fun demo that shows off the wheel joint
-
+noise.seed(3);
 var pl = planck,
 	Vec2 = pl.Vec2;
 var world = new pl.World({
@@ -68,11 +68,12 @@ var camera = { x: 0, y: 0 };
 	var ZETA = 0.7;
 	var SPEED = 50.0;
 	var ground = world.createBody();
+	var genX=-100;
 	var groundFD = {
 		density: 0.0,
 		friction: 0.6
 	};
-	ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
+	/*ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
 	var hs = [0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0];
 	var x = 20.0,
 		y1 = 0.0,
@@ -93,6 +94,19 @@ var camera = { x: 0, y: 0 };
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 	x += 40.0;
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x, 20.0)), groundFD);
+	*/
+	function terrain1(x){
+		
+return noise.simplex2(x / 60, 0)*10	;	
+	}
+	function genGround(){
+		while(genX<camera.x+400){
+			var nextX=genX+2;
+		ground.createFixture(pl.Edge(Vec2(genX, terrain1(genX)), Vec2(nextX, terrain1(nextX))), groundFD);
+		genX=nextX;
+		}
+	}
+	genGround();
 	
 	// Car
 
@@ -272,6 +286,7 @@ var ctx = c.getContext("2d");
 ctx.fillRect(0, 0, 10, 10);
 
 function tick() {
+	genGround();
 	/*
 	if (testbed.activeKeys.right && testbed.activeKeys.left) {
 			for (var j = 0; j < wheelJoints.length; j++) {
