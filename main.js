@@ -70,7 +70,7 @@ var groundFD = {
 };
 
 function terrain1(x) {
-	return noise.simplex2(x / 60, 0) * 10;
+	return noise.perlin2(x / 20, 0) * 10;
 }
 function genGround() {
 	while (genX < camera.x + 400) {
@@ -86,7 +86,7 @@ var carDNA = new Car();
 // Breakable dynamic body
 var m_velocity;
 var m_angularVelocity;
-var carCreationPoint=Vec2(0.0, 30.0);
+var carCreationPoint = Vec2(0.0, 30.0);
 var boxCar = world.createDynamicBody({
 	position: carCreationPoint.clone()
 });
@@ -106,96 +106,97 @@ var connectedPartsWheels = [];
 var connectedWheelsOld = [];
 var center_vec = carCreationPoint.clone();
 //create car from data
-function removeOldCar(){
-	for(var i=0;i<connectedParts.length;i++){
+function removeOldCar() {
+	for (var i = 0; i < connectedParts.length; i++) {
 		world.destroyBody(connectedParts[i]);
 	}
-	for(var i=0;i<connectedPartsOld.length;i++){
+	for (var i = 0; i < connectedPartsOld.length; i++) {
 		world.destroyBody(connectedPartsOld[i]);
 	}
-	for(var i=0;i<wheels.length;i++){
+	for (var i = 0; i < wheels.length; i++) {
 		world.destroyBody(wheels[i]);
 	}
-	for(var i=0;i<connectedWheelsOld.length;i++){
+	for (var i = 0; i < connectedWheelsOld.length; i++) {
 		world.destroyBody(connectedWheelsOld[i]);
 	}
 	world.destroyBody(boxCar);
 	boxCar = world.createBody({
-	position: carCreationPoint.clone()
-});
-partsToBreak = [];
+		position: carCreationPoint.clone()
+	});
+	partsToBreak = [];
 
 
-connectedParts = [];
-connectedPartsI = [];
-connectedPartsOld = [];
-connectedShapes = [];
-wheels = [];
-wheelsF = [];
-wheelJoints = [];
-connectedPartsWheels = [];
-connectedWheelsOld = [];
-center_vec = carCreationPoint.clone();
+	connectedParts = [];
+	connectedPartsI = [];
+	connectedPartsOld = [];
+	connectedShapes = [];
+	wheels = [];
+	wheelsF = [];
+	wheelJoints = [];
+	connectedPartsWheels = [];
+	connectedWheelsOld = [];
+	center_vec = carCreationPoint.clone();
 
 }
-function createCar(carData){
+function createCar(carData) {
+	carDNA=carData;
 	removeOldCar();
 	boxCar = world.createDynamicBody({
-	position: carCreationPoint.clone()
-});
+		position: carCreationPoint.clone()
+	});
 
 
 
-connectedParts = [];
-connectedPartsI = [];
-connectedPartsOld = [];
-connectedShapes = [];
-wheels = [];
-wheelsF = [];
-wheelJoints = [];
-connectedPartsWheels = [];
-connectedWheelsOld = [];
-center_vec = carCreationPoint.clone();
+	connectedParts = [];
+	connectedPartsI = [];
+	connectedPartsOld = [];
+	connectedShapes = [];
+	wheels = [];
+	wheelsF = [];
+	wheelJoints = [];
+	connectedPartsWheels = [];
+	connectedWheelsOld = [];
+	center_vec = carCreationPoint.clone();
 
-var p_angle = 0;
-var carScale = 1 / 10;
-for (var i = 0; i < carData.bodyParts; i++) {
-	var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
-	var m_shape = pl.Polygon([
-		Vec2(0, 0),
-		Vec2(Math.cos(p_angle + 0) * carData.data.lengths[i] * carScale, Math.sin(p_angle + 0) * carData.data.lengths[i] * carScale),
-		Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale),
-	]);
+	var p_angle = 0;
+	var carScale = 1 / 10;
+	for (var i = 0; i < carData.bodyParts; i++) {
+		var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
+		var m_shape = pl.Polygon([
+			Vec2(0, 0),
+			Vec2(Math.cos(p_angle + 0) * carData.data.lengths[i] * carScale, Math.sin(p_angle + 0) * carData.data.lengths[i] * carScale),
+			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale),
+		]);
 
-	var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
-	m_piece.render = { fill: "hsla(" + Math.random() * 360 + ",100%,50%,0.5)" };
-	connectedParts.push(m_piece);
-	connectedPartsI.push(i);
-	connectedShapes.push(m_shape);
-	var wheelsThere = carData.wheelsAt(i);
-	var totWheelAdditions = [];
-	for (var j = 0; j < wheelsThere.length; j++) {
-		var wheelData = wheelsThere[j];
-		if (wheelData.o) {
-			var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
-			var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
-			w_fix.render = { fill: "rgba(0,0,0,0.5)" };
-			var spring = world.createJoint(pl.WheelJoint({
-				motorSpeed: 0.0,
-				maxMotorTorque: 42 / 2,
-				enableMotor: true,
-				frequencyHz: 42,
-				dampingRatio: 0.75
-			}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.axelAngle) / 1, Math.sin(wheelData.axelAngle) / 1)));
-			wheelJoints.push(spring);
-			totWheelAdditions.push(spring);
-			wheels.push(wheel);
-			wheelsF.push(w_fix);
+		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
+		m_piece.render = { fill: "hsla(" + Math.random() * 360 + ",100%,50%,0.5)" };
+		connectedParts.push(m_piece);
+		connectedPartsI.push(i);
+		connectedShapes.push(m_shape);
+		var wheelsThere = carData.wheelsAt(i);
+		var totWheelAdditions = [];
+		for (var j = 0; j < wheelsThere.length; j++) {
+			var wheelData = wheelsThere[j];
+			if (wheelData.o) {
+				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
+				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
+				w_fix.render = { fill: "rgba(0,0,0,0.5)" };
+				var spring = world.createJoint(pl.WheelJoint({
+					motorSpeed: 0.0,
+					maxMotorTorque: 42 / 2,
+					enableMotor: true,
+					frequencyHz: 42,
+					dampingRatio: 0.75
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.axelAngle) / 1, Math.sin(wheelData.axelAngle) / 1)));
+				wheelJoints.push(spring);
+				totWheelAdditions.push(spring);
+				wheels.push(wheel);
+				wheelsF.push(w_fix);
+			}
 		}
+		connectedPartsWheels.push([totWheelAdditions]);
+		p_angle = new_p_angle;
 	}
-	connectedPartsWheels.push([totWheelAdditions]);
-	p_angle = new_p_angle;
-}
 }
 createCar(carDNA);
 world.on('post-solve', function (contact, impulse) {
@@ -239,11 +240,11 @@ function Break(m_piece) {
 		var center = body1.getWorldCenter();
 		if (m_wheels[1]) {
 			for (var j = 0; j < m_wheels[1].length; j++) {
-				connectedWheelsOld.push(wheels.splice(wheels.indexOf(m_wheels[0][j].m_bodyB),1)[0]);
+				connectedWheelsOld.push(wheels.splice(wheels.indexOf(m_wheels[0][j].m_bodyB), 1)[0]);
 				world.destroyJoint(m_wheels[1][j]);
 			}
 		}
-		var prevIndexInList = connectedPartsI.indexOf((m_index + carData.bodyParts - 1) % carData.bodyParts);
+		var prevIndexInList = connectedPartsI.indexOf((m_index + carDNA.bodyParts - 1) % carDNA.bodyParts);
 		if (prevIndexInList >= 0) {
 			connectedPartsWheels[prevIndexInList][1] = m_wheels[0];
 			for (var j = 0; j < m_wheels[0].length; j++) {
@@ -251,7 +252,7 @@ function Break(m_piece) {
 			}
 		} else {
 			for (var j = 0; j < m_wheels[0].length; j++) {
-				connectedWheelsOld.push(wheels.splice(wheels.indexOf(m_wheels[0][j].m_bodyB),1)[0]);
+				connectedWheelsOld.push(wheels.splice(wheels.indexOf(m_wheels[0][j].m_bodyB), 1)[0]);
 				world.destroyJoint(m_wheels[0][j]);
 			}
 		}
@@ -311,7 +312,7 @@ var ctx = c.getContext("2d");
 c.width = window.innerWidth;
 c.height = window.innerHeight;
 
-window.addEventListener("resize", function(){
+window.addEventListener("resize", function () {
 	c.width = window.innerWidth;
 	c.height = window.innerHeight;
 });
