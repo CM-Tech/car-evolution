@@ -196,7 +196,7 @@ function createCar(carData) {
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.75
-				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.axelAngle) / 1, Math.sin(wheelData.axelAngle) / 1)));
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index/carData.bodyParts*Math.PI*2) / 1, Math.sin(wheelData.index/carData.bodyParts*Math.PI*2) / 1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);

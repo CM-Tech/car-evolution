@@ -65,17 +65,64 @@ Car.prototype.breed = function (other) {
         }
     }
     offspring.data.wheels=[];
-    for(var i=0;i<Math.max(this.data.wheels.length,other.data.wheels.length);i++){
+    for(var i=0;i<Math.min(Math.max(this.data.wheels.length,other.data.wheels.length),this.maxWheels);i++){
         var aHaveWheel=i<this.data.wheels.length;
         var bHaveWheel=i<other.data.wheels.length;
         var a=aHaveWheel?this.data.wheels[i]:other.data.wheels[i];
-        var b=aHaveWheel&&bHaveWheel?other.data.wheels[i]:null;
-        if(aHaveWheel){
+        var b=aHaveWheel&&bHaveWheel?other.data.wheels[i]:a;
+        //if(a&&b){
+            var lerp=(Math.random()-0.5)/10+0.5;
+            var aR=a.r;
+            if(!a.o){
+                aR=0;
+            }
+            var bR=b.r;
+            if(!b.o){
+                bR=0;
+            }
+            var newR=Math.min(Math.max((a.r*lerp+b.r*(1-lerp))*(1-mutationRate)+mutationRate*(Math.random()*1.1-0.1)*this.maxRadius,this.minRadius),this.maxRadius);
+            var lerp=(Math.random()-0.5)/10+0.5;
+            var newO=((a.o?1:0)*lerp+(b.o?1:0)*(1-lerp))*(1-mutationRate)+mutationRate*(Math.random())>0.5;
+            //var newI=((a.index)*lerp+(b.index)*(1-lerp))*(1-mutationRate)+mutationRate*(Math.random())>0.5;
+            var dirIndexA={x:Math.cos(a.index*Math.PI*2/this.bodyParts),y:Math.sin(a.index*Math.PI*2/this.bodyParts)};
+            var dirIndexB={x:Math.cos(b.index*Math.PI*2/this.bodyParts),y:Math.sin(b.index*Math.PI*2/this.bodyParts)};
+            var lerp=(Math.random()-0.5)/10+0.5;
+            var dirIndex={x:dirIndexA.x*lerp+dirIndexB.x*(1-lerp),y:dirIndexA.y*lerp+dirIndexB.y*(1-lerp)};
+            var newIndex=Math.floor(Math.atan2(dirIndex.y,dirIndex.x)/Math.PI/2*this.bodyParts);
+            var newRandIndex=Math.floor(Math.random()*this.bodyParts);
+            var dirIndexA={x:Math.cos(newRandIndex*Math.PI*2/this.bodyParts),y:Math.sin(newRandIndex*Math.PI*2/this.bodyParts)};
+            var dirIndexB={x:Math.cos(newIndex*Math.PI*2/this.bodyParts),y:Math.sin(newIndex*Math.PI*2/this.bodyParts)};
+            lerp=mutationRate;
+            dirIndex={x:dirIndexA.x*lerp+dirIndexB.x*(1-lerp),y:dirIndexA.y*lerp+dirIndexB.y*(1-lerp)};
+            newIndex=Math.floor(Math.atan2(dirIndex.y,dirIndex.x)/Math.PI/2*this.bodyParts);
+            if(Math.random()>explorationRate){
+                newIndex=Math.floor(Math.random()*this.bodyParts);
+            }
+            if(newR<=this.minRadius){
+                newO=false;
+            }
+            if(Math.random()>explorationRate){
+                newO=Math.random()>0.1;
+                newR=(this.maxRadius - this.minRadius) * Math.random() + this.minRadius;
+            }
+            var newWheel={ index: newIndex, r: newR,o:newO, axelAngle: newIndex / this.bodyParts * Math.PI * 2 };
+        offspring.data.wheels.push(newWheel);
 
-        }else{
-            
-        }
+       /* }else{
+            var newR=Math.min(Math.max((a.r*lerp+b.r*(1-lerp))*(1-mutationRate)+mutationRate*Math.random()*this.maxRadius,0),this.maxRadius);
+            var newWheel={ index: Math.floor(Math.random() * this.bodyParts), r: (this.maxRadius - this.minRadius) * Math.random() + this.minRadius, o: Math.random() < 0.1, axelAngle: i / this.bodyParts * Math.PI * 2 };
+        offspring.data.wheels.push(newWheel);
+        }*/
         
+    }
+    if(Math.random()>explorationRate) {
+        if(offspring.data.wheels.length<this.maxWheels && Math.random()<0.5){
+        var i=Math.floor(Math.random() * this.bodyParts);
+            offspring.data.wheels.push({ index: i, r: (this.maxRadius - this.minRadius) * Math.random() + this.minRadius, o: Math.random() < 0.1, axelAngle: i / this.bodyParts * Math.PI * 2 });
+    
+        }else{
+            offspring.data.wheels.splice(Math.floor(Math.random()*offspring.data.wheels.length),1);
+        }
     }
     return offspring;
 }
