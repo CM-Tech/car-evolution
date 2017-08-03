@@ -32,6 +32,7 @@ var camera = { x: 0, y: 0 };
   var WHEEL_CATEGORY = 0x0004;
 
   var BODY_MASK = 0xFFFF;
+   var BODY_BROKE_MASK = 0xFFFF^BODY_CATEGORY^WHEEL_CATEGORY ;
   var WHEEL_MASK = 0xFFFF^WHEEL_CATEGORY ;
   var wheelShapeDef = {};
 
@@ -47,6 +48,15 @@ var camera = { x: 0, y: 0 };
   //bodyShapeDef.filterGroupIndex = SMALL_GROUP;
   bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
   bodyShapeDef.filterMaskBits = BODY_MASK;
+  bodyShapeDef.density=0.1;
+  var bodyBrokeShapeDef = {};
+
+  // Small circle
+
+  //bodyShapeDef.filterGroupIndex = SMALL_GROUP;
+  //bodyBrokeShapeDef.filterCategoryBits = BODY_CATEGORY;
+  bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
+  bodyBrokeShapeDef.density=0.1;
 	var pl = planck,
 		Vec2 = pl.Vec2;
 	var world = new pl.World({
@@ -120,7 +130,7 @@ var camera = { x: 0, y: 0 };
 			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale),
 		]);
 
-		var m_piece = boxCar.createFixture(m_shape, 0.1);
+		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
 		m_piece.render={fill:"hsla("+Math.random()*360+",100%,50%,0.5)"};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
@@ -203,6 +213,10 @@ w_fix.render={fill:"rgba(0,0,0,0.5)"};
 			var prevIndexInList = connectedPartsI.indexOf((m_index + carData.bodyParts - 1) % carData.bodyParts);
 			if (prevIndexInList >= 0) {
 				connectedPartsWheels[prevIndexInList][1] = m_wheels[0];
+				for (var j = 0; j < m_wheels[0].length; j++) {
+					m_wheels[0][j].m_bodyA=connectedParts[prevIndexInList].m_body;
+					console.log(m_wheels[0][j]);
+				}
 
 			} else {
 				for (var j = 0; j < m_wheels[0].length; j++) {
@@ -217,7 +231,7 @@ w_fix.render={fill:"rgba(0,0,0,0.5)"};
 				position: body1.getPosition(),
 				angle: body1.getAngle()
 			});
-			m_piece = body2.createFixture(m_shape, bodyShapeDef);
+			m_piece = body2.createFixture(m_shape, bodyBrokeShapeDef);
 			m_piece.render=renderData;
 			connectedPartsOld.push(m_piece);
 			// Compute consistent velocities for new bodies based on
