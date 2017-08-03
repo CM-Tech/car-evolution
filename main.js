@@ -281,17 +281,13 @@ function render() {
 		for (var f = body.getFixtureList(); f; f = f.getNext()) {
 			ctx.strokeStyle = f.render && f.render.stroke ? f.render.stroke : "#000000";
 			ctx.fillStyle = f.render && f.render.fill ? f.render.fill : "rgba(0,0,0,0)";
-
 			ctx.lineWidth = 1 / scale;
 			ctx.save();
 			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-
-			var shape = f.m_shape;
-			if (shape.getType() == "polygon") polygon(shape);
-			if (shape.getType() == "circle") circle(shape);
-			if (shape.getType() == "edge") edge(shape);
-
+			if (f.m_shape.getType() == "polygon") polygon(f.m_shape);
+			if (f.m_shape.getType() == "circle") circle(f.m_shape);
+			if (f.m_shape.getType() == "edge") edge(f.m_shape);
 			ctx.restore();
 		}
 	}
