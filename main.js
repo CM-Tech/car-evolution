@@ -262,14 +262,12 @@ function createCar(carData) {
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);
 				wheelsF.push(w_fix);
-				//console.log(wheelData.r * carScale,w_fix.getAABB(0).lowerBound.y);
 				lowestY = Math.min(lowestY, w_fix.getAABB(0).lowerBound.y);
 			}
 		}
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
-	//boxCar.setPosition(boxCar.getPosition().add(Vec2(0,-lowestY+1)));
 	carScore = 0;
 	restartCurrent = 0;
 }
