@@ -68,6 +68,16 @@ var groundFD = {
 	density: 0.0,
 	friction: 10.0
 };
+var restartTicks=444;
+var restartCurrent=0;
+var carProgress=0;
+function updateProgress(x){
+	if(carProgress<x-3){
+		restartCurrent=0;
+		carProgress=x+0;
+		console.log("progress");
+	}
+}
 
 function terrain1(x) {
 	return noise.perlin2(x / 20, 0) * 10;
@@ -86,7 +96,7 @@ var carDNA = new Car();
 // Breakable dynamic body
 var m_velocity;
 var m_angularVelocity;
-var carCreationPoint = Vec2(0.0, 30.0);
+var carCreationPoint = Vec2(0.0, 10.0);
 var boxCar = world.createDynamicBody({
 	position: carCreationPoint.clone()
 });
@@ -139,6 +149,7 @@ function removeOldCar() {
 
 }
 function createCar(carData) {
+	restartCurrent=0;
 	carDNA=carData;
 	removeOldCar();
 	boxCar = world.createDynamicBody({
@@ -197,6 +208,8 @@ function createCar(carData) {
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
+	carProgress=0;
+	restartCurrent=0;
 }
 createCar(carDNA);
 world.on('post-solve', function (contact, impulse) {
@@ -281,16 +294,22 @@ function Break(m_piece) {
 }
 
 function tick() {
+	
 	genGround();
 
 	for (var j = 0; j < wheelJoints.length; j++) {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
 	}
-
+	restartCurrent++;
 	var cp = boxCar.getPosition();
 	camera.x = cp.x;
 	camera.y = -cp.y;
+	updateProgress(cp.x);
+	if(restartCurrent>=restartTicks){
+		carDNA = new Car();
+		createCar(carDNA);
+	}
 
 	if (partsToBreak.length > 0) {
 		for (var i = 0; i < partsToBreak.length; i++) {
