@@ -20,7 +20,28 @@
 // This is a fun demo that shows off the wheel joint
 planck.testbed('Car', function (testbed) {
 	testbed.speed = 1.3;
-	testbed.hz = 50;
+	testbed.hz = 60;
+	 var SMALL_GROUP = 1;
+  var LARGE_GROUP = -1;
+	var BODY_CATEGORY = 0x0002;
+  var WHEEL_CATEGORY = 0x0004;
+
+  var BODY_MASK = 0xFFFF;
+  var WHEEL_MASK = 0xFFFF^WHEEL_CATEGORY ;
+  var wheelShapeDef = {};
+
+  // Small circle
+
+  //wheelShapeDef.filterGroupIndex = SMALL_GROUP;
+  wheelShapeDef.filterCategoryBits = WHEEL_CATEGORY;
+  wheelShapeDef.filterMaskBits = WHEEL_MASK;
+  var bodyShapeDef = {};
+
+  // Small circle
+
+  //bodyShapeDef.filterGroupIndex = SMALL_GROUP;
+  bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
+  bodyShapeDef.filterMaskBits = BODY_MASK;
 	var pl = planck,
 		Vec2 = pl.Vec2;
 	var world = new pl.World({
@@ -62,35 +83,7 @@ planck.testbed('Car', function (testbed) {
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 	x += 40.0;
 	ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x, 20.0)), groundFD);
-	// Teeter
-	var teeter = world.createDynamicBody(Vec2(140.0, 1.0));
-	teeter.createFixture(pl.Box(10.0, 0.25), 1.0);
-	world.createJoint(pl.RevoluteJoint({
-		lowerAngle: -8.0 * Math.PI / 180.0,
-		upperAngle: 8.0 * Math.PI / 180.0,
-		enableLimit: true
-	}, ground, teeter, teeter.getPosition()));
-	teeter.applyAngularImpulse(100.0, true);
-	// Bridge
-	var bridgeFD = {
-		density: 1.0,
-		friction: 0.6
-	};
-	var prevBody = ground;
-	for (var i = 0; i < 20; ++i) {
-		var bridgeBlock = world.createDynamicBody(Vec2(161.0 + 2.0 * i, -0.125));
-		bridgeBlock.createFixture(pl.Box(1.0, 0.125), bridgeFD);
-		world.createJoint(pl.RevoluteJoint({}, prevBody, bridgeBlock, Vec2(160.0 + 2.0 * i, -0.125)));
-		prevBody = bridgeBlock;
-	}
-	world.createJoint(pl.RevoluteJoint({}, prevBody, ground, Vec2(160.0 + 2.0 * i, -0.125)));
-	// Boxes
-	var box = pl.Box(0.5, 0.5);
-	world.createDynamicBody(Vec2(230.0, 0.5)).createFixture(box, 0.5);
-	world.createDynamicBody(Vec2(230.0, 1.5)).createFixture(box, 0.5);
-	world.createDynamicBody(Vec2(230.0, 2.5)).createFixture(box, 0.5);
-	world.createDynamicBody(Vec2(230.0, 3.5)).createFixture(box, 0.5);
-	world.createDynamicBody(Vec2(230.0, 4.5)).createFixture(box, 0.5);
+	
 	// Car
 
 	var carData = new Car();
@@ -103,7 +96,7 @@ planck.testbed('Car', function (testbed) {
 
 	window.boxCar = boxCar;
 
-	var wheelFD = {};
+	var wheelFD = wheelShapeDef;
 	wheelFD.density = 1.0;
 	wheelFD.friction = 0.9;
 
@@ -141,7 +134,7 @@ planck.testbed('Car', function (testbed) {
 
 				var spring = world.createJoint(pl.RevoluteJoint({
 					motorSpeed: 0.0,
-					maxMotorTorque: 200.0,
+					maxMotorTorque: 500.0,
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.99
@@ -222,7 +215,7 @@ planck.testbed('Car', function (testbed) {
 				position: body1.getPosition(),
 				angle: body1.getAngle()
 			});
-			m_piece = body2.createFixture(m_shape, 1.0);
+			m_piece = body2.createFixture(m_shape, bodyShapeDef);
 			connectedPartsOld.push(m_piece);
 			// Compute consistent velocities for new bodies based on
 			// cached velocity.
