@@ -86,6 +86,9 @@ function terrain1(x) {
 	}
 	return noise.perlin2((x -flatLandEndX)/ 20, 0) * 10;
 }
+function resetGround(){
+	
+}
 function genGround() {
 	while (genX < camera.x + 400) {
 		var nextX = genX + 6;
@@ -134,7 +137,7 @@ function switchCar(first){
 topScores=[];
 prevGen=[];
 curGen=[];
-		carDNA = new Car();
+		carDNA = new Car(JSON.parse('{"lengths":[42.770920284154656,28.10634870189157,37.70090371171085,31.58754426135798,40.1972913579539,27.518875789381887,28.555655869809925,24.214077349778314],"angleWeights":[0.6373400201112963,0.5,0.5428777393345816,0.5357153973826854,0.5686564551868033,0.5,2,0.5],"wheels":[{"index":6,"r":15.690915931352244,"o":true,"axelAngle":4.71238898038469},{"index":2,"r":15.445672123035283,"o":true,"axelAngle":1.5707963267948966},{"index":-4,"r":5.775511803450055,"o":true,"axelAngle":-3.141592653589793},{"index":0,"r":17.820058810282625,"o":true,"axelAngle":0},{"index":0,"r":9.466463449198177,"o":false,"axelAngle":0}]}'));
 		createCar(carDNA);
 	}else{
 		if(score>0){
