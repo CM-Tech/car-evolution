@@ -45,7 +45,6 @@ bodyShapeDef.filterMaskBits = BODY_MASK;
 bodyShapeDef.density = 0.1;
 var bodyBrokeShapeDef = {};
 
-<<<<<<< HEAD
   // Small circle
 
   //bodyShapeDef.filterGroupIndex = SMALL_GROUP;
@@ -112,46 +111,6 @@ return noise.simplex2(x / 60, 0)*10	;
 	genGround();
 	
 	// Car
-=======
-bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
-bodyBrokeShapeDef.density = 0.1;
-var pl = planck,
-	Vec2 = pl.Vec2;
-var world = new pl.World({
-	gravity: Vec2(0, -10)
-});
-window.world = world;
-// wheel spring settings
-var HZ = 4.0;
-var ZETA = 0.7;
-var SPEED = 50.0;
-var ground = world.createBody();
-var groundFD = {
-	density: 0.0,
-	friction: 0.6
-};
-ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
-var hs = [0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0];
-var x = 20.0,
-	y1 = 0.0,
-	dx = 5.0;
-for (var i = 0; i < 10; ++i) {
-	var y2 = hs[i];
-	ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
-	y1 = y2;
-	x += dx;
-}
-
-ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-x += 0.0;
-ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-x += 40.0;
-ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
-x += 20.0;
-ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-x += 40.0;
-ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x, 20.0)), groundFD);
->>>>>>> cf3a6523b3e13fcff5db03b271811d9c92e47a7c
 
 // Car
 var carData = new Car();
@@ -314,7 +273,6 @@ var ctx = c.getContext("2d");
 ctx.fillRect(0, 0, 10, 10);
 
 function tick() {
-<<<<<<< HEAD
 	genGround();
 	/*
 	if (testbed.activeKeys.right && testbed.activeKeys.left) {
@@ -342,8 +300,6 @@ function tick() {
 			}
 		}
 		*/
-=======
->>>>>>> cf3a6523b3e13fcff5db03b271811d9c92e47a7c
 	for (var j = 0; j < wheelJoints.length; j++) {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
