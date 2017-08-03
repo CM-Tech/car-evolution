@@ -18,9 +18,14 @@
  */
 
 // This is a fun demo that shows off the wheel joint
-planck.testbed('Car', function (testbed) {
-	testbed.speed = 1.3;
-	testbed.hz = 60;
+
+var pl = planck,
+	Vec2 = pl.Vec2;
+var world = new pl.World({
+	gravity: Vec2(0, -10)
+});
+window.world = world;
+var camera = { x: 0, y: 0 };
 	 var SMALL_GROUP = 1;
   var LARGE_GROUP = -1;
 	var BODY_CATEGORY = 0x0002;
@@ -230,8 +235,33 @@ planck.testbed('Car', function (testbed) {
 			body2.setLinearVelocity(velocity2);
 		}
 	}
-	testbed.step = function () {
-		if (testbed.activeKeys.right && testbed.activeKeys.left) {
+	/*testbed.step = function () {
+		
+
+		var cp = boxCar.getPosition();
+		testbed.x = cp.x;
+		testbed.y = -cp.y;
+		
+		if (partsToBreak.length > 0) {
+			for (var i = 0; i < partsToBreak.length; i++) {
+				Break(partsToBreak[i]);
+			}
+			partsToBreak = [];
+		}
+		m_velocity = boxCar.getLinearVelocity();
+		m_angularVelocity = boxCar.getAngularVelocity();
+	};*/
+
+var c = document.createElement("canvas");
+document.body.appendChild(c);
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+var ctx = c.getContext("2d");
+ctx.fillRect(0, 0, 10, 10);
+
+function tick() {
+	/*
+	if (testbed.activeKeys.right && testbed.activeKeys.left) {
 			for (var j = 0; j < wheelJoints.length; j++) {
 				wheelJoints[j].setMotorSpeed(0);
 				wheelJoints[j].enableMotor(true);
@@ -255,20 +285,91 @@ planck.testbed('Car', function (testbed) {
 				wheelJoints[j].enableMotor(false);
 			}
 		}
+		*/
+	for (var j = 0; j < wheelJoints.length; j++) {
+		wheelJoints[j].setMotorSpeed(-SPEED);
+		wheelJoints[j].enableMotor(true);
+	}
 
-		var cp = boxCar.getPosition();
-		testbed.x = cp.x;
-		testbed.y = -cp.y;
-		
-		if (partsToBreak.length > 0) {
-			for (var i = 0; i < partsToBreak.length; i++) {
-				Break(partsToBreak[i]);
-			}
-			partsToBreak = [];
+	var cp = boxCar.getPosition();
+	camera.x = cp.x;
+	camera.y = -cp.y;
+
+	if (partsToBreak.length > 0) {
+		for (var i = 0; i < partsToBreak.length; i++) {
+			Break(partsToBreak[i]);
 		}
-		m_velocity = boxCar.getLinearVelocity();
-		m_angularVelocity = boxCar.getAngularVelocity();
-	};
+		partsToBreak = [];
+	}
+	m_velocity = boxCar.getLinearVelocity();
+	m_angularVelocity = boxCar.getAngularVelocity();
 
-	return world;
-});
+}
+var scale = 10;
+window.setInterval(function(){world.step(1 / 60);tick();},1000/60);
+function render() {
+	// in each frame call world.step(timeStep) with fixed timeStep
+	// iterate over bodies and fixtures
+	//ctx.clearRect(0, 0, c.width, c.height)
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.clearRect(0, 0, c.width, c.height);
+	
+	ctx.translate(c.width / 2, c.height / 2);
+	ctx.scale(scale, -scale);
+	ctx.translate(-camera.x, camera.y);
+	//ctx.clearRect(0, 0, c.width, c.height)
+	for (var body = world.getBodyList(); body; body = body.getNext()) {
+		for (var fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
+			var shape = fixture.m_shape;
+			var type = shape.getType();
+
+			if (type == "polygon") polygon(shape,fixture);
+			if (type == "circle") circle(shape,fixture);
+			if (type == "edge") edge(shape,fixture);
+		}
+	}
+	window.requestAnimationFrame(render);
+}
+window.requestAnimationFrame(render);
+
+function circle(shape,fixture) {
+	ctx.strokeStyle = "#000000"
+	ctx.lineWidth = 1/scale;
+	ctx.save();
+	ctx.translate(fixture.m_body.m_xf.p.x,fixture.m_body.m_xf.p.y);
+	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s,fixture.m_body.m_xf.q.c));
+	ctx.beginPath()
+	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
+	ctx.stroke();
+	ctx.restore();
+}
+function edge(shape,fixture) {
+	ctx.strokeStyle = "#000000";
+	ctx.lineWidth = 1/scale;
+	ctx.save();
+	ctx.translate(fixture.m_body.m_xf.p.x,fixture.m_body.m_xf.p.y);
+	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s,fixture.m_body.m_xf.q.c));
+	ctx.beginPath();
+	ctx.moveTo(shape.m_vertex1.x, shape.m_vertex1.y);
+	ctx.lineTo(shape.m_vertex2.x, shape.m_vertex2.y);
+	ctx.stroke();
+	ctx.restore();
+}
+function polygon(shape,fixture) {
+	//window.fixture=fixture;
+	//console.log("polygon", shape);
+	ctx.strokeStyle = "#000000";
+	ctx.lineWidth = 1/scale;
+	ctx.save();
+	ctx.translate(fixture.m_body.m_xf.p.x,fixture.m_body.m_xf.p.y);
+	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s,fixture.m_body.m_xf.q.c));
+	ctx.beginPath();
+
+	ctx.moveTo(shape.m_vertices[0].x, shape.m_vertices[0].y);
+	for(var i = 1; i<shape.m_vertices.length; i++){
+		ctx.lineTo(shape.m_vertices[i].x, shape.m_vertices[i].y);
+	}
+ctx.closePath();
+	ctx.stroke();
+	ctx.restore();
+}
