@@ -256,7 +256,7 @@ var lowestY=carCreationPoint.y+0;
 				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 				w_fix.render = { fill: "rgba(0,0,0,0.5)" };
-				var spring = world.createJoint(pl.WheelJoint({
+				var spring = world.createJoint(pl.RevoluteJoint({
 					motorSpeed: 0.0,
 					maxMotorTorque: 42 / 2,
 					enableMotor: true,
