@@ -340,6 +340,8 @@ function circle(shape,fixture) {
 	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s,fixture.m_body.m_xf.q.c));
 	ctx.beginPath()
 	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
+	ctx.moveTo(shape.m_p.x, shape.m_p.y);
+	ctx.lineTo(shape.m_p.x+shape.m_radius, shape.m_p.y);
 	ctx.stroke();
 	ctx.restore();
 }
