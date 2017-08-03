@@ -131,7 +131,7 @@ for (var i = 0; i < carData.bodyParts; i++) {
 			w_fix.render = { fill: "rgba(0,0,0,0.5)" };
 			var spring = world.createJoint(pl.RevoluteJoint({
 				motorSpeed: 0.0,
-				maxMotorTorque: 42/2,
+				maxMotorTorque: 42 / 2,
 				enableMotor: true,
 				frequencyHz: 4,
 				dampingRatio: 0.75
@@ -261,9 +261,9 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 
 }
-window.setInterval(function () { 
-	world.step(1 / 60); 
-	tick(); 
+window.setInterval(function () {
+	world.step(1 / 60);
+	tick();
 }, 1000 / 60);
 
 var scale = 20;
