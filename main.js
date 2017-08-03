@@ -34,24 +34,21 @@ var WHEEL_CATEGORY = 0x0004;
 var BODY_MASK = 0xFFFF;
 var BODY_BROKE_MASK = 0xFFFF ^ BODY_CATEGORY ^ WHEEL_CATEGORY;
 var WHEEL_MASK = 0xFFFF ^ WHEEL_CATEGORY;
-var wheelShapeDef = {};
 
+var wheelShapeDef = {};
 wheelShapeDef.filterCategoryBits = WHEEL_CATEGORY;
 wheelShapeDef.filterMaskBits = WHEEL_MASK;
+
 var bodyShapeDef = {};
-
 bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
 bodyShapeDef.filterMaskBits = BODY_MASK;
 bodyShapeDef.density = 0.1;
-var bodyBrokeShapeDef = {};
+bodyShapeDef.friction = 5.0;
 
-bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
-bodyShapeDef.filterMaskBits = BODY_MASK;
-bodyShapeDef.density = 0.1;
 var bodyBrokeShapeDef = {};
-
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
 bodyBrokeShapeDef.density = 0.1;
+
 var pl = planck,
 	Vec2 = pl.Vec2;
 var world = new pl.World({
@@ -64,7 +61,7 @@ var ZETA = 0.7;
 var SPEED = 50.0;
 var ground = world.createBody();
 var genX = -200;
-var flatLandEndX=25;
+var flatLandEndX = 25;
 var groundFD = {
 	density: 0.0,
 	friction: 10.0
@@ -81,10 +78,10 @@ function updateProgress(x) {
 }
 
 function terrain1(x) {
-	if(x<flatLandEndX){
+	if (x < flatLandEndX) {
 		return 0;
 	}
-	return noise.perlin2((x -flatLandEndX)/ 20, 0) * 10;
+	return noise.perlin2((x - flatLandEndX) / 20, 0) * 10 - Math.max(x - flatLandEndX, 0) / 4;
 }
 function genGround() {
 	while (genX < camera.x + 400) {
@@ -96,66 +93,66 @@ function genGround() {
 genGround();
 
 // Car
-var scoreRecord=[];
-var topScores=[];
-var prevGen=[];
-var curGen=[];
-var maxTops=8;
-var genSize=10;
+var scoreRecord = [];
+var topScores = [];
+var prevGen = [];
+var curGen = [];
+var maxTops = 8;
+var genSize = 10;
 var carDNA = new Car();
-function genCarFromOldParents(){
-	var parentPool=[];
-	for(var i=0;i<topScores.length;i++){
+function genCarFromOldParents() {
+	var parentPool = [];
+	for (var i = 0; i < topScores.length; i++) {
 		parentPool.push(topScores[i].car);
 	}
-	for(var i=0;i<prevGen.length;i++){
+	for (var i = 0; i < prevGen.length; i++) {
 		parentPool.push(prevGen[i].car);
 	}
-	return parentPool[Math.floor(Math.random()*parentPool.length)].breed(parentPool[Math.floor(Math.random()*parentPool.length)].breed(parentPool[Math.floor(Math.random()*parentPool.length)]));
+	return parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)]));
 }
-function bestScore(){
-	var s=0;
-	for(var i=0;i<topScores.length;i++){
-		s=Math.max(s,topScores[i].score);
+function bestScore() {
+	var s = 0;
+	for (var i = 0; i < topScores.length; i++) {
+		s = Math.max(s, topScores[i].score);
 	}
 	return s;
 }
-function insertNewCarScore(car,score){
-	topScores.push({score:score,car:car});
-	topScores.sort(function(a,b){return a.score-b.score;});
-	if(topScores.length>maxTops){
-	topScores.splice(0,topScores.length-maxTops);
+function insertNewCarScore(car, score) {
+	topScores.push({ score: score, car: car });
+	topScores.sort(function (a, b) { return a.score - b.score; });
+	if (topScores.length > maxTops) {
+		topScores.splice(0, topScores.length - maxTops);
 	}
 }
-function switchCar(first){
-	var score=carScore+0;
-	if(first){
-		scoreRecord=[];
-topScores=[];
-prevGen=[];
-curGen=[];
+function switchCar(first) {
+	var score = carScore + 0;
+	if (first) {
+		scoreRecord = [];
+		topScores = [];
+		prevGen = [];
+		curGen = [];
 		carDNA = new Car();
 		createCar(carDNA);
-	}else{
-		if(score>0){
-		curGen.push({score:score,car:carDNA.clone()});
-		insertNewCarScore(carDNA.clone(),score);
+	} else {
+		if (score > 0) {
+			curGen.push({ score: score, car: carDNA.clone() });
+			insertNewCarScore(carDNA.clone(), score);
 		}
-		if(curGen.length>=genSize){
-			prevGen=curGen;
-			curGen=[];
+		if (curGen.length >= genSize) {
+			prevGen = curGen;
+			curGen = [];
 		}
-	if(prevGen.length===0){
-		if(topScores.length>0){
-		carDNA=genCarFromOldParents();
-		}else{
-			carDNA = new Car();
+		if (prevGen.length === 0) {
+			if (topScores.length > 0) {
+				carDNA = genCarFromOldParents();
+			} else {
+				carDNA = new Car();
+			}
+			createCar(carDNA);
+		} else {
+			carDNA = genCarFromOldParents();
+			createCar(carDNA);
 		}
-	createCar(carDNA);
-	}else{
-	carDNA=genCarFromOldParents();
-	createCar(carDNA);
-	}
 	}
 }
 // Breakable dynamic body
@@ -187,8 +184,6 @@ function removeOldCar() {
 	}
 	for (var i = 0; i < connectedPartsOld.length; i++) {
 		world.destroyBody(connectedPartsOld[i].m_body);
-		//world.destroyFixture(connectedPartsOld[i]);
-		//world.destroyFixture(connectedPartsOld[i]);
 	}
 	for (var i = 0; i < wheels.length; i++) {
 		world.destroyBody(wheels[i]);
@@ -231,7 +226,7 @@ function createCar(carData) {
 	connectedPartsWheels = [];
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
-var lowestY=carCreationPoint.y+0;
+	var lowestY = carCreationPoint.y + 0;
 	var p_angle = 0;
 	var carScale = 1 / 10;
 	for (var i = 0; i < carData.bodyParts; i++) {
@@ -243,7 +238,7 @@ var lowestY=carCreationPoint.y+0;
 		]);
 
 		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
-		lowestY=Math.min(lowestY,m_piece.getAABB(0).lowerBound.y);
+		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
 		m_piece.render = { fill: "hsla(" + Math.random() * 360 + ",100%,50%,0.5)" };
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
@@ -262,13 +257,13 @@ var lowestY=carCreationPoint.y+0;
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.1
-				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index/carData.bodyParts*Math.PI*2) / 1, Math.sin(wheelData.index/carData.bodyParts*Math.PI*2) / 1)));
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index / carData.bodyParts * Math.PI * 2) / 1, Math.sin(wheelData.index / carData.bodyParts * Math.PI * 2) / 1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);
 				wheelsF.push(w_fix);
 				//console.log(wheelData.r * carScale,w_fix.getAABB(0).lowerBound.y);
-				lowestY=Math.min(lowestY,w_fix.getAABB(0).lowerBound.y);
+				lowestY = Math.min(lowestY, w_fix.getAABB(0).lowerBound.y);
 			}
 		}
 		connectedPartsWheels.push([totWheelAdditions]);
