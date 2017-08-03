@@ -84,8 +84,8 @@ Car.prototype.breed = function (other,maxWheels,wheelProbablity) {
     if(wheelProbablity){
         wheelProb=wheelProbablity;
     }
-    var mutationRate=0.1;
-    var explorationRate=0.075;
+    var mutationRate=0.05;
+    var explorationRate=0.1;
     this.fixAngleWeights();
     other.fixAngleWeights();
     this.data.wheels.sort(this.compareWheels);
@@ -190,7 +190,7 @@ Car.prototype.breed = function (other,maxWheels,wheelProbablity) {
     if(wheelActivationsNeeded>0) {
         for(var j=0;j<wheelActivationsNeeded;j++){
         var wi=Math.floor(Math.random() * offspring.data.wheels.length);
-            offspring.data.wheels[wi].o=(Math.random() < wheelProb)||offspring.data.wheels[wi].o;
+            offspring.data.wheels[wi].o=(Math.random() < 0.5)||offspring.data.wheels[wi].o;
         }
         
     }
