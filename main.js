@@ -333,6 +333,7 @@ function edge(shape, fixture) {
 function polygon(shape, fixture) {
 	ctx.strokeStyle = "#000000";
 	ctx.fillStyle = "rgba(0,0,0,0)";
+	ctx.lineJoin="round"
 	var f = fixture;
 	if (f.render && f.render.stroke) {
 		ctx.strokeStyle = f.render.stroke;
