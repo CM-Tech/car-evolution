@@ -162,7 +162,7 @@ w_fix.render={fill:"rgba(0,0,0,0.5)"};
 					var partBreak = false;
 					var impulseSum = 0;
 					for (var i = 0; i < a.v_points.length; i++) {
-						if (a.v_points[i].normalImpulse > 42) partBreak = true;
+						if (a.v_points[i].normalImpulse > 30) partBreak = true;
 					}
 					if (partBreak) partsToBreak.push(m_piece);
 				}
