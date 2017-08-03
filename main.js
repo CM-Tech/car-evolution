@@ -91,7 +91,7 @@ var camera = { x: 0, y: 0 };
 	var m_velocity;
 	var m_angularVelocity;
 	var boxCar = world.createDynamicBody({
-		position: Vec2(0.0, 10.0)
+		position: Vec2(0.0, 20.0)
 	});
 
 	window.boxCar = boxCar;
@@ -121,6 +121,7 @@ var camera = { x: 0, y: 0 };
 		]);
 
 		var m_piece = boxCar.createFixture(m_shape, 0.1);
+		m_piece.render={fill:"hsla("+Math.random()*360+",100%,50%,0.5)"};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
 		connectedShapes.push(m_shape);
@@ -131,7 +132,7 @@ var camera = { x: 0, y: 0 };
 			if (wheelData.o) {
 				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
-
+w_fix.render={fill:"rgba(0,0,0,0.5)"};
 				var spring = world.createJoint(pl.RevoluteJoint({
 					motorSpeed: 0.0,
 					maxMotorTorque: 25.0,
@@ -161,7 +162,7 @@ var camera = { x: 0, y: 0 };
 					var partBreak = false;
 					var impulseSum = 0;
 					for (var i = 0; i < a.v_points.length; i++) {
-						if (a.v_points[i].normalImpulse > 50) partBreak = true;
+						if (a.v_points[i].normalImpulse > 42) partBreak = true;
 					}
 					if (partBreak) partsToBreak.push(m_piece);
 				}
@@ -208,6 +209,7 @@ var camera = { x: 0, y: 0 };
 					world.destroyJoint(m_wheels[0][j]);
 				}
 			}
+			var renderData=m_piece.render;
 			boxCar.destroyFixture(m_piece);
 			m_piece = null;
 			var body2 = world.createBody({
@@ -216,6 +218,7 @@ var camera = { x: 0, y: 0 };
 				angle: body1.getAngle()
 			});
 			m_piece = body2.createFixture(m_shape, bodyShapeDef);
+			m_piece.render=renderData;
 			connectedPartsOld.push(m_piece);
 			// Compute consistent velocities for new bodies based on
 			// cached velocity.
@@ -328,13 +331,24 @@ function render() {
 window.requestAnimationFrame(render);
 
 function circle(shape,fixture) {
-	ctx.strokeStyle = "#000000"
+	ctx.strokeStyle = "#000000";
+	ctx.fillStyle = "rgba(0,0,0,0)";
+	var f=fixture;
+	if (f.render && f.render.stroke) {
+                    ctx.strokeStyle = f.render.stroke;
+                } 
+                if (f.render && f.render.fill) {
+                    ctx.fillStyle = f.render.fill;
+                }
 	ctx.lineWidth = 1/scale;
 	ctx.save();
 	ctx.translate(fixture.m_body.m_xf.p.x,fixture.m_body.m_xf.p.y);
 	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s,fixture.m_body.m_xf.q.c));
 	ctx.beginPath()
 	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
+	ctx.stroke();
+	ctx.fill();
+	ctx.beginPath()
 	ctx.moveTo(shape.m_p.x, shape.m_p.y);
 	ctx.lineTo(shape.m_p.x+shape.m_radius, shape.m_p.y);
 	ctx.stroke();
@@ -342,6 +356,14 @@ function circle(shape,fixture) {
 }
 function edge(shape,fixture) {
 	ctx.strokeStyle = "#000000";
+	ctx.fillStyle = "rgba(0,0,0,0)";
+	var f=fixture;
+	if (f.render && f.render.stroke) {
+                    ctx.strokeStyle = f.render.stroke;
+                } 
+                if (f.render && f.render.fill) {
+                    ctx.fillStyle = f.render.fill;
+                }
 	ctx.lineWidth = 1/scale;
 	ctx.save();
 	ctx.translate(fixture.m_body.m_xf.p.x,fixture.m_body.m_xf.p.y);
@@ -356,6 +378,14 @@ function polygon(shape,fixture) {
 	//window.fixture=fixture;
 	//console.log("polygon", shape);
 	ctx.strokeStyle = "#000000";
+	ctx.fillStyle = "rgba(0,0,0,0)";
+	var f=fixture;
+	if (f.render && f.render.stroke) {
+                    ctx.strokeStyle = f.render.stroke;
+                } 
+                if (f.render && f.render.fill) {
+                    ctx.fillStyle = f.render.fill;
+                }
 	ctx.lineWidth = 1/scale;
 	ctx.save();
 	ctx.translate(fixture.m_body.m_xf.p.x,fixture.m_body.m_xf.p.y);
@@ -368,5 +398,6 @@ function polygon(shape,fixture) {
 	}
 ctx.closePath();
 	ctx.stroke();
+	ctx.fill();
 	ctx.restore();
 }
