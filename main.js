@@ -261,11 +261,13 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 
 }
+window.setInterval(function () { 
+	world.step(1 / 60); 
+	tick(); 
+}, 1000 / 60);
+
 var scale = 20;
-window.setInterval(function () { world.step(1 / 60); tick(); }, 1000 / 60);
 function render() {
-	// in each frame call world.step(timeStep) with fixed timeStep
-	// iterate over bodies and fixtures
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, c.width, c.height);
 
@@ -273,33 +275,28 @@ function render() {
 	ctx.scale(scale, -scale);
 	ctx.translate(-camera.x, camera.y);
 	for (var body = world.getBodyList(); body; body = body.getNext()) {
-		for (var fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
-			var shape = fixture.m_shape;
-			var type = shape.getType();
+		for (var f = body.getFixtureList(); f; f = f.getNext()) {
+			ctx.strokeStyle = f.render && f.render.stroke ? f.render.stroke : "#000000";
+			ctx.fillStyle = f.render && f.render.fill ? f.render.fill : "rgba(0,0,0,0)";
 
-			if (type == "polygon") polygon(shape, fixture);
-			if (type == "circle") circle(shape, fixture);
-			if (type == "edge") edge(shape, fixture);
+			ctx.lineWidth = 1 / scale;
+			ctx.save();
+			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
+			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
+
+			var shape = f.m_shape;
+			if (shape.getType() == "polygon") polygon(shape);
+			if (shape.getType() == "circle") circle(shape);
+			if (shape.getType() == "edge") edge(shape);
+
+			ctx.restore();
 		}
 	}
 	window.requestAnimationFrame(render);
 }
 window.requestAnimationFrame(render);
 
-function circle(shape, fixture) {
-	ctx.strokeStyle = "#000000";
-	ctx.fillStyle = "rgba(0,0,0,0)";
-	var f = fixture;
-	if (f.render && f.render.stroke) {
-		ctx.strokeStyle = f.render.stroke;
-	}
-	if (f.render && f.render.fill) {
-		ctx.fillStyle = f.render.fill;
-	}
-	ctx.lineWidth = 1 / scale;
-	ctx.save();
-	ctx.translate(fixture.m_body.m_xf.p.x, fixture.m_body.m_xf.p.y);
-	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s, fixture.m_body.m_xf.q.c));
+function circle(shape, f) {
 	ctx.beginPath()
 	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
 	ctx.stroke();
@@ -308,45 +305,16 @@ function circle(shape, fixture) {
 	ctx.moveTo(shape.m_p.x, shape.m_p.y);
 	ctx.lineTo(shape.m_p.x + shape.m_radius, shape.m_p.y);
 	ctx.stroke();
-	ctx.restore();
 }
-function edge(shape, fixture) {
-	ctx.strokeStyle = "#000000";
-	ctx.fillStyle = "rgba(0,0,0,0)";
-	var f = fixture;
-	if (f.render && f.render.stroke) {
-		ctx.strokeStyle = f.render.stroke;
-	}
-	if (f.render && f.render.fill) {
-		ctx.fillStyle = f.render.fill;
-	}
-	ctx.lineWidth = 1 / scale;
-	ctx.save();
-	ctx.translate(fixture.m_body.m_xf.p.x, fixture.m_body.m_xf.p.y);
-	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s, fixture.m_body.m_xf.q.c));
+function edge(shape, f) {
 	ctx.beginPath();
 	ctx.moveTo(shape.m_vertex1.x, shape.m_vertex1.y);
 	ctx.lineTo(shape.m_vertex2.x, shape.m_vertex2.y);
 	ctx.stroke();
-	ctx.restore();
 }
-function polygon(shape, fixture) {
-	ctx.strokeStyle = "#000000";
-	ctx.fillStyle = "rgba(0,0,0,0)";
-	ctx.lineJoin="round"
-	var f = fixture;
-	if (f.render && f.render.stroke) {
-		ctx.strokeStyle = f.render.stroke;
-	}
-	if (f.render && f.render.fill) {
-		ctx.fillStyle = f.render.fill;
-	}
-	ctx.lineWidth = 1 / scale;
-	ctx.save();
-	ctx.translate(fixture.m_body.m_xf.p.x, fixture.m_body.m_xf.p.y);
-	ctx.rotate(Math.atan2(fixture.m_body.m_xf.q.s, fixture.m_body.m_xf.q.c));
+function polygon(shape, f) {
+	ctx.lineJoin = "round"
 	ctx.beginPath();
-
 	ctx.moveTo(shape.m_vertices[0].x, shape.m_vertices[0].y);
 	for (var i = 1; i < shape.m_vertices.length; i++) {
 		ctx.lineTo(shape.m_vertices[i].x, shape.m_vertices[i].y);
@@ -354,5 +322,4 @@ function polygon(shape, fixture) {
 	ctx.closePath();
 	ctx.stroke();
 	ctx.fill();
-	ctx.restore();
 }
