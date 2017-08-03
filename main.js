@@ -66,7 +66,7 @@ var ground = world.createBody();
 var genX = -100;
 var groundFD = {
 	density: 0.0,
-	friction: 0.6
+	friction: 10.0
 };
 
 function terrain1(x) {
