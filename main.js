@@ -63,24 +63,28 @@ var HZ = 4.0;
 var ZETA = 0.7;
 var SPEED = 50.0;
 var ground = world.createBody();
-var genX = -100;
+var genX = -200;
+var flatLandEndX=25;
 var groundFD = {
 	density: 0.0,
 	friction: 10.0
 };
 var restartTicks = 200;
 var restartCurrent = 0;
-var carProgress = 0;
+var carScore = 0;
 function updateProgress(x) {
-	if (carProgress < x - 3) {
+	if (carScore < x - 3) {
 		restartCurrent = 0;
-		carProgress = x + 0;
+		carScore = x + 0;
 		console.log("progress");
 	}
 }
 
 function terrain1(x) {
-	return noise.perlin2(x / 20, 0) * 10;
+	if(x<flatLandEndX){
+		return 0;
+	}
+	return noise.perlin2((x -flatLandEndX)/ 20, 0) * 10;
 }
 function genGround() {
 	while (genX < camera.x + 400) {
@@ -92,7 +96,68 @@ function genGround() {
 genGround();
 
 // Car
+var scoreRecord=[];
+var topScores=[];
+var prevGen=[];
+var curGen=[];
+var maxTops=8;
+var genSize=10;
 var carDNA = new Car();
+function genCarFromOldParents(){
+	var parentPool=[];
+	for(var i=0;i<topScores.length;i++){
+		parentPool.push(topScores[i].car);
+	}
+	for(var i=0;i<prevGen.length;i++){
+		parentPool.push(prevGen[i].car);
+	}
+	return parentPool[Math.floor(Math.random()*parentPool.length)].breed(parentPool[Math.floor(Math.random()*parentPool.length)].breed(parentPool[Math.floor(Math.random()*parentPool.length)]));
+}
+function bestScore(){
+	var s=0;
+	for(var i=0;i<topScores.length;i++){
+		s=Math.max(s,topScores[i].score);
+	}
+	return s;
+}
+function insertNewCarScore(car,score){
+	topScores.push({score:score,car:car});
+	topScores.sort(function(a,b){return a.score-b.score;});
+	if(topScores.length>maxTops){
+	topScores.splice(0,topScores.length-maxTops);
+	}
+}
+function switchCar(first){
+	var score=carScore+0;
+	if(first){
+		scoreRecord=[];
+topScores=[];
+prevGen=[];
+curGen=[];
+		carDNA = new Car();
+		createCar(carDNA);
+	}else{
+		if(score>0){
+		curGen.push({score:score,car:carDNA.clone()});
+		insertNewCarScore(carDNA.clone(),score);
+		}
+		if(curGen.length>=genSize){
+			prevGen=curGen;
+			curGen=[];
+		}
+	if(prevGen.length===0){
+		if(topScores.length>0){
+		carDNA=genCarFromOldParents();
+		}else{
+			carDNA = new Car();
+		}
+	createCar(carDNA);
+	}else{
+	carDNA=genCarFromOldParents();
+	createCar(carDNA);
+	}
+	}
+}
 // Breakable dynamic body
 var m_velocity;
 var m_angularVelocity;
@@ -166,7 +231,7 @@ function createCar(carData) {
 	connectedPartsWheels = [];
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
-
+var lowestY=carCreationPoint.y+0;
 	var p_angle = 0;
 	var carScale = 1 / 10;
 	for (var i = 0; i < carData.bodyParts; i++) {
@@ -178,6 +243,7 @@ function createCar(carData) {
 		]);
 
 		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
+		lowestY=Math.min(lowestY,m_piece.getAABB(0).lowerBound.y);
 		m_piece.render = { fill: "hsla(" + Math.random() * 360 + ",100%,50%,0.5)" };
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
@@ -195,21 +261,24 @@ function createCar(carData) {
 					maxMotorTorque: 42 / 2,
 					enableMotor: true,
 					frequencyHz: 4,
-					dampingRatio: 0.75
+					dampingRatio: 0.1
 				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index/carData.bodyParts*Math.PI*2) / 1, Math.sin(wheelData.index/carData.bodyParts*Math.PI*2) / 1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);
 				wheelsF.push(w_fix);
+				//console.log(wheelData.r * carScale,w_fix.getAABB(0).lowerBound.y);
+				lowestY=Math.min(lowestY,w_fix.getAABB(0).lowerBound.y);
 			}
 		}
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
-	carProgress = 0;
+	//boxCar.setPosition(boxCar.getPosition().add(Vec2(0,-lowestY+1)));
+	carScore = 0;
 	restartCurrent = 0;
 }
-createCar(carDNA);
+switchCar(true);
 world.on('post-solve', function (contact, impulse) {
 	window.contact = contact;
 	var a = contact;
@@ -301,8 +370,7 @@ function tick() {
 	camera.y = -cp.y;
 	updateProgress(cp.x);
 	if (restartCurrent >= restartTicks) {
-		carDNA = new Car();
-		createCar(carDNA);
+		switchCar();
 	}
 
 	if (partsToBreak.length > 0) {
