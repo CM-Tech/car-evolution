@@ -232,13 +232,6 @@ function Break(m_piece) {
 	}
 }
 
-var c = document.createElement("canvas");
-document.body.appendChild(c);
-c.width = window.innerWidth;
-c.height = window.innerHeight;
-var ctx = c.getContext("2d");
-ctx.fillRect(0, 0, 10, 10);
-
 function tick() {
 	genGround();
 
@@ -265,6 +258,16 @@ window.setInterval(function () {
 	world.step(1 / 60);
 	tick();
 }, 1000 / 60);
+
+var c = document.getElementById("c");
+var ctx = c.getContext("2d");
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+
+window.addEventListener("resize", function(){
+	c.width = window.innerWidth;
+	c.height = window.innerHeight;
+});
 
 var scale = 20;
 function render() {
