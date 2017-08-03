@@ -129,11 +129,11 @@ for (var i = 0; i < carData.bodyParts; i++) {
 			var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
 			var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 			w_fix.render = { fill: "rgba(0,0,0,0.5)" };
-			var spring = world.createJoint(pl.RevoluteJoint({
+			var spring = world.createJoint(pl.WheelJoint({
 				motorSpeed: 0.0,
 				maxMotorTorque: 42 / 2,
 				enableMotor: true,
-				frequencyHz: 4,
+				frequencyHz: 42,
 				dampingRatio: 0.75
 			}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.axelAngle) / 1, Math.sin(wheelData.axelAngle) / 1)));
 			wheelJoints.push(spring);
