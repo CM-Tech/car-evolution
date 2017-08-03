@@ -102,7 +102,7 @@ var camera = { x: 0, y: 0 };
 	window.boxCar = boxCar;
 
 	var wheelFD = wheelShapeDef;
-	wheelFD.density = 1.0;
+	wheelFD.density = 0.5;
 	wheelFD.friction = 0.9;
 
 	var connectedParts = [];
