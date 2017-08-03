@@ -121,7 +121,9 @@ function removeOldCar() {
 		world.destroyBody(connectedParts[i]);
 	}
 	for (var i = 0; i < connectedPartsOld.length; i++) {
-		world.destroyBody(connectedPartsOld[i]);
+		world.destroyBody(connectedPartsOld[i].m_body);
+		//world.destroyFixture(connectedPartsOld[i]);
+		//world.destroyFixture(connectedPartsOld[i]);
 	}
 	for (var i = 0; i < wheels.length; i++) {
 		world.destroyBody(wheels[i]);

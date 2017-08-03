@@ -7,15 +7,16 @@ function Car(data) {
             this.data.lengths.push(this.maxLength / 2 * (Math.random() / 4 * 3 + 0.25));
             this.data.angleWeights.push(0.5 + Math.random());
         }
-        for (var i = 0; i < 4; i++) {
+        for (var i = 0; i < 1; i++) {
             this.data.wheels.push({ index: Math.floor(Math.random() * this.bodyParts), r: (this.maxRadius - this.minRadius) * Math.random() + this.minRadius, o: true, axelAngle: i / this.bodyParts * Math.PI * 2 });
         }
-        for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < this.maxWheels-1; i++) {
             this.data.wheels.push({ index: Math.floor(Math.random() * this.bodyParts), r: (this.maxRadius - this.minRadius) * Math.random() + this.minRadius, o: Math.random() < 0.1, axelAngle: i / this.bodyParts * Math.PI * 2 });
         }
     }
 }
 Car.prototype.bodyParts = 8;
+Car.prototype.maxWheels = 8; 
 Car.prototype.maxLength = 100;
 Car.prototype.maxRadius = 20;
 Car.prototype.minRadius = 5;
@@ -52,7 +53,29 @@ Car.prototype.bestMap = function (other) {
     }
 }
 Car.prototype.breed = function (other) {
+    var mutationRate=0.05;
+    var explorationRate=0.075;
     this.data.wheels.sort(this.compareWheels);
     other.data.wheels.sort(this.compareWheels);
     var offspring = new Car();
+    for(var i=0;i<this.bodyParts;i++){
+        if(Math.random()>explorationRate){
+            var lerp=(Math.random()-0.5)/10+0.5;
+            offspring.data.lengths[i]=Math.min(Math.max((this.data.lengths[i]*lerp+other.data.lengths[i]*(1-lerp))*(1-mutationRate)+mutationRate*Math.random()*this.maxLength,0),this.maxLength);
+        }
+    }
+    offspring.data.wheels=[];
+    for(var i=0;i<Math.max(this.data.wheels.length,other.data.wheels.length);i++){
+        var aHaveWheel=i<this.data.wheels.length;
+        var bHaveWheel=i<other.data.wheels.length;
+        var a=aHaveWheel?this.data.wheels[i]:other.data.wheels[i];
+        var b=aHaveWheel&&bHaveWheel?other.data.wheels[i]:null;
+        if(aHaveWheel){
+
+        }else{
+            
+        }
+        
+    }
+    return offspring;
 }
