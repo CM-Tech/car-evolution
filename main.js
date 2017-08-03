@@ -111,13 +111,13 @@ var camera = { x: 0, y: 0 };
 	var center_vec = boxCar.getWorldCenter().clone();
 	//create car from data
 	var p_angle = 0;
-	var scale = 1 / 10;
+	var carScale = 1 / 10;
 	for (var i = 0; i < carData.bodyParts; i++) {
 		var new_p_angle = p_angle + carData.data.angleWeights[i] / carData.totalAngleWeights() * Math.PI * 2;
 		var m_shape = pl.Polygon([
 			Vec2(0, 0),
-			Vec2(Math.cos(p_angle + 0) * carData.data.lengths[i] * scale, Math.sin(p_angle + 0) * carData.data.lengths[i] * scale),
-			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * scale),
+			Vec2(Math.cos(p_angle + 0) * carData.data.lengths[i] * carScale, Math.sin(p_angle + 0) * carData.data.lengths[i] * carScale),
+			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale),
 		]);
 
 		var m_piece = boxCar.createFixture(m_shape, 0.1);
@@ -129,8 +129,8 @@ var camera = { x: 0, y: 0 };
 		for (var j = 0; j < wheelsThere.length; j++) {
 			var wheelData = wheelsThere[j];
 			if (wheelData.o) {
-				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * scale, Math.sin(p_angle) * carData.data.lengths[i] * scale).add(center_vec));
-				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * scale), wheelFD);
+				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
+				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 
 				var spring = world.createJoint(pl.RevoluteJoint({
 					motorSpeed: 0.0,
@@ -300,7 +300,7 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 
 }
-var scale = 10;
+var scale = 20;
 window.setInterval(function(){world.step(1 / 60);tick();},1000/60);
 function render() {
 	// in each frame call world.step(timeStep) with fixed timeStep
