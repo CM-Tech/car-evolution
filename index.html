@@ -1,5 +1,14 @@
 <html>
     <head>
+        <script src="lib/jsxcompressor/jsxcompressor.min.js"></script>
+        <script src="lib/binary-parser.js"></script>
+        <script>
+                JXG.decompress = function (str) {
+                    return unescape(
+                        (new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(str))).unzip()[0][0]
+                    );
+                };
+        </script>
         <script src="lib/planck.min.js"></script>
         <script src="lib/perlin.js"></script>
         <style>

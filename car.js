@@ -38,6 +38,73 @@ Car.prototype.fixAngleWeights = function () {
         this.data.angleWeights[i] = Math.min(Math.max(this.data.angleWeights[i] / total * this.bodyParts, this.minAngleWeight), this.maxAngleWeight);
     }
 }
+function toBits(param1) {
+    var str = btoa(param1);
+    var bytes = [];
+    for (var i = 0; i < str.length; ++i) {
+        var code = str
+            .charCodeAt(i)
+            .toString(2);
+        while (code.length < 8) {
+            code = "0" + code;
+        }
+        for (var j = 0; j < code.length; j++) {
+            bytes.push(code[j] === "0"
+                ? 0
+                : 1);
+        }
+
+    }
+    return bytes;
+}
+function toBytes(param1) {
+    var str = btoa(param1);
+    var bytes = [];
+    for (var i = 0; i < str.length; ++i) {
+bytes.push(str.charCodeAt(i));
+
+    }
+    return bytes;
+}
+
+function decomp(param1) {
+
+    /*var _loc2_ = toBytes(param1);
+    //_loc2_.endian = Endian.BIG_ENDIAN;
+    var _loc3_ = [];
+    var inflate = new Zlib.Inflate(_loc2_);
+    var plain = inflate.decompress();*/
+var parser = new BinaryParser();
+return parser.decodeFloat((new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(param1))).unzip()[0][0].substring(0,8));
+}
+Car.prototype.decode=function(param1){
+
+    var _loc2_  = toBytes(param1);
+    //_loc2_.endian = Endian.BIG_ENDIAN;
+    /*var _loc3_ = [];
+var inflate = new Zlib.Inflate(_loc2_);
+var plain = inflate.decompress();
+    var _loc4_ :* = 0;
+    while (_loc4_ < 16) {
+        _loc3_[_loc4_] = _loc2_.readDouble();
+        _loc4_++;
+    }
+    _loc4_ = 0;
+    while (_loc4_ < 8) {
+        _loc3_[_loc4_ * 3 + 16] = _loc2_.readInt();
+        _loc3_[_loc4_ * 3 + 1 + 16] = _loc2_.readDouble();
+        _loc3_[_loc4_ * 3 + 2 + 16] = _loc2_.readDouble();
+        _loc4_++;
+    }
+    _loc4_ = 0;
+    while (_loc4_ < 16) {
+        _loc3_[_loc4_ + 40] = _loc2_.readUnsignedInt();
+        _loc4_++;
+    }
+    _loc3_[56] = _loc2_.readInt();
+    return _loc3_;*/
+
+}
 Car.prototype.totalAngleWeights = function () {
     var total = 0;
     for (var i = 0; i < this.bodyParts; i++) {
