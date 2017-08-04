@@ -101,7 +101,7 @@ Car.prototype.exportBoxCar2D = function () {
         if(this.data.wheels[i].o){
             string.push(this.data.wheels[i].index);
             string.push(angles[this.data.wheels[i].index]+Math.PI);
-            string.push(this.data.wheels[i].r/this.maxRadius*1.5)
+            string.push(this.data.wheels[i].r/this.maxRadius*1.5*1.25)
             console.log("wheel");
             wheelCount++;
         }
