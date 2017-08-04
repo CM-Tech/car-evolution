@@ -99,8 +99,6 @@ function resetGround(){
 	terrains.filter(function(t){
 		return t.m_body.m_xf.p.x + t.m_shape.m_vertex1.x < camera.x - Math.max(c.width/scale/2,100);
 	}).forEach(function(a){
-			console.log("reseting")
-
 		terrains.splice(terrains.indexOf(a), 1)
 		ground.destroyFixture(a);
 	})
@@ -311,8 +309,6 @@ function createCar(carData) {
 	restartCurrent = 0;
 	genX = -200;
 	terrains.forEach(function(a){
-			console.log("reseting")
-
 		terrains.splice(terrains.indexOf(a), 1)
 		ground.destroyFixture(a);
 	})
