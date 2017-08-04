@@ -203,6 +203,17 @@ function switchCar(first) {
 		}
 	}
 }
+function importCar(str) {
+	var score = carScore + 0;
+	
+		scoreRecord = [];
+		topScores = [];
+		prevGen = [];
+		curGen = [];
+		carDNA = new Car().importCar(str);
+		createCar(carDNA);
+	
+}
 
 // Breakable dynamic body
 var m_velocity;
