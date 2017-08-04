@@ -76,14 +76,14 @@ function terrain1(x) {
 	if (x < flatLandEndX) {
 		return 0;
 	}
-	return noise.perlin2((x - flatLandEndX) / 20, 0) * 10 - Math.pow(Math.max(x - flatLandEndX, 0)/10,1.1) / 4*10;
+	return noise.perlin2((x - flatLandEndX) / 20, 0) * 10+noise.perlin2((x - flatLandEndX) / 10, (x - flatLandEndX) / 10) * 10 - Math.pow(Math.max(x - flatLandEndX, 0)/10,1.2) / 4*10;
 }
 function resetGround(){
 	
 }
 function genGround() {
 	while (genX < camera.x + 400) {
-		var nextX = genX + 6;
+		var nextX = genX + 10;
 		ground.createFixture(pl.Edge(Vec2(genX, terrain1(genX)), Vec2(nextX, terrain1(nextX))), groundFD);
 		genX = nextX;
 	}
@@ -286,7 +286,7 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
-			var strength=Math.sqrt(connectedPartsArea[j])*1.5;
+			var strength=Math.sqrt(connectedPartsArea[j])*3;
 			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
