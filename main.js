@@ -97,7 +97,7 @@ function terrain3(x) {
 }
 function resetGround(){
 	terrains.filter(function(t){
-		return t.m_body.m_xf.p.x + t.m_shape.m_vertex1.x < camera.x - 20;
+		return t.m_body.m_xf.p.x + t.m_shape.m_vertex1.x < camera.x - Math.max(c.width/scale/2,100);
 	}).forEach(function(a){
 			console.log("reseting")
 
@@ -108,7 +108,7 @@ function resetGround(){
 
 var terrains = [];
 function genGround() {
-	while (genX < camera.x + c.width/scale/2) {
+	while (genX < camera.x + Math.max(c.width/scale/2,100)) {
 		var nextX = genX + 10;
 		var terrainFunc=terrain2;
 		terrains.push(ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD))
@@ -241,7 +241,7 @@ function removeOldCar() {
 	connectedPartsWheels = [];
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
-	genX = -200;
+	
 }
 var carScale = 1 / 10;
 function createCar(carData) {
@@ -309,6 +309,7 @@ function createCar(carData) {
 	boxCar.resetMassData();
 	carScore = 0;
 	restartCurrent = 0;
+	genX = -200;
 }
 switchCar(true);
 world.on('post-solve', function (contact, impulse) {
