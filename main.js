@@ -141,7 +141,7 @@ function genCarFromOldParents() {
 }
 
 function exportBestCar() {
-	return topScores[topScores.length - 1].car.exportBoxCar2D();
+	return topScores[topScores.length - 1].car.exportCar();
 }
 
 function bestScore() {
