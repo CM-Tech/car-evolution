@@ -310,6 +310,12 @@ function createCar(carData) {
 	carScore = 0;
 	restartCurrent = 0;
 	genX = -200;
+	terrains.forEach(function(a){
+			console.log("reseting")
+
+		terrains.splice(terrains.indexOf(a), 1)
+		ground.destroyFixture(a);
+	})
 }
 switchCar(true);
 world.on('post-solve', function (contact, impulse) {
