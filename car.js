@@ -273,7 +273,7 @@ for (var i = 0; i < this.bodyParts; i++) {
 }
 Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     var interp = Math.max(1, this.score) / (Math.max(1, this.score) + Math.max(1, other.score));
-    var interpL = 0.5;
+    var interpL = 1;
     var wheelMax = this.maxWheels;
     var wheelProb = this.wheelProb;
     if (maxWheels) 

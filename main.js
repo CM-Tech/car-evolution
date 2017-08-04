@@ -102,7 +102,7 @@ function terrain2(x) {
 
 function terrain3(x) {
 	if (x < flatLandEndX) return 0;
-	return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.35) / 4 * 8;
+return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.5) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5)%2)/2>0.5?0.5:0);
 }
 
 var terrains = [];
@@ -117,7 +117,7 @@ function resetGround() {
 
 function genGround() {
 	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
-		var nextX = genX + 1;//1 for terrain 3 otherwise 10
+		var nextX = genX + 0.5;//0.5 for terrain 3 otherwise 10
 		var terrainFunc = terrain3;
 		terrains.push(ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD))
 		genX = nextX;
@@ -487,8 +487,24 @@ world.destroyJoint(m_springs[0][j]);
 
 function tick() {
 	genGround();
-var torque = MASS_MULT * GRAVITY / wheelJoints.length * boxCar.m_mass / carScale / carScale;
-var baseSpringForce = boxCar.m_mass * 7.5 / carScale / carScale;
+var cMass = boxCar.m_mass;
+try{
+for (var j = 0; j < wheelJoints.length; j++) {
+if (wheelJoints[j].m_bodyB) {
+if (wheelJoints[j].m_bodyB.m_mass) {
+cMass += wheelJoints[j].m_bodyB.m_mass;
+}
+}
+if (springJoints[j].m_bodyB) {
+				cMass += springJoints[j].m_bodyB.m_mass;
+}
+}
+}catch(e){
+
+}
+cMass = cMass / carScale / carScale;
+var torque = MASS_MULT * GRAVITY / wheelJoints.length * cMass;
+var baseSpringForce =  7.5 *cMass/1.5;
 	for (var j = 0; j < wheelJoints.length; j++) {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
@@ -499,9 +515,9 @@ var baseSpringForce = boxCar.m_mass * 7.5 / carScale / carScale;
 		springJoints[j].enableMotor(true);
 		if (springJoints[j].m_bodyB) {
 			var force=0;
-springJoints[j].setMaxMotorForce(baseSpringForce + 40/40*4 * baseSpringForce * Math.pow(springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
+springJoints[j].setMaxMotorForce(baseSpringForce + 40/40 * baseSpringForce * Math.pow(3*springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
 //console.log(springJoints[j].getJointTranslation());
-springJoints[j].setMotorSpeed(-20/20*2 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
+springJoints[j].setMotorSpeed(-20/20 *3* springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
             
 			//springJoints[j].setMaxMotorForce(force  );
 		}
