@@ -306,12 +306,14 @@ function createCar(carData) {
 	}
 	boxCar.resetMassData();
 	carScore = 0;
+	camera.x=0;
 	restartCurrent = 0;
 	genX = -200;
 	terrains.forEach(function(a){
 		terrains.splice(terrains.indexOf(a), 1)
 		ground.destroyFixture(a);
-	})
+	});
+	genGround();
 }
 switchCar(true);
 world.on('post-solve', function (contact, impulse) {
