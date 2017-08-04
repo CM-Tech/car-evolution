@@ -102,7 +102,7 @@ Car.prototype.exportBoxCar2D = function () {
         if(this.data.wheels[i].o){
             string.push(this.data.wheels[i].index);
             string.push(angles[this.data.wheels[i].index]+Math.PI);
-            string.push(this.data.wheels[i].r/this.maxRadius*1.5*1.25)
+            string.push(this.data.wheels[i].r/this.maxRadius*1.5);//*1.25)
             console.log("wheel");
             wheelCount++;
         }
@@ -132,8 +132,8 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     if (maxWheels) wheelMax = maxWheels;
     var wheelProb = this.wheelProb;
     if (wheelProbablity) wheelProb = wheelProbablity;
-    var mutationRate = 0.04;
-    var explorationRate = 0.01;
+    var mutationRate = 0.1;
+    var explorationRate = 0.05;
     this.fixAngleWeights();
     other.fixAngleWeights();
     this.data.wheels.sort(this.compareWheels);

@@ -32,7 +32,7 @@ var WHEEL_MASK = 0xFFFF ^ WHEEL_CATEGORY;
 var wheelShapeDef = {};
 wheelShapeDef.filterCategoryBits = WHEEL_CATEGORY;
 wheelShapeDef.filterMaskBits = WHEEL_MASK;
-wheelShapeDef.density = 0.1;
+wheelShapeDef.density = 0.05;
 
 var bodyShapeDef = {};
 bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
@@ -43,7 +43,7 @@ bodyShapeDef.friction = 5.0;
 var bodyBrokeShapeDef = {};
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
 bodyBrokeShapeDef.density = 0.1;
-
+var simSpeed=100;
 var pl = planck,
 	Vec2 = pl.Vec2;
 var world = new pl.World({
@@ -53,15 +53,15 @@ var world = new pl.World({
 // wheel spring settings
 var HZ = 4.0;
 var ZETA = 0.7;
-var SPEED = 10.0;
+var SPEED = 7.5;
 var ground = world.createBody();
 var genX = -200;
 var flatLandEndX = 25;
 var groundFD = {
 	density: 0.0,
-	friction: 10.0
+	friction: 2.0
 };
-var restartTicks = 200;
+var restartTicks = 222;
 var restartCurrent = 0;
 var carScore = 0;
 function updateProgress(x) {
@@ -78,13 +78,26 @@ function terrain1(x) {
 	}
 	return noise.perlin2((x - flatLandEndX) / 20, 0) * 10+noise.perlin2((x - flatLandEndX) / 10, (x - flatLandEndX) / 10) * 10 - Math.pow(Math.max(x - flatLandEndX, 0)/10,1.2) / 4*10;
 }
+function terrain2(x) {
+	if (x < flatLandEndX) {
+		return 0;
+	}
+	return noise.perlin2((x - flatLandEndX) / 20, 0) * (12-2/((x - flatLandEndX+10) / 10))+noise.perlin2((x - flatLandEndX) / 10, (x - flatLandEndX) / 10) ;
+}
+function terrain3(x) {
+	if (x < flatLandEndX) {
+		return 0;
+	}
+	return Math.pow(Math.max(x - flatLandEndX, 0)/10,1.4) / 4*10;
+}
 function resetGround(){
 	
 }
 function genGround() {
 	while (genX < camera.x + 400) {
 		var nextX = genX + 10;
-		ground.createFixture(pl.Edge(Vec2(genX, terrain1(genX)), Vec2(nextX, terrain1(nextX))), groundFD);
+		var terrainFunc=terrain2;
+		ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD);
 		genX = nextX;
 	}
 }
@@ -94,18 +107,19 @@ genGround();
 var topScores = [];
 var prevGen = [];
 var curGen = [];
-var maxTops = 6;
+var maxTops = 3;
 var genSize = 6;
 var carDNA = new Car();
 function genCarFromOldParents() {
 	var parentPool = [];
 	for (var i = 0; i < topScores.length; i++) {
-		parentPool.push(topScores[i].car);
+		parentPool.push(topScores[topScores.length-i-1].car);
 	}
 	for (var i = 0; i < prevGen.length; i++) {
-		parentPool.push(prevGen[i].car);
+		parentPool.push(prevGen[prevGen.length-i-1].car);
 	}
-	return parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)])));
+	var pPow=10;
+	return parentPool[Math.floor(Math.pow(Math.random(),pPow) * parentPool.length)].breed(parentPool[Math.floor(Math.pow(Math.random(),pPow)* parentPool.length)].breed(parentPool[Math.floor(Math.pow(Math.random(),pPow) * parentPool.length)]));
 }
 function exportBestCar(){
 	return topScores[topScores.length-1].car.exportBoxCar2D();
@@ -392,7 +406,7 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 }
 window.setInterval(function () {
-	for(var i=0;i<1;i++){
+	for(var i=0;i<simSpeed;i++){
 	world.step(1 / 60);
 	tick();
 	}
