@@ -23,8 +23,8 @@ function Car(data, maxWheels, wheelProbablity) {
 Car.prototype.bodyParts = 8;
 Car.prototype.maxWheels = 4;
 Car.prototype.wheelProb = 0.5;
-Car.prototype.maxLength = 100;
-Car.prototype.maxRadius = 50;
+Car.prototype.maxLength = 10;
+Car.prototype.maxRadius = 5;
 Car.prototype.minRadius = 2;
 Car.prototype.minAngleWeight = 0.5;
 Car.prototype.maxAngleWeight = 2;

@@ -37,28 +37,34 @@ var WHEEL_MASK = 0xFFFF ^ WHEEL_CATEGORY;
 var wheelShapeDef = {};
 wheelShapeDef.filterCategoryBits = WHEEL_CATEGORY;
 wheelShapeDef.filterMaskBits = WHEEL_MASK;
-wheelShapeDef.density = 0.05;
+wheelShapeDef.density = 0.5;
+wheelShapeDef.friction = 10;
+wheelShapeDef.restitution = 0.1;
 
 var bodyShapeDef = {};
 bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
 bodyShapeDef.filterMaskBits = BODY_MASK;
-bodyShapeDef.density = 0.1;
-bodyShapeDef.friction = 5.0;
+bodyShapeDef.density = 2;
+bodyShapeDef.friction = 10.0;
+bodyShapeDef.restitution = 0.05;
 
 var bodyBrokeShapeDef = {};
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
-bodyBrokeShapeDef.density = 0.1;
+bodyBrokeShapeDef.density = 2;
+bodyBrokeShapeDef.restitution = 0.05;
+var GRAVITY=10;
+var MASS_MULT = 1.5;
 var simSpeed = 1;
 var pl = planck,
 	Vec2 = pl.Vec2;
 var world = new pl.World({
-	gravity: Vec2(0, -10)
+	gravity: Vec2(0, -GRAVITY)
 });
 
 // wheel spring settings
 var HZ = 4.0;
 var ZETA = 0.7;
-var SPEED = 7.5;
+var SPEED = 6 * Math.PI;
 var ground = world.createBody();
 var genX = -200;
 var flatLandEndX = 25;
@@ -253,7 +259,7 @@ function removeOldCar() {
 	center_vec = carCreationPoint.clone();
 }
 
-var carScale = 1 / 10;
+var carScale = 1 ;
 function createCar(carData) {
 	restartCurrent = 0;
 	carDNA = carData;
@@ -410,11 +416,12 @@ function Break(m_piece) {
 
 function tick() {
 	genGround();
+var torque = MASS_MULT * GRAVITY / wheelJoints.length * boxCar.m_mass;
 	for (var j = 0; j < wheelJoints.length; j++) {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
 		if (wheelJoints[j].m_bodyB) {
-			wheelJoints[j].setMaxMotorTorque(boxCar.m_mass * 10 / carScale / carScale / wheelJoints[j].m_bodyB.m_fixtureList.m_shape.m_radius * carScale);
+			wheelJoints[j].setMaxMotorTorque(torque / carScale / carScale );
 		}
 	}
 	restartCurrent++;
