@@ -302,7 +302,11 @@ function createCar(carData) {
 		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
 		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
 		m_piece.render = {
-			fill: "hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+fill : "#" +( carData
+				.data
+				.colors[i]
+				.toString(16)
+				.padStart(6, '0')) //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
 		};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
