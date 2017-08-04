@@ -69,6 +69,16 @@ Car.prototype.bestMap = function (other) {
         mapping.push(i);
     }
 }
+Car.prototype.getAreaOfPiece=function(index){
+    index=(index%this.bodyParts+this.bodyParts)%this.bodyParts;
+var total = 0;
+    for (var i = 0; i < this.bodyParts; i++) {
+        total += this.data.angleWeights[i];
+    }
+    var angle=Math.PI*2*this.data.angleWeights[(index+1)%this.bodyParts]/total;
+    var area=Math.sin(angle)*this.data.lengths[index]*this.data.lengths[(index+1)%this.bodyParts]/2;
+    return area;
+}
 Car.prototype.exportBoxCar2D = function () {
     var string=[];
     var curAngle=0;
@@ -119,8 +129,8 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     if (maxWheels) wheelMax = maxWheels;
     var wheelProb = this.wheelProb;
     if (wheelProbablity) wheelProb = wheelProbablity;
-    var mutationRate = 0.05;
-    var explorationRate = 0.1;
+    var mutationRate = 0.25;
+    var explorationRate = 0.01;
     this.fixAngleWeights();
     other.fixAngleWeights();
     this.data.wheels.sort(this.compareWheels);

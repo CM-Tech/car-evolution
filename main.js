@@ -18,7 +18,7 @@
  */
 
 noise.seed(3);
-
+var doubleWheelParent=false;
 var camera = { x: 0, y: 0 };
 var SMALL_GROUP = 1;
 var LARGE_GROUP = -1;
@@ -52,7 +52,7 @@ var world = new pl.World({
 // wheel spring settings
 var HZ = 4.0;
 var ZETA = 0.7;
-var SPEED = 50.0;
+var SPEED = 10.0;
 var ground = world.createBody();
 var genX = -200;
 var flatLandEndX = 25;
@@ -89,7 +89,6 @@ function genGround() {
 genGround();
 
 // Car
-var scoreRecord = [];
 var topScores = [];
 var prevGen = [];
 var curGen = [];
@@ -105,6 +104,9 @@ function genCarFromOldParents() {
 		parentPool.push(prevGen[i].car);
 	}
 	return parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)].breed(parentPool[Math.floor(Math.random() * parentPool.length)]));
+}
+function exportBestCar(){
+	return topScores[topScores.length-1].car.exportBoxCar2D();
 }
 function bestScore() {
 	var s = 0;
@@ -160,11 +162,12 @@ var boxCar = world.createDynamicBody({
 });
 
 var wheelFD = wheelShapeDef;
-wheelFD.density = 0.05;
+wheelFD.density = 0.01;
 wheelFD.friction = 1;
 var partsToBreak = [];
 var connectedParts = [];
 var connectedPartsI = [];
+var connectedPartsArea = [];
 var connectedPartsOld = [];
 var connectedShapes = [];
 var wheels = [];
@@ -195,6 +198,7 @@ function removeOldCar() {
 
 	connectedParts = [];
 	connectedPartsI = [];
+	connectedPartsArea=[];
 	connectedPartsOld = [];
 	connectedShapes = [];
 	wheels = [];
@@ -204,6 +208,7 @@ function removeOldCar() {
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
 }
+var carScale = 1 / 10;
 function createCar(carData) {
 	restartCurrent = 0;
 	carDNA = carData;
@@ -214,6 +219,7 @@ function createCar(carData) {
 
 	connectedParts = [];
 	connectedPartsI = [];
+	connectedPartsArea=[];
 	connectedPartsOld = [];
 	connectedShapes = [];
 	wheels = [];
@@ -224,8 +230,9 @@ function createCar(carData) {
 	center_vec = carCreationPoint.clone();
 	var lowestY = carCreationPoint.y + 0;
 	var p_angle = carData.data.angleWeights[0] / carData.totalAngleWeights() * Math.PI * 2;
-	var carScale = 1 / 10;
+	
 	for (var i = 0; i < carData.bodyParts; i++) {
+		connectedPartsArea.push(carData.getAreaOfPiece(i));
 		var new_p_angle = p_angle + carData.data.angleWeights[(i+1)%carData.data.angleWeights.length] / carData.totalAngleWeights() * Math.PI * 2;
 		var m_shape = pl.Polygon([
 			Vec2(0, 0),
@@ -264,7 +271,6 @@ function createCar(carData) {
 		connectedPartsWheels.push([totWheelAdditions]);
 		p_angle = new_p_angle;
 	}
-	console.log(0);
 	boxCar.resetMassData();
 	carScore = 0;
 	restartCurrent = 0;
@@ -275,11 +281,13 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
+			var strength=Math.sqrt(connectedPartsArea[j])*2;
+			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
 				var impulseSum = 0;
 				for (var i = 0; i < a.v_points.length; i++) {
-					if (a.v_points[i].normalImpulse > 42*1.5) partBreak = true;
+					if (a.v_points[i].normalImpulse > strength) partBreak = true;
 				}
 				if (partBreak) partsToBreak.push(m_piece);
 			}
@@ -292,8 +300,10 @@ function Break(m_piece) {
 	if (connectedParts.indexOf(m_piece) >= 0) {
 		var mIndex = connectedParts.indexOf(m_piece);
 		var m_shape = connectedShapes.splice(connectedParts.indexOf(m_piece), 1)[0];
+		var m_area = connectedPartsArea.splice(connectedParts.indexOf(m_piece), 1)[0];
 		var m_index = connectedPartsI.splice(connectedParts.indexOf(m_piece), 1)[0];
 		var m_wheels = connectedPartsWheels.splice(connectedParts.indexOf(m_piece), 1)[0];
+		
 		connectedParts.splice(connectedParts.indexOf(m_piece), 1);
 		// Create two bodies from one.
 		var f1 = boxCar.m_fixtureList;
@@ -310,7 +320,7 @@ function Break(m_piece) {
 			}
 		}
 		var prevIndexInList = connectedPartsI.indexOf((m_index + carDNA.bodyParts - 1) % carDNA.bodyParts);
-		if (prevIndexInList >= 0) {
+		if (prevIndexInList >= 0 && doubleWheelParent) {
 			connectedPartsWheels[prevIndexInList][1] = m_wheels[0];
 			for (var j = 0; j < m_wheels[0].length; j++) {
 				m_wheels[0][j].m_bodyA = connectedParts[prevIndexInList].m_body;
@@ -353,13 +363,17 @@ function tick() {
 	for (var j = 0; j < wheelJoints.length; j++) {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
+		if(wheelJoints[j].m_bodyB){
+			//console.log("WHW");
+		wheelJoints[j].setMaxMotorTorque(boxCar.m_mass*10/carScale/carScale/wheelJoints[j].m_bodyB.m_fixtureList.m_shape.m_radius*carScale);
+		}
 	}
 	restartCurrent++;
 	var cp = boxCar.getPosition();
 	camera.x = cp.x;
 	camera.y = -cp.y;
 	updateProgress(cp.x);
-	if (restartCurrent >= restartTicks) {
+	if (restartCurrent >= restartTicks || connectedParts.length<2) {
 		switchCar();
 	}
 
@@ -373,8 +387,10 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 }
 window.setInterval(function () {
+	for(var i=0;i<10;i++){
 	world.step(1 / 60);
 	tick();
+	}
 }, 0);
 
 var c = document.getElementById("c");
