@@ -18,6 +18,11 @@
  */
 
 noise.seed(3);
+var c = document.getElementById("c");
+var ctx = c.getContext("2d");
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+
 var doubleWheelParent=false;
 var camera = { x: 0, y: 0 };
 var SMALL_GROUP = 1;
@@ -43,7 +48,7 @@ bodyShapeDef.friction = 5.0;
 var bodyBrokeShapeDef = {};
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
 bodyBrokeShapeDef.density = 0.1;
-var simSpeed=100;
+var simSpeed=1;
 var pl = planck,
 	Vec2 = pl.Vec2;
 var world = new pl.World({
@@ -91,15 +96,25 @@ function terrain3(x) {
 	return Math.pow(Math.max(x - flatLandEndX, 0)/10,1.4) / 4*10;
 }
 function resetGround(){
-	
+	terrains.filter(function(t){
+		return t.m_body.m_xf.p.x + t.m_shape.m_vertex1.x < camera.x - 20;
+	}).forEach(function(a){
+			console.log("reseting")
+
+		terrains.splice(terrains.indexOf(a), 1)
+		ground.destroyFixture(a);
+	})
 }
+
+var terrains = [];
 function genGround() {
-	while (genX < camera.x + 400) {
+	while (genX < camera.x + c.width/scale/2) {
 		var nextX = genX + 10;
 		var terrainFunc=terrain2;
-		ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD);
+		terrains.push(ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD))
 		genX = nextX;
 	}
+	resetGround()
 }
 genGround();
 
@@ -226,6 +241,7 @@ function removeOldCar() {
 	connectedPartsWheels = [];
 	connectedWheelsOld = [];
 	center_vec = carCreationPoint.clone();
+	genX = -200;
 }
 var carScale = 1 / 10;
 function createCar(carData) {
@@ -383,8 +399,7 @@ function tick() {
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
 		if(wheelJoints[j].m_bodyB){
-			//console.log("WHW");
-		wheelJoints[j].setMaxMotorTorque(boxCar.m_mass*10/carScale/carScale/wheelJoints[j].m_bodyB.m_fixtureList.m_shape.m_radius*carScale);
+			wheelJoints[j].setMaxMotorTorque(boxCar.m_mass*10/carScale/carScale/wheelJoints[j].m_bodyB.m_fixtureList.m_shape.m_radius*carScale);
 		}
 	}
 	restartCurrent++;
@@ -411,11 +426,6 @@ window.setInterval(function () {
 	tick();
 	}
 }, 0);
-
-var c = document.getElementById("c");
-var ctx = c.getContext("2d");
-c.width = window.innerWidth;
-c.height = window.innerHeight;
 
 window.addEventListener("resize", function () {
 	c.width = window.innerWidth;
