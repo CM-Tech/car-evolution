@@ -72,7 +72,7 @@ var groundFD = {
 	density: 0.0,
 	friction: 2.0
 };
-var restartTicks = 222;
+var restartTicks = 400;
 var restartCurrent = 0;
 var carScore = 0;
 
@@ -96,7 +96,7 @@ function terrain2(x) {
 
 function terrain3(x) {
 	if (x < flatLandEndX) return 0;
-	return Math.pow(Math.max(x - flatLandEndX, 0) / 10, 1.4) / 4 * 10;
+	return Math.pow(Math.max(x - flatLandEndX, 0) / 10, 1.35) / 4 * 8;
 }
 
 var terrains = [];
@@ -111,8 +111,8 @@ function resetGround() {
 
 function genGround() {
 	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
-		var nextX = genX + 10;
-		var terrainFunc = terrain2;
+		var nextX = genX + 1;//1 for terrain 3 otherwise 10
+		var terrainFunc = terrain3;
 		terrains.push(ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD))
 		genX = nextX;
 	}
@@ -316,7 +316,10 @@ fill : "#" +( carData
 		for (var j = 0; j < wheelsThere.length; j++) {
 			var wheelData = wheelsThere[j];
 			if (wheelData.o) {
-				var wheel = world.createDynamicBody(Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale).add(center_vec));
+var wheelAxelPos = Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale)
+				.add(center_vec)
+.sub(Vec2(Math.cos(wheelData.axelAngle) * carData.maxRadius * carScale / 3, Math.sin(wheelData.axelAngle) * carData.maxRadius * carScale / 3));
+				var wheel = world.createDynamicBody(wheelAxelPos);
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 				w_fix.render = {
 					fill: "rgba(0,0,0,0.5)"
@@ -327,7 +330,7 @@ fill : "#" +( carData
 					enableMotor: true,
 					frequencyHz: 4,
 					dampingRatio: 0.1
-				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(Math.cos(wheelData.index / carData.bodyParts * Math.PI * 2) / 1, Math.sin(wheelData.index / carData.bodyParts * Math.PI * 2) / 1)));
+				}, m_piece.m_body, wheel, wheel.getWorldCenter(), Vec2(-Math.cos(wheelData.axelAngle) / 1, -Math.sin(wheelData.axelAngle) / 1)));
 				wheelJoints.push(spring);
 				totWheelAdditions.push(spring);
 				wheels.push(wheel);

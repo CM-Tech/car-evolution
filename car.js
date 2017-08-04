@@ -71,7 +71,7 @@ Car.prototype.maxWheels = 4;
 Car.prototype.wheelProb = 0.5;
 Car.prototype.maxLength = 10;
 Car.prototype.maxRadius = 5;
-Car.prototype.minRadius = 2;
+Car.prototype.minRadius = 1;
 Car.prototype.minAngleWeight = 0.5;
 Car.prototype.maxAngleWeight = 2;
 Car.prototype.score = 0;
@@ -157,7 +157,7 @@ var data = {
             .wheels
             .push({
                 index: parseInt(list[16+i*3]),
-                r: this.maxRadius *parseFloat(list[16+i*3+2]),
+                r: this.maxRadius *parseFloat(list[16+i*3+2])/1.5,
                 o: parseInt(list[16+i*3])>-1,
                 axelAngle: parseFloat(list[16+i*3+1])
             });
