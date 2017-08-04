@@ -38,48 +38,57 @@ Car.prototype.fixAngleWeights = function () {
         this.data.angleWeights[i] = Math.min(Math.max(this.data.angleWeights[i] / total * this.bodyParts, this.minAngleWeight), this.maxAngleWeight);
     }
 }
-function toBits(param1) {
-    var str = btoa(param1);
-    var bytes = [];
-    for (var i = 0; i < str.length; ++i) {
-        var code = str
-            .charCodeAt(i)
-            .toString(2);
-        while (code.length < 8) {
-            code = "0" + code;
-        }
-        for (var j = 0; j < code.length; j++) {
-            bytes.push(code[j] === "0"
-                ? 0
-                : 1);
-        }
-
+function hashToList(str){
+    var carDat=stringToData(str);
+    var decompressed = (new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(str))).unzip()[0][0];
+    //"#"+carDat.getInt32(40*8).toString(16).padStart(6, '0')
+    var list=[];
+    for(var i=0;i<16;i++){
+list.push(carDat.getFloat64(i * 8));
     }
-    return bytes;
+    for(var i=0;i<8;i++){
+//list.push("w");
+//list.push(carDat.getInt32(i * 8 * 3 + 16 * 8 ) %8);
+var index = carDat.getInt32(i * 8 * 2.5 + 16 * 8 );
+if(!(Math.abs(index)<10)){
+    index=NaN;
 }
-function toBytes(param1) {
-    var str = btoa(param1);
-    var bytes = [];
-    for (var i = 0; i < str.length; ++i) {
-bytes.push(str.charCodeAt(i));
-
+list.push(index);
+list.push(carDat.getFloat64(i * 8 * 2.5 + 16 * 8 + 0.5*8));
+if(Math.abs(list[list.length-1])<Math.pow(2,-100)){
+list[list.length - 1]=0;
+}
+list.push(carDat.getFloat64(i * 8 * 2.5 + 16 * 8 + 1.5 * 8));
+if (Math.abs(list[list.length - 1]) < Math.pow(2, -100)) {
+    list[list.length - 1] = 0;
+}
     }
-    return bytes;
+    var wheels=(carDat.getUint8(44*8+3)%8+7)%8+1;
+    for(var i=0;i<16;i++){
+        var l=i * 4+36*8;
+        if(l<decompressed.length-1){
+            list.push(carDat.getUint32(l));
+        }
+    }
+    list.push(wheels);
+    return list;
+
 }
 
-function decomp(param1) {
-
-    /*var _loc2_ = toBytes(param1);
-    //_loc2_.endian = Endian.BIG_ENDIAN;
-    var _loc3_ = [];
-    var inflate = new Zlib.Inflate(_loc2_);
-    var plain = inflate.decompress();*/
-var parser = new BinaryParser();
-return parser.decodeFloat((new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(param1))).unzip()[0][0].substring(0,8));
+function stringToData(str){
+var decompressed = (new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(str))).unzip()[0][0];
+var buffer = new ArrayBuffer(decompressed.length);
+var dat=new DataView(buffer);
+for(var i=0;i<decompressed.length;i++){
+    dat.setUint8(i,decompressed.charCodeAt(i),false);
 }
+return dat;
+}
+
+
 Car.prototype.decode=function(param1){
 
-    var _loc2_  = toBytes(param1);
+    var _loc2_  = hashToList(param1);
     //_loc2_.endian = Endian.BIG_ENDIAN;
     /*var _loc3_ = [];
 var inflate = new Zlib.Inflate(_loc2_);
