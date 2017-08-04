@@ -102,7 +102,7 @@ function terrain2(x) {
 
 function terrain3(x) {
 	if (x < flatLandEndX) return 0;
-return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.5) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5)%2)/2>0.5?0.5:0);
+return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.5) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5)%2)/2>0.5?0.3:0);
 }
 
 var terrains = [];
@@ -224,7 +224,7 @@ function importCar(str) {
 // Breakable dynamic body
 var m_velocity;
 var m_angularVelocity;
-var carCreationPoint = Vec2(0.0, 15.0);
+var carCreationPoint = Vec2(0.0, 20.0);
 var boxCar = world.createDynamicBody({
 	position: carCreationPoint.clone()
 });
@@ -550,7 +550,7 @@ window.addEventListener("resize", function () {
 	c.height = window.innerHeight;
 });
 
-var scale = 20;
+var scale = 10;
 function render() {
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, c.width, c.height);
