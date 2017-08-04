@@ -28,6 +28,7 @@ Car.prototype.maxRadius = 50;
 Car.prototype.minRadius = 2;
 Car.prototype.minAngleWeight = 0.5;
 Car.prototype.maxAngleWeight = 2;
+Car.prototype.score = 0;
 Car.prototype.fixAngleWeights = function () {
     var total = 0;
     for (var i = 0; i < this.bodyParts; i++) {
@@ -124,27 +125,32 @@ Car.prototype.exportBoxCar2D = function () {
     return string.join(",");
 }
 Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
+    var interp=Math.max(1,this.score)/(Math.max(1,this.score)+Math.max(1,other.score));
+    var interpL=0.5;
     var wheelMax = this.maxWheels;
     var wheelProb = this.wheelProb;
     if (maxWheels) wheelMax = maxWheels;
     var wheelProb = this.wheelProb;
     if (wheelProbablity) wheelProb = wheelProbablity;
-    var mutationRate = 0.25;
+    var mutationRate = 0.04;
     var explorationRate = 0.01;
     this.fixAngleWeights();
     other.fixAngleWeights();
     this.data.wheels.sort(this.compareWheels);
     other.data.wheels.sort(this.compareWheels);
     var offspring = new Car();
+    offspring.score=this.score*(interp)+other.score*(1-interp);
     for (var i = 0; i < this.bodyParts; i++) {
         if (Math.random() > explorationRate) {
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
+            lerp=lerp*(1-interpL)+interp*interpL;
             offspring.data.lengths[i] = Math.min(Math.max((this.data.lengths[i] * lerp + other.data.lengths[i] * (1 - lerp)) * (1 - mutationRate) + mutationRate * Math.random() * this.maxLength, 0), this.maxLength);
         }
     }
     for (var i = 0; i < this.bodyParts; i++) {
         if (Math.random() > explorationRate) {
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
+            lerp=lerp*(1-interpL)+interp*interpL;
             offspring.data.angleWeights[i] = Math.max((this.data.angleWeights[i] / this.totalAngleWeights() * lerp + other.data.angleWeights[i] / other.totalAngleWeights() * (1 - lerp)) * (1 - mutationRate) + mutationRate * Math.random() * 1 / this.bodyParts, 0);
         }
     }
@@ -155,14 +161,17 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
         var a = aHaveWheel ? this.data.wheels[i] : other.data.wheels[i];
         var b = (aHaveWheel && bHaveWheel) ? other.data.wheels[i] : a;
         var lerp = (Math.random() - 0.5) / 10 + 0.5;
+        lerp=lerp*(1-interpL)+interp*interpL;
         var aR = a.o ? a.r : 0;
         var bR = b.o ? b.r : 0;
         var newR = Math.min(Math.max((a.r * lerp + b.r * (1 - lerp)) * (1 - mutationRate) + mutationRate * (Math.random()) * this.maxRadius, this.minRadius), this.maxRadius);
         var lerp = (Math.random() - 0.5) / 10 + 0.5;
+        lerp=lerp*(1-interpL)+interp*interpL;
         var newO = ((a.o ? 1 : 0) * lerp + (b.o ? 1 : 0) * (1 - lerp)) * (1 - mutationRate) + mutationRate * (Math.random()) > 0.5;
         var dirIndexA = { x: Math.cos(a.index * Math.PI * 2 / this.bodyParts), y: Math.sin(a.index * Math.PI * 2 / this.bodyParts) };
         var dirIndexB = { x: Math.cos(b.index * Math.PI * 2 / this.bodyParts), y: Math.sin(b.index * Math.PI * 2 / this.bodyParts) };
         var lerp = (Math.random() - 0.5) / 10 + 0.5;
+        lerp=lerp*(1-interpL)+interp*interpL;
         var dirIndex = { x: dirIndexA.x * lerp + dirIndexB.x * (1 - lerp), y: dirIndexA.y * lerp + dirIndexB.y * (1 - lerp) };
         var newIndex = Math.floor(Math.atan2(dirIndex.y, dirIndex.x) / Math.PI / 2 * this.bodyParts);
         var newRandIndex = Math.floor(Math.random() * this.bodyParts);
