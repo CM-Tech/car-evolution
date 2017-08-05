@@ -588,6 +588,11 @@ function tick() {
 }
 function loop() {
 	for (var i = 0; i < simSpeed; i++) {
+		if(autoFast !== document
+			.getElementById("switch-1")
+			.checked){
+simSpeed = 1;
+		}
 		autoFast = document
 			.getElementById("switch-1")
 			.checked;
