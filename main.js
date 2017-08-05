@@ -217,7 +217,7 @@ function updateScoreTable(){
 	var innerHtml="";
 	for(var i=0;i<topScores.length;i++){
 		var entry=topScores[topScores.length-i-1];
-		var tableEntry="<tr data-clipboard-target='#score"+i+"'>";
+		var tableEntry="<tr title='Copy car to clipboard' data-clipboard-target='#score"+i+"'>";
 		tableEntry+="<td>";
 		tableEntry+=(entry.score).toFixed(2);
 		tableEntry+="</td>";
