@@ -61,7 +61,7 @@ var bodyBrokeShapeDef = {};
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
 bodyBrokeShapeDef.density = 2;
 bodyBrokeShapeDef.restitution = 0.05;
-var GRAVITY = 10;
+var GRAVITY = 20;
 var MASS_MULT = 1.5;
 var simSpeed = 1;
 var pl = planck,
@@ -115,6 +115,14 @@ function terrain3(x) {
 		? 0.3
 		: 0);
 }
+function terrain4(x) {
+	if (x < flatLandEndX) 
+		return 0;
+	var m=1;
+	if (x < flatLandEndX+100) 
+		m=Math.max(x - flatLandEndX, 0)/100;
+	return -Math.sin(Math.max(x - flatLandEndX, 0)/20+Math.pow(Math.max(x - flatLandEndX, 0)/20,1.5)/20)*15*m;// / (10+40/(Math.pow(Math.max(x - flatLandEndX, 0),0.5)+1)))*10;
+}
 
 var terrains = [];
 function resetGround() {
@@ -137,8 +145,8 @@ function destroyGround() {
 function genGround() {
 	//resetGround()
 	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
-		var nextX = genX + 7; // 0.5;//0.5 for terrain 3 otherwise 7
-		var terrainFunc = terrain2;
+		var nextX = genX + 0.5; // 0.5;//0.5 for terrain 3 or 4 otherwise 7
+		var terrainFunc = terrain4;
 		var curPos = Vec2(genX, terrainFunc(genX));
 		var nextPos = Vec2(nextX, terrainFunc(nextX));
 		var angle = Math.atan2(nextPos.y - curPos.y, nextPos.x - curPos.x);
@@ -160,7 +168,7 @@ var topScores = [];
 var prevGen = [];
 var curGen = [];
 var maxTops = 6;
-var genSize = 12;
+var genSize = 16;
 var carDNA = new Car();
 
 function genCarFromOldParents() {
@@ -489,7 +497,7 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
-			var strength = 50 * connectedParts[j].m_mass / 4; //Math.sqrt(connectedPartsArea[j]) * 3;
+			var strength = 50 * connectedParts[j].m_mass / 7.5; //Math.sqrt(connectedPartsArea[j]) * 3;
 			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
@@ -649,8 +657,10 @@ document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Scor
 		world.step(1 / 60);
 		tick();
 	}
+	window.setTimeout(loop,0);
 }
-window.setInterval(loop, 100/60);
+loop();
+//window.setInterval(loop, 100/60);
 window.addEventListener("resize", function () {
 	c.width = window.innerWidth;
 	c.height = window.innerHeight;
