@@ -83,7 +83,7 @@ var groundFD = {
 };
 var currentTicks=0;
 var distTicks=0;
-var restartTicks = 200;
+var restartTicks = 100;
 var restartCurrent = 0;
 var carScore = 0;
 
@@ -306,7 +306,7 @@ function importCar(str) {
 // Breakable dynamic body
 var m_velocity;
 var m_angularVelocity;
-var carCreationPoint = Vec2(0.0, 15.0);
+var carCreationPoint = Vec2(0.0, 10.0);
 var boxCar = world.createDynamicBody({
 	position: carCreationPoint.clone()
 });
@@ -515,6 +515,16 @@ layer:4
 		p_angle = new_p_angle;
 	}
 	boxCar.resetMassData();
+	boxCar.setPosition(Vec2(boxCar.getPosition().x,boxCar.getPosition().y-lowestY));
+	for(var i=0;i<springsF.length;i++){
+		var toTransform=springsF[i].m_body;
+		toTransform.setPosition(Vec2(toTransform.getPosition().x,toTransform.getPosition().y-lowestY));
+	}
+	for(var i=0;i<wheelsF.length;i++){
+		
+		var toTransform=wheelsF[i].m_body;
+		toTransform.setPosition(Vec2(toTransform.getPosition().x,toTransform.getPosition().y-lowestY));
+	}
 	carScore = 0;
 	camera.x = 0;
 	restartCurrent = 0;
