@@ -157,7 +157,16 @@ function bestScore() {
 	}
 	return s;
 }
-
+function worstScore() {
+	if(topScores.length<1){
+		return 0;
+	}
+				var s = topScores[0].score;
+				for (var i = 0; i < topScores.length; i++) {
+								s = Math.min(s, topScores[i].score);
+				}
+				return s;
+}
 function insertNewCarScore(car, score) {
 	topScores.push({
 		score: score,
@@ -230,7 +239,7 @@ var boxCar = world.createDynamicBody({
 });
 var wheelFD = wheelShapeDef;
 wheelFD.friction = 1;
-
+var autoFast=false;
 var partsToBreak = [];
 var connectedParts = [];
 var connectedPartsI = [];
@@ -541,6 +550,13 @@ springJoints[j].setMotorSpeed(-20/20 *3* springJoints[j].getJointTranslation() /
 }
 window.setInterval(function () {
 	for (var i = 0; i < simSpeed; i++) {
+		if(autoFast){
+			if(carScore>worstScore()){
+				simSpeed = 1;
+			}else{
+				simSpeed=10;
+			}
+		}
 		world.step(1 / 60);
 		tick();
 	}
