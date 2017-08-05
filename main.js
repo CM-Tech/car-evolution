@@ -143,7 +143,8 @@ function genGround() {
 		var t_fix = ground.createFixture(shape, groundFD);
 		terrains.push(t_fix);
 		t_fix.render = {
-			fill: "rgba(255,255,255,0.75)"
+			fill: "rgba(255,255,255,1)",
+			stroke: "rgba(255,255,255,1)"
 		};
 		genX = nextX;
 	}
@@ -364,8 +365,8 @@ function createCar(carData) {
 		var bodyColor = decodeRGB(carData.data.colors[i]);
 var colorLerp = 1;
 		m_piece.render = {
-fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.6)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
+fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+stroke : "rgba(0,0,0,0.1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
 		};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
@@ -390,15 +391,15 @@ stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyC
 				var wheel = world.createDynamicBody(wheelPos);
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 				w_fix.render = {
-					fill: "rgba(0,0,0,0.75)"
+					fill: "rgba(0,0,0,1)"
 				};
 				var colorLerp = 1;
 				s_b_fix.render = {
-fill : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.6)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+fill : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
 stroke : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
 				};
 s_fix.render = {
-				fill: "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.6)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+				fill: "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
 				stroke: "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
 };
 				var bounceJoint = world.createJoint(pl.PrismaticJoint({
@@ -625,7 +626,7 @@ function render() {
 			ctx.fillStyle = f.render && f.render.fill
 				? f.render.fill
 				: "rgba(0,0,0,0)";
-			ctx.lineWidth = 2 / scale;
+			ctx.lineWidth = 2/ scale;
 			ctx.save();
 			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
@@ -694,7 +695,7 @@ function polygon(shape, f) {
 	ctx.shadowOffsetY = 2;
 	ctx.shadowOffsetX = 0;
 	ctx.closePath();
-	//ctx.stroke();
+	ctx.stroke();
 	ctx.fill();
 }
 function polygonS(shape, f) {
