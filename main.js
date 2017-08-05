@@ -22,7 +22,7 @@ var c = document.getElementById("c");
 var ctx = c.getContext("2d");
 c.width = window.innerWidth;
 c.height = window.innerHeight;
-
+var tickSpeed=1;
 var camera = {
 	x: 0,
 	y: 0
@@ -61,7 +61,7 @@ var bodyBrokeShapeDef = {};
 bodyBrokeShapeDef.filterMaskBits = BODY_BROKE_MASK;
 bodyBrokeShapeDef.density = 2;
 bodyBrokeShapeDef.restitution = 0.05;
-var GRAVITY = 20;
+var GRAVITY = 10;
 var MASS_MULT = 1.5;
 var simSpeed = 1;
 var pl = planck,
@@ -159,7 +159,7 @@ function genGround() {
 		};
 		genX = nextX;
 	}
-	resetGround()
+	
 }
 genGround();
 
@@ -305,7 +305,7 @@ function importCar(str) {
 // Breakable dynamic body
 var m_velocity;
 var m_angularVelocity;
-var carCreationPoint = Vec2(0.0, 20.0);
+var carCreationPoint = Vec2(0.0, 15.0);
 var boxCar = world.createDynamicBody({
 	position: carCreationPoint.clone()
 });
@@ -339,16 +339,24 @@ function removeOldCar() {
 		world.destroyBody(connectedPartsOld[i].m_body);
 	}
 	for (var i = 0; i < wheels.length; i++) {
+		if(wheels[i]){
 		world.destroyBody(wheels[i]);
+		}
 	}
 	for (var i = 0; i < connectedWheelsOld.length; i++) {
+		if(connectedWheelsOld[i]){
 		world.destroyBody(connectedWheelsOld[i]);
+		}
 	}
 	for (var i = 0; i < springs.length; i++) {
+		if(springs[i]){
 		world.destroyBody(springs[i]);
+		}
 	}
 	for (var i = 0; i < connectedSpringsOld.length; i++) {
+		if(connectedSpringsOld[i]){
 		world.destroyBody(connectedSpringsOld[i]);
+		}
 	}
 	world.destroyBody(boxCar);
 	boxCar = world.createBody({
@@ -456,7 +464,7 @@ s_fix.render = {
 				}, m_piece.m_body, spring, wheel.getWorldCenter(), Vec2(-Math.cos(wheelData.axelAngle) / 1, -Math.sin(wheelData.axelAngle) / 1)));
 
 				var turnJoint = world.createJoint(pl.RevoluteJoint({
-					motorSpeed: 0.0,
+					motorSpeed: -SPEED,
 					maxMotorTorque: 42 / 2,
 					enableMotor: true,
 					frequencyHz: 4,
@@ -497,7 +505,7 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
-			var strength = 50 * connectedParts[j].m_mass / 7.5; //Math.sqrt(connectedPartsArea[j]) * 3;
+			var strength = 50 * connectedParts[j].m_body.m_mass /6; //Math.sqrt(connectedPartsArea[j]) * 3;
 			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
@@ -580,11 +588,11 @@ function Break(m_piece) {
 		boxCar.resetMassData();
 	}
 }
-
+window.setInterval(resetGround,1000);
 function tick() {
 	genGround();
 	var cMass = boxCar.m_mass;
-	try {
+	/*try {
 		for (var j = 0; j < wheelJoints.length; j++) {
 			if (wheelJoints[j].m_bodyB) {
 				if (wheelJoints[j].m_bodyB.m_mass) {
@@ -595,23 +603,23 @@ function tick() {
 				cMass += springJoints[j].m_bodyB.m_mass;
 			}
 		}
-	} catch (e) {}
+	} catch (e) {}*/
 	cMass = cMass / carScale / carScale;
 	var torque = MASS_MULT * GRAVITY / wheelJoints.length * cMass;
 	var baseSpringForce = 7.5 * cMass / 1.5;
 	for (var j = 0; j < wheelJoints.length; j++) {
-		wheelJoints[j].setMotorSpeed(-SPEED);
-		wheelJoints[j].enableMotor(true);
+		//wheelJoints[j].setMotorSpeed(-SPEED);
+		//wheelJoints[j].enableMotor(true);
 		if (wheelJoints[j].m_bodyB) {
 			wheelJoints[j].setMaxMotorTorque(torque * 1.5);
 		}
-		//springJoints[j].setMotorSpeed(SPEED);
+		springJoints[j].setMotorSpeed(SPEED);
 		springJoints[j].enableMotor(true);
 		if (springJoints[j].m_bodyB) {
 			var force = 0;
-			springJoints[j].setMaxMotorForce(baseSpringForce + 40 / 40 * baseSpringForce * Math.pow(3 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
+			springJoints[j].setMaxMotorForce(baseSpringForce + 40 / 40 * baseSpringForce * Math.pow(20 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
 			//console.log(springJoints[j].getJointTranslation());
-			springJoints[j].setMotorSpeed(-20 / 20 * 3 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
+			springJoints[j].setMotorSpeed(-20 / 20 * 20 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
 
 			//springJoints[j].setMaxMotorForce(force  );
 		}
@@ -635,6 +643,7 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 }
 function loop() {
+	
 	for (var i = 0; i < simSpeed; i++) {
 		if(autoFast !== document
 			.getElementById("switch-1")
@@ -644,6 +653,7 @@ simSpeed = 1;
 		autoFast = document
 			.getElementById("switch-1")
 			.checked;
+			autoFast=false;
 		if (autoFast) {
 			if (carScore > worstScore()) {
 				simSpeed = 1;
@@ -655,9 +665,14 @@ simSpeed = 1;
 		}
 document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Score:\n" + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
 		world.step(1 / 60);
+		var tickStart=new Date().getTime();
 		tick();
+		var t=(new Date().getTime()-tickStart);
+		//tickSpeed=t/2+tickSpeed/2;
+		//console.log(tickSpeed/2+t/2,t);
 	}
 	window.setTimeout(loop,0);
+	
 }
 loop();
 //window.setInterval(loop, 100/60);
