@@ -81,6 +81,8 @@ var groundFD = {
 	density: 0.0,
 	friction: 2.0
 };
+var currentTicks=0;
+var distTicks=0;
 var restartTicks = 400;
 var restartCurrent = 0;
 var carScore = 0;
@@ -90,6 +92,7 @@ function updateProgress(x) {
 		restartCurrent = 0;
 		carScore = x + 0;
 		boxCar.score = x + 0
+		distTicks=currentTicks+0;
 	}
 }
 
@@ -173,6 +176,9 @@ function genCarFromOldParents() {
 }
 
 function exportBestCar() {
+	topScores.sort(function (a, b) {
+		return a.score - b.score;
+	});
 	return topScores[topScores.length - 1]
 		.car
 		.exportCar();
@@ -195,8 +201,8 @@ function worstScore() {
 	}
 	return s;
 }
-function insertNewCarScore(car, score) {
-	topScores.push({score: score, car: car});
+function insertNewCarScore(car, score,ticks) {
+	topScores.push({score: score,ticks:ticks, car: car});
 	topScores.sort(function (a, b) {
 		return a.score - b.score;
 	});
@@ -204,10 +210,30 @@ function insertNewCarScore(car, score) {
 		topScores.splice(0, topScores.length - maxTops);
 	}
 }
+function updateScoreTable(){
+	topScores.sort(function (a, b) {
+		return a.score - b.score;
+	});
+	var innerHtml="";
+	for(var i=0;i<topScores.length;i++){
+		var entry=topScores[topScores.length-i-1];
+		var tableEntry="<tr>";
+		tableEntry+="<td>";
+		tableEntry+=(entry.score).toFixed(2);
+		tableEntry+="</td>";
+		tableEntry+="<td>";
+		tableEntry+=(entry.ticks*1/60).toFixed(2);
+		tableEntry+="</td>";
+		tableEntry+="</tr>";
+		innerHtml+=tableEntry;
+	}
+	document.querySelectorAll(".score-table tbody")[0].innerHTML=innerHtml;
 
+}
 function switchCar(first) {
 carScore = Math.max(boxCar.getPosition().x,carScore);
 	var score = carScore + 0;
+	var ticks=distTicks+0;
 	if (first) {
 		scoreRecord = [];
 		topScores = [];
@@ -219,9 +245,10 @@ carScore = Math.max(boxCar.getPosition().x,carScore);
 		if (score > 0) {
 			curGen.push({
 				score: score,
+				ticks:distTicks,
 				car: carDNA.clone()
 			});
-			insertNewCarScore(carDNA.clone(), score);
+			insertNewCarScore(carDNA.clone(), score,ticks);
 		}
 		if (curGen.length >= genSize) {
 			curGen
@@ -244,6 +271,7 @@ carScore = Math.max(boxCar.getPosition().x,carScore);
 			createCar(carDNA);
 		}
 	}
+	updateScoreTable();
 }
 function importCar(str) {
 	var score = carScore + 0;
@@ -440,6 +468,8 @@ s_fix.render = {
 	carScore = 0;
 	camera.x = 0;
 	restartCurrent = 0;
+	distTicks=0;
+	currentTicks=0;
 	genX = -200;
 	destroyGround();
 	genGround();
@@ -570,6 +600,7 @@ function tick() {
 		}
 	}
 	restartCurrent++;
+	currentTicks++;
 	var cp = boxCar.getPosition();
 	camera.x = cp.x;
 	camera.y = -cp.y;
@@ -635,12 +666,14 @@ function render() {
 			ctx.save();
 			if (f.m_shape.getType() == "polygon") 
 				ctx.translate(0,-2/scale);
+			if (f.m_shape.getType() == "circle") 
+				ctx.translate(0,-2/scale);
 			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
 			if (f.m_shape.getType() == "polygon") 
 				polygonS(f.m_shape);
 			if (f.m_shape.getType() == "circle") 
-				circle(f.m_shape);
+				circleS(f.m_shape);
 			if (f.m_shape.getType() == "edge") 
 				edge(f.m_shape);
 			ctx.restore();
@@ -660,6 +693,8 @@ function render() {
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
 			if (f.m_shape.getType() == "polygon") 
 				polygon(f.m_shape);
+			if (f.m_shape.getType() == "circle") 
+				circle(f.m_shape);
 			ctx.restore();
 		}
 	}
@@ -667,11 +702,27 @@ function render() {
 }
 window.requestAnimationFrame(render);
 
-function circle(shape, f) {
+function circleS(shape, f) {
 	ctx.beginPath()
 	ctx.shadowBlur = 2;
+	ctx.fillStyle = "rgba(0,0,0,.26)";
 	ctx.shadowColor = "rgba(0,0,0,.26)";
-	ctx.shadowOffsetY = 2;
+	ctx.shadowOffsetY = 0;
+	ctx.shadowOffsetX = 0;
+	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
+	//ctx.stroke();
+	ctx.fill();
+	/*ctx.beginPath()
+	ctx.strokeStyle = "white";
+	ctx.moveTo(shape.m_p.x, shape.m_p.y);
+	ctx.lineTo(shape.m_p.x + shape.m_radius, shape.m_p.y);
+	ctx.stroke();*/
+}
+function circle(shape, f) {
+	ctx.beginPath()
+	ctx.shadowBlur = 0;
+	ctx.shadowColor = "rgba(0,0,0,0)";
+	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
 	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
 	//ctx.stroke();
@@ -682,7 +733,6 @@ function circle(shape, f) {
 	ctx.lineTo(shape.m_p.x + shape.m_radius, shape.m_p.y);
 	ctx.stroke();
 }
-
 function edge(shape, f) {
 	ctx.beginPath();
 	ctx.moveTo(shape.m_vertex1.x, shape.m_vertex1.y);
@@ -699,7 +749,7 @@ function polygon(shape, f) {
 	}
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = "rgba(0,0,0,0)";
-	ctx.shadowOffsetY = 2;
+	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
 	ctx.closePath();
 	ctx.stroke();

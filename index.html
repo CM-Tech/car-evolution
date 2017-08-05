@@ -1,24 +1,28 @@
 <html>
-    <head>
-        <script src="lib/jsxcompressor/jsxcompressor.min.js"></script>
-        <script src="lib/binary-parser.js"></script>
-        <script>
-                JXG.decompress = function (str) {
-                    return unescape(
-                        (new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(str))).unzip()[0][0]
-                    );
-                };
-        </script>
-        <script src="lib/planck.min.js"></script>
-        <script src="lib/perlin.js"></script>
-        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    
-        
-        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue-indigo.min.css" />
-        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-        <style>
-        html, body, canvas,#overlay {
+
+<head>
+    <script src="lib/jsxcompressor/jsxcompressor.min.js"></script>
+    <script src="lib/binary-parser.js"></script>
+    <script>
+        JXG.decompress = function (str) {
+            return unescape(
+                (new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(str))).unzip()[0][0]
+            );
+        };
+    </script>
+    <script src="lib/planck.min.js"></script>
+    <script src="lib/perlin.js"></script>
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue-indigo.min.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <style>
+        html,
+        body,
+        canvas,
+        #overlay {
             width: 100%;
             height: 100%;
             margin: 0;
@@ -26,37 +30,54 @@
             overflow: hidden;
             font-family: Roboto;
         }
-        canvas,#overlay {
-           position: absolute;
+
+        canvas,
+        #overlay {
+            position: absolute;
         }
-        #overlay .mdl-card{
-            float :right;
+
+        #overlay .mdl-card {
+            float: right;
             margin: 10px;
         }
-        #overlay .mdl-snackbar{
-            transform: translate(-50%,0px);
-            -webkit-transform: translate(-50%,0px);
+        #overlay .mdl-data-table {
+            margin: 10px;
         }
-            
-        </style>
-    </head>
-    <body>
-        <canvas id="c"></canvas>
-        <div id="overlay">
-            <div class="mdl-card mdl-shadow--2dp">
-                
 
-            </div>
-            <div id="core-snackbar" class="mdl-js-snackbar mdl-snackbar" style=" color: white; pointer-events:all; ">
-                <div class="mdl-snackbar__text score-text" style="width: 60px;">Score:</div>
-                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" style="margin-top:20px;">
+        #overlay .mdl-snackbar {
+            transform: translate(-50%, 0px);
+            -webkit-transform: translate(-50%, 0px);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="c"></canvas>
+    <div id="overlay">
+        
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp score-table">
+                <thead>
+                    <tr>
+                        <th>Score</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        
+        <div id="core-snackbar" class="mdl-js-snackbar mdl-snackbar" style=" color: white; pointer-events:all; ">
+            <div class="mdl-snackbar__text score-text" style="width: 60px;">Score:</div>
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" style="margin-top:20px;">
   <input type="checkbox" id="switch-1" class="mdl-switch__input" checked>
   <span class="mdl-switch__label">Auto Swiften</span>
 </label>
-                <button class="mdl-snackbar__action" type="button"></button>
-            </div>
+            <button class="mdl-snackbar__action" type="button"></button>
         </div>
-        <script src="car.js"></script>
-        <script src="main.js"></script>
-    </body>
+    </div>
+    <script src="car.js"></script>
+    <script src="main.js"></script>
+</body>
+
 </html>
