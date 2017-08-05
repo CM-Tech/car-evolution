@@ -117,7 +117,7 @@ var terrains = [];
 function resetGround() {
 				terrains
 								.filter(function (t) {
-												return t.m_body.m_xf.p.x + t.m_shape.m_vertex1.x < camera.x - Math.max(c.width / scale / 2, 100);
+												return t.m_body.m_xf.p.x+t.m_shape.m_centroid.x  < camera.x - Math.max(c.width / scale / 2, 100);
 								})
 								.forEach(function (a) {
 												terrains.splice(terrains.indexOf(a), 1)
@@ -129,7 +129,11 @@ function genGround() {
 				while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
 								var nextX = genX + 7; // 0.5;//0.5 for terrain 3 otherwise 7
 								var terrainFunc = terrain2;
-								terrains.push(ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD))
+var curPos = Vec2(genX, terrainFunc(genX));
+var nextPos = Vec2(nextX, terrainFunc(nextX));
+var angle = Math.atan2(nextPos.y - curPos.y, nextPos.x - curPos.x);
+var shape = pl.Box(Math.sqrt(Math.pow(nextPos.x - curPos.x, 2)+Math.pow(nextPos.y - curPos.y, 2))/2, 0.5, Vec2(curPos.x / 2 + nextPos.x / 2, curPos.y / 2 + nextPos.y / 2), angle);
+								terrains.push(ground.createFixture(shape, groundFD));
 								genX = nextX;
 				}
 				resetGround()
@@ -153,7 +157,7 @@ function genCarFromOldParents() {
 								parentPool.push(prevGen[prevGen.length - i - 1].car);
 				}
 				var pPow = 1;
-				return parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)].breed2(parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)]);
+				return parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)].breed(parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)]);
 }
 
 function exportBestCar() {
