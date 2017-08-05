@@ -217,7 +217,7 @@ function updateScoreTable(){
 	var innerHtml="";
 	for(var i=0;i<topScores.length;i++){
 		var entry=topScores[topScores.length-i-1];
-		var tableEntry="<tr>";
+		var tableEntry="<tr data-clipboard-target='#score"+i+"'>";
 		tableEntry+="<td>";
 		tableEntry+=(entry.score).toFixed(2);
 		tableEntry+="</td>";
@@ -225,10 +225,19 @@ function updateScoreTable(){
 		tableEntry+=(entry.ticks*1/60).toFixed(2);
 		tableEntry+="</td>";
 		tableEntry+="</tr>";
+		
 		innerHtml+=tableEntry;
+		
+	}
+	
+	for(var i=0;i<topScores.length;i++){
+		var entry=topScores[topScores.length-i-1];
+		
+		innerHtml+='<input class="hidden-score-export" id="score'+i+'" value="'+entry.car.exportCar()+'">';
 	}
 	document.querySelectorAll(".score-table tbody")[0].innerHTML=innerHtml;
-
+	//document.querySelectorAll(".hidden-score-exports")[0].innerHTML=clipboardInnerHtml;
+	
 }
 function switchCar(first) {
 carScore = Math.max(boxCar.getPosition().x,carScore);
@@ -771,3 +780,4 @@ function polygonS(shape, f) {
 	//ctx.stroke();
 	ctx.fill();
 }
+new Clipboard('.score-table tbody tr');

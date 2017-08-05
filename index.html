@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js"></script>
     <script src="lib/jsxcompressor/jsxcompressor.min.js"></script>
     <script src="lib/binary-parser.js"></script>
     <script>
@@ -48,6 +49,16 @@
             transform: translate(-50%, 0px);
             -webkit-transform: translate(-50%, 0px);
         }
+        .hidden-score-exports{
+            display: none;
+        }
+        .hidden-score-export{
+            position: absolute;
+            opacity:0 !important;
+        }
+        .score-table tr:last-of-type td{
+            border-bottom: none;
+        }
     </style>
 </head>
 
@@ -75,6 +86,9 @@
 </label>
             <button class="mdl-snackbar__action" type="button"></button>
         </div>
+    </div>
+    <div class="hidden-score-exports">
+
     </div>
     <script src="car.js"></script>
     <script src="main.js"></script>
