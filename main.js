@@ -145,7 +145,7 @@ function destroyGround() {
 function genGround() {
 	//resetGround()
 	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
-		var nextX = genX + 0.5; // 0.5;//0.5 for terrain 3 or 4 otherwise 7
+		var nextX = genX + 2; //2 for terrain 3 or 4 otherwise 7
 		var terrainFunc = terrain4;
 		var curPos = Vec2(genX, terrainFunc(genX));
 		var nextPos = Vec2(nextX, terrainFunc(nextX));
@@ -681,8 +681,9 @@ window.addEventListener("resize", function () {
 	c.height = window.innerHeight;
 });
 
-var scale = 10;
+var scale = Math.min(c.width/40,c.height/40);
 function render() {
+	scale = Math.min(c.width/40,c.height/40);
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, c.width, c.height);
 	ctx.fillStyle = "#2196F3";
