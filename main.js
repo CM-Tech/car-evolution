@@ -83,7 +83,7 @@ var groundFD = {
 };
 var currentTicks=0;
 var distTicks=0;
-var restartTicks = 400;
+var restartTicks = 200;
 var restartCurrent = 0;
 var carScore = 0;
 
@@ -121,7 +121,7 @@ function terrain4(x) {
 	var m=1;
 	if (x < flatLandEndX+100) 
 		m=Math.max(x - flatLandEndX, 0)/100;
-	return -Math.sin(Math.max(x - flatLandEndX, 0)/20+Math.pow(Math.max(x - flatLandEndX, 0)/20,1.5)/20)*15*m;// / (10+40/(Math.pow(Math.max(x - flatLandEndX, 0),0.5)+1)))*10;
+	return -Math.sin(Math.max(x - flatLandEndX, 0)/20+Math.pow(Math.max(x - flatLandEndX, 0)/20,1.75)/20)*10*m;// / (10+40/(Math.pow(Math.max(x - flatLandEndX, 0),0.5)+1)))*10;
 }
 
 var terrains = [];
@@ -523,6 +523,7 @@ layer:4
 	genX = -200;
 	destroyGround();
 	genGround();
+	updateScoreTable();
 }
 switchCar(true);
 world.on('post-solve', function (contact, impulse) {
@@ -637,7 +638,7 @@ function tick() {
 		//wheelJoints[j].setMotorSpeed(-SPEED);
 		//wheelJoints[j].enableMotor(true);
 		if (wheelJoints[j].m_bodyB) {
-			wheelJoints[j].setMaxMotorTorque(torque * 1.5);
+			wheelJoints[j].setMaxMotorTorque(torque * 2);
 		}
 		springJoints[j].setMotorSpeed(SPEED);
 		springJoints[j].enableMotor(true);
@@ -679,7 +680,7 @@ simSpeed = 1;
 		autoFast = document
 			.getElementById("switch-1")
 			.checked;
-			autoFast=false;
+			//autoFast=false;
 		if (autoFast) {
 			if (carScore > worstScore()) {
 				simSpeed = 1;
