@@ -48,8 +48,8 @@ bodyShapeDef.density = 2;
 bodyShapeDef.friction = 10.0;
 bodyShapeDef.restitution = 0.05;
 var springShapeDef = {};
-springShapeDef.filterCategoryBits = BODY_CATEGORY;
-springShapeDef.filterMaskBits = BODY_MASK;
+springShapeDef.filterCategoryBits = WHEEL_CATEGORY;
+springShapeDef.filterMaskBits = WHEEL_MASK;
 springShapeDef.density = 20;
 springShapeDef.friction = 10.0;
 springShapeDef.restitution = 0.05;
@@ -97,7 +97,7 @@ function terrain1(x) {
 
 function terrain2(x) {
 	if (x < flatLandEndX) return 0;
-	return noise.perlin2((x - flatLandEndX) / 20, 0) * (12 - 2 / ((x - flatLandEndX + 10) / 10)) + noise.perlin2((x - flatLandEndX) / 10, (x - flatLandEndX) / 10);
+	return noise.perlin2((x - flatLandEndX) / 15, 0) * (12 - 2 / ((x - flatLandEndX + 10) / 7)) + noise.perlin2((x - flatLandEndX) / 7, (x - flatLandEndX) / 7);
 }
 
 function terrain3(x) {
@@ -117,8 +117,8 @@ function resetGround() {
 
 function genGround() {
 	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
-		var nextX = genX + 0.5;//0.5 for terrain 3 otherwise 10
-		var terrainFunc = terrain3;
+		var nextX = genX +7;// 0.5;//0.5 for terrain 3 otherwise 7
+		var terrainFunc = terrain2;
 		terrains.push(ground.createFixture(pl.Edge(Vec2(genX, terrainFunc(genX)), Vec2(nextX, terrainFunc(nextX))), groundFD))
 		genX = nextX;
 	}
@@ -142,8 +142,8 @@ function genCarFromOldParents() {
 	for (var i = 0; i < prevGen.length; i++) {
 		parentPool.push(prevGen[prevGen.length - i - 1].car);
 	}
-	var pPow = 10;
-	return parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)].breed(parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)].breed(parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)]));
+	var pPow = 1;
+	return parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)].breed2(parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)]);
 }
 
 function exportBestCar() {
@@ -335,12 +335,10 @@ connectedSpringsOld = [];
 		]);
 		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
 		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
+var bodyColor = decodeRGB(carData.data.colors[i]);
 		m_piece.render = {
-fill : "#" +( carData
-				.data
-				.colors[i]
-				.toString(16)
-				.padStart(6, '0')) //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+fill : "rgba("+bodyColor.r+","+bodyColor.g+","+bodyColor.b+",0.6)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+stroke : "rgba(" + bodyColor.r + "," + bodyColor.g + "," + bodyColor.b + ",0.75)"
 		};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
@@ -351,20 +349,30 @@ fill : "#" +( carData
 		for (var j = 0; j < wheelsThere.length; j++) {
 			var wheelData = wheelsThere[j];
 			if (wheelData.o) {
-var wheelAxelPos = Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale)
+var wheelColor = decodeRGB(carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length]);
+var wheelPos = Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale)
 				.add(center_vec)
-.sub(Vec2(Math.cos(wheelData.axelAngle) * carData.maxRadius * carScale / 3, Math.sin(wheelData.axelAngle) * carData.maxRadius * carScale / 3));
+				.sub(Vec2(Math.cos(wheelData.axelAngle) * carData.maxRadius * carScale / 3, Math.sin(wheelData.axelAngle) * carData.maxRadius * carScale / 3));
+var wheelAxelPos = Vec2(Math.cos(wheelData.axelAngle) * 0.2 * carScale * carData.maxRadius / 3, Math.sin(wheelData.axelAngle) * 0.2 * carScale * carData.maxRadius / 3).add(wheelPos);
 				var spring = world.createDynamicBody(wheelAxelPos);
 
-var s_fix = spring.createFixture(pl.Box(0.1 * carScale * carData.maxRadius / 1.5, 0.2 * carScale * carData.maxRadius / 1.5), springShapeDef);
-				var wheel = world.createDynamicBody(wheelAxelPos);
+var s_fix = spring.createFixture(pl.Box(0.2 * carScale * carData.maxRadius / 1.5, 0.05 * carScale * carData.maxRadius / 1.5, Vec2(0, 0), wheelData.axelAngle), springShapeDef);
+var s_b_fix=m_piece
+				.m_body
+.createFixture(pl.Box(0.2 * carScale * carData.maxRadius / 1.5, 0.1 * carScale * carData.maxRadius / 1.5, Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale), wheelData.axelAngle), springShapeDef);
+				var wheel = world.createDynamicBody(wheelPos);
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 				w_fix.render = {
-					fill: "rgba(0,0,0,0.5)"
+					fill: "rgba(0,0,0,0.75)"
 				};
+				s_b_fix.render = {
+fill : "rgba(" + wheelColor.r + "," + wheelColor.g + "," + wheelColor.b + ",0.6)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+stroke : "rgba(" + wheelColor.r + "," + wheelColor.g + "," + wheelColor.b + ",0.75)"
+};
 				s_fix.render = {
-					fill: "rgba(0,0,0,0.5)"
-				};
+fill : "rgba(" + wheelColor.r + "," + wheelColor.g + "," + wheelColor.b + ",0.6)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+stroke : "rgba(" + wheelColor.r + "," + wheelColor.g + "," + wheelColor.b + ",0.75)"
+};
 				var bounceJoint = world.createJoint(pl.PrismaticJoint({
 					enableMotor:true,
 lowerTranslation : -carData.maxRadius * carScale / 3,
@@ -390,6 +398,7 @@ enableLimit:true
 				springs.push(spring);
 				springsF.push(s_fix);
 				lowestY = Math.min(lowestY, w_fix.getAABB(0).lowerBound.y);
+				m_piece.m_body.resetMassData();
 			}
 		}
 		connectedPartsWheels.push([totWheelAdditions]);
@@ -413,7 +422,7 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
-var strength = 50*connectedParts[j].m_mass;//Math.sqrt(connectedPartsArea[j]) * 3;
+var strength = 50*connectedParts[j].m_mass/4;//Math.sqrt(connectedPartsArea[j]) * 3;
 			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
@@ -518,7 +527,7 @@ var baseSpringForce =  7.5 *cMass/1.5;
 		wheelJoints[j].setMotorSpeed(-SPEED);
 		wheelJoints[j].enableMotor(true);
 		if (wheelJoints[j].m_bodyB) {
-			wheelJoints[j].setMaxMotorTorque(torque  );
+			wheelJoints[j].setMaxMotorTorque(torque*1.5  );
 		}
 		//springJoints[j].setMotorSpeed(SPEED);
 		springJoints[j].enableMotor(true);
@@ -548,7 +557,7 @@ springJoints[j].setMotorSpeed(-20/20 *3* springJoints[j].getJointTranslation() /
 	m_velocity = boxCar.getLinearVelocity();
 	m_angularVelocity = boxCar.getAngularVelocity();
 }
-window.setInterval(function () {
+function loop () {
 	for (var i = 0; i < simSpeed; i++) {
 		if(autoFast){
 			if(carScore>worstScore()){
@@ -560,7 +569,8 @@ window.setInterval(function () {
 		world.step(1 / 60);
 		tick();
 	}
-}, 0);
+}
+window.setInterval(loop,0);
 window.addEventListener("resize", function () {
 	c.width = window.innerWidth;
 	c.height = window.innerHeight;
@@ -577,7 +587,7 @@ function render() {
 		for (var f = body.getFixtureList(); f; f = f.getNext()) {
 			ctx.strokeStyle = f.render && f.render.stroke ? f.render.stroke : "#000000";
 			ctx.fillStyle = f.render && f.render.fill ? f.render.fill : "rgba(0,0,0,0)";
-			ctx.lineWidth = 1 / scale;
+			ctx.lineWidth = 2 / scale;
 			ctx.save();
 			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
