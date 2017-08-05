@@ -505,7 +505,7 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
-			var strength = 50 * connectedParts[j].m_body.m_mass /6; //Math.sqrt(connectedPartsArea[j]) * 3;
+			var strength = 50 * connectedParts[j].m_body.m_mass /2; //Math.sqrt(connectedPartsArea[j]) * 3;
 			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
@@ -592,7 +592,7 @@ window.setInterval(resetGround,1000);
 function tick() {
 	genGround();
 	var cMass = boxCar.m_mass;
-	/*try {
+	try {
 		for (var j = 0; j < wheelJoints.length; j++) {
 			if (wheelJoints[j].m_bodyB) {
 				if (wheelJoints[j].m_bodyB.m_mass) {
@@ -603,7 +603,7 @@ function tick() {
 				cMass += springJoints[j].m_bodyB.m_mass;
 			}
 		}
-	} catch (e) {}*/
+	} catch (e) {}
 	cMass = cMass / carScale / carScale;
 	var torque = MASS_MULT * GRAVITY / wheelJoints.length * cMass;
 	var baseSpringForce = 7.5 * cMass / 1.5;
