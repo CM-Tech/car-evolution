@@ -366,7 +366,7 @@ function createCar(carData) {
 var colorLerp = 1;
 		m_piece.render = {
 fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : "rgba(0,0,0,0.1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
+stroke : "rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
 		};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
