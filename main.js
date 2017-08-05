@@ -155,7 +155,8 @@ function genGround() {
 		terrains.push(t_fix);
 		t_fix.render = {
 			fill: "rgba(255,255,255,1)",
-			stroke: "rgba(255,255,255,1)"
+			stroke: "rgba(255,255,255,1)",
+			layer:6
 		};
 		genX = nextX;
 	}
@@ -415,12 +416,20 @@ function createCar(carData) {
 		]);
 		var m_piece = boxCar.createFixture(m_shape, bodyShapeDef);
 		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
-		var bodyColor = decodeRGB(carData.data.colors[i]);
-var colorLerp = 1;
-		m_piece.render = {
+		//var bodyColor = decodeRGB(carData.data.colors[i]||0);
+		//console.log("#"+(carData.data.colors[i]||0).toString(16).padStart(6,"0"));
+		var bodyColor = decodeRGB(parseInt(convertToMaterial((carData.data.colors[i]||0).toString(16).padStart(6,"0")).substring(1),16));
+var colorLerp = 0;
+/*m_piece.render = {
 fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : "rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
-		};
+stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)"//"rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
+		};*/
+var matHex=convertToMaterial((carData.data.colors[i]||0).toString(16).padStart(6,"0"));
+		m_piece.render = {
+fill : matHex,
+stroke : matHex,
+layer:6
+};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
 		connectedShapes.push(m_shape);
@@ -444,17 +453,33 @@ stroke : "rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp
 				var wheel = world.createDynamicBody(wheelPos);
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 				w_fix.render = {
-					fill: "rgba(0,0,0,1)"
+					fill: "rgba(0,0,0,1)",
+					layer:3
 				};
 				var colorLerp = 1;
-				s_b_fix.render = {
+				/*s_b_fix.render = {
 fill : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
+stroke : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)",
+layer:5
 				};
 s_fix.render = {
 				fill: "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-				stroke: "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
-};
+				stroke: "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)",
+				layer:4
+
+			};*/
+			var matHex=convertToMaterial((carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length]||0).toString(16).padStart(6,"0"));
+			s_b_fix.render = {
+fill : matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+stroke : matHex,
+layer:5
+				};
+s_fix.render = {
+fill : matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+stroke : matHex,
+layer:4
+
+			};
 				var bounceJoint = world.createJoint(pl.PrismaticJoint({
 					enableMotor: true,
 					lowerTranslation: -carData.maxRadius * carScale / 3,
@@ -575,6 +600,7 @@ function Break(m_piece) {
 		});
 		m_piece = body2.createFixture(m_shape, bodyBrokeShapeDef);
 		m_piece.render = renderData;
+		m_piece.render.layer=2;
 		connectedPartsOld.push(m_piece);
 		// Compute consistent velocities for new bodies based on cached velocity.
 		var center1 = body1.getWorldCenter();
@@ -681,31 +707,69 @@ window.addEventListener("resize", function () {
 	c.height = window.innerHeight;
 });
 
+var patternC=document.createElement("canvas");
+var patternCtx=patternC.getContext("2d");
 var scale = Math.min(c.width/40,c.height/40);
 function render() {
-	scale = Math.min(c.width/40,c.height/40);
+	
+scale = Math.min(c.width/40,c.height/40);
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, c.width, c.height);
 	ctx.fillStyle = "#2196F3";
+	
+			
 	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.globalAlpha = 1;
+			ctx.globalCompositeOperation = "multiply";
+			ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
+			ctx.fillRect(0, 0, c.width, c.height);
+			ctx.globalCompositeOperation = "source-over";
+			ctx.globalAlpha = 1.0;
 	ctx.translate(c.width / 2, c.height / 2);
-	ctx.scale(scale, -scale);
-	ctx.translate(-camera.x, camera.y);
+	ctx.scale(1, -1);
+	ctx.translate(-camera.x*scale, camera.y*scale);
+	var renderLayers=[];
+	function addToLayer(layer,f,b){
+		var found=false;
+		for(var i=0;i<renderLayers.length;i++){
+			if(renderLayers[i].index==layer){
+				found=true;
+				renderLayers[i].pairs.push({f:f,b:b});
+			}
+		}
+		if(!found){
+renderLayers.push({index:layer,pairs:[{f:f,b:b}]});
+		}
+	}
 	for (var body = world.getBodyList(); body; body = body.getNext()) {
 		for (var f = body.getFixtureList(); f; f = f.getNext()) {
+			var layer=0;
+			if(f.render &&f.render.layer){
+				layer=f.render.layer;
+			}
+			addToLayer(layer,f,body);
+		}
+	}
+	renderLayers.sort(function (a, b) {
+		return a.index - b.index;
+	});
+	for (var i=0;i<renderLayers.length;i++){
+		for(var j=0;j<renderLayers[i].pairs.length;j++){
+			var f=renderLayers[i].pairs[j].f;
+			var body=renderLayers[i].pairs[j].b;
 			ctx.strokeStyle = f.render && f.render.stroke
 				? f.render.stroke
 				: "#000000";
 			ctx.fillStyle = f.render && f.render.fill
 				? f.render.fill
 				: "rgba(0,0,0,0)";
-			ctx.lineWidth = 2/ scale;
+			ctx.lineWidth = 2;
 			ctx.save();
 			if (f.m_shape.getType() == "polygon") 
-				ctx.translate(0,-2/scale);
+				ctx.translate(0,-4);
 			if (f.m_shape.getType() == "circle") 
-				ctx.translate(0,-2/scale);
-			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
+				ctx.translate(0,-2);
+			ctx.translate(f.m_body.m_xf.p.x*scale, f.m_body.m_xf.p.y*scale);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
 			if (f.m_shape.getType() == "polygon") 
 				polygonS(f.m_shape);
@@ -715,24 +779,41 @@ function render() {
 				edge(f.m_shape);
 			ctx.restore();
 		}
-	}
-	for (var body = world.getBodyList(); body; body = body.getNext()) {
-		for (var f = body.getFixtureList(); f; f = f.getNext()) {
+	
+	for(var j=0;j<renderLayers[i].pairs.length;j++){
+			var f=renderLayers[i].pairs[j].f;
+			var body=renderLayers[i].pairs[j].b;
 			ctx.strokeStyle = f.render && f.render.stroke
 				? f.render.stroke
 				: "#000000";
 			ctx.fillStyle = f.render && f.render.fill
 				? f.render.fill
 				: "rgba(0,0,0,0)";
-			ctx.lineWidth = 2 / scale;
+			ctx.lineWidth = 1 ;
 			ctx.save();
-			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
+			ctx.translate(f.m_body.m_xf.p.x*scale, f.m_body.m_xf.p.y*scale);
+			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
+			if (f.m_shape.getType() == "polygon") 
+				polygon(f.m_shape);
+			if (f.m_shape.getType() == "circle") 
+				circle(f.m_shape);
+
+			ctx.restore();
+			ctx.strokeStyle = "rgba(0,0,0,0)";
+			ctx.globalAlpha = 1;
+			ctx.globalCompositeOperation = "multiply";
+			ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
+			ctx.lineWidth = 1 ;
+			ctx.save();
+			ctx.translate(f.m_body.m_xf.p.x*scale, f.m_body.m_xf.p.y*scale);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
 			if (f.m_shape.getType() == "polygon") 
 				polygon(f.m_shape);
 			if (f.m_shape.getType() == "circle") 
 				circle(f.m_shape);
 			ctx.restore();
+			ctx.globalCompositeOperation = "source-over";
+			ctx.globalAlpha = 1.0;
 		}
 	}
 	window.requestAnimationFrame(render);
@@ -746,7 +827,7 @@ function circleS(shape, f) {
 	ctx.shadowColor = "rgba(0,0,0,.26)";
 	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
-	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
+	ctx.arc(shape.m_p.x*scale, shape.m_p.y*scale, shape.m_radius*scale, 0, 2 * Math.PI);
 	//ctx.stroke();
 	ctx.fill();
 	/*ctx.beginPath()
@@ -761,28 +842,28 @@ function circle(shape, f) {
 	ctx.shadowColor = "rgba(0,0,0,0)";
 	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
-	ctx.arc(shape.m_p.x, shape.m_p.y, shape.m_radius, 0, 2 * Math.PI);
+	ctx.arc(shape.m_p.x*scale, shape.m_p.y*scale, shape.m_radius*scale, 0, 2 * Math.PI);
 	//ctx.stroke();
 	ctx.fill();
 	ctx.beginPath()
 	ctx.strokeStyle = "white";
-	ctx.moveTo(shape.m_p.x, shape.m_p.y);
-	ctx.lineTo(shape.m_p.x + shape.m_radius, shape.m_p.y);
+	ctx.moveTo(shape.m_p.x*scale, shape.m_p.y*scale);
+	ctx.lineTo(shape.m_p.x*scale + shape.m_radius*scale, shape.m_p.y*scale);
 	ctx.stroke();
 }
 function edge(shape, f) {
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertex1.x, shape.m_vertex1.y);
-	ctx.lineTo(shape.m_vertex2.x, shape.m_vertex2.y);
+	ctx.moveTo(shape.m_vertex1.x*scale, shape.m_vertex1.y*scale);
+	ctx.lineTo(shape.m_vertex2.x*scale, shape.m_vertex2.y*scale);
 	ctx.stroke();
 }
 
 function polygon(shape, f) {
 	ctx.lineJoin = "round"
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertices[0].x, shape.m_vertices[0].y);
+	ctx.moveTo(shape.m_vertices[0].x*scale, shape.m_vertices[0].y*scale);
 	for (var i = 1; i < shape.m_vertices.length; i++) {
-		ctx.lineTo(shape.m_vertices[i].x, shape.m_vertices[i].y);
+		ctx.lineTo(shape.m_vertices[i].x*scale, shape.m_vertices[i].y*scale);
 	}
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = "rgba(0,0,0,0)";
@@ -795,11 +876,11 @@ function polygon(shape, f) {
 function polygonS(shape, f) {
 	ctx.lineJoin = "round"
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertices[0].x, shape.m_vertices[0].y);
+	ctx.moveTo(shape.m_vertices[0].x*scale, shape.m_vertices[0].y*scale);
 	for (var i = 1; i < shape.m_vertices.length; i++) {
-		ctx.lineTo(shape.m_vertices[i].x, shape.m_vertices[i].y);
+		ctx.lineTo(shape.m_vertices[i].x*scale, shape.m_vertices[i].y*scale);
 	}
-	ctx.shadowBlur = 2;
+	ctx.shadowBlur = 4;
 	ctx.fillStyle = "rgba(0,0,0,.26)";
 	ctx.shadowColor = "rgba(0,0,0,.26)";
 	ctx.shadowOffsetY = 0;

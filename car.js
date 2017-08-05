@@ -65,6 +65,7 @@ function Car(data, maxWheels, wheelProbablity) {
         }
     }
     this.fixAngleWeights();
+    this.materialize();
 }
 Car.prototype.bodyParts = 8;
 Car.prototype.maxWheels = 4;
@@ -167,8 +168,17 @@ Car.prototype.importCar = function (str) {
             .colors
             .push(parseInt(list[40 + i]));
     }
-    return new Car(data);
+        var ret=new Car(data);
+        ret.materialize();
+    return ret;
 
+}
+Car.prototype.materialize= function(){
+    for (var i = 0; i < this.data.colors.length; i++) {
+        this.data
+            .colors[i]=convertNumberToMaterial(this.data
+            .colors[i]);
+    }
 }
 Car.prototype.totalAngleWeights = function () {
     var total = 0;
@@ -454,6 +464,7 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
                 .splice(Math.floor(Math.random() * offspring.data.wheels.length), 1);
         }
     }
+    offspring.materialize();
     offspring.fixAngleWeights();
     return offspring;
 }
@@ -667,6 +678,7 @@ Car.prototype.breed2 = function (other, maxWheels, wheelProbablity) {
                 .splice(Math.floor(Math.random() * offspring.data.wheels.length), 1);
         }
     }
+    offspring.materialize();
     offspring.fixAngleWeights();
     return offspring;
 }
@@ -695,5 +707,6 @@ Car.prototype.clone = function () {
             .wheels
             .push(newWheel);
     }
+        offspring.materialize();
     return offspring;
 }
