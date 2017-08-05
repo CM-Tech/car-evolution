@@ -642,6 +642,8 @@ simSpeed = 1;
 			} else {
 				simSpeed = 10;
 			}
+		}else{
+			simSpeed = document.getElementById("sim-speed").value;
 		}
 document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Score:\n" + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
 		world.step(1 / 60);

@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue-indigo.min.css" />
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link rel="stylesheet" href="material.blue-indigo.min.css" />
+    <script defer src="material.min.js"></script>
     <style>
         html,
         body,
@@ -79,11 +79,19 @@
 
         
         <div id="core-snackbar" class="mdl-js-snackbar mdl-snackbar" style=" color: white; pointer-events:all; ">
-            <div class="mdl-snackbar__text score-text" style="width: 60px;">Score:</div>
-            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" style="margin-top:20px;">
+            <div class="mdl-snackbar__text score-text" style="width: 80px;">Score:</div>
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" style="margin-top:24px;">
   <input type="checkbox" id="switch-1" class="mdl-switch__input" checked>
   <span class="mdl-switch__label">Auto Swiften</span>
 </label>
+<div class="slider-container" style="margin-top:24px;height:10px;">
+    <p style="width:200px">
+<input id="sim-speed" class="mdl-slider mdl-js-slider" type="range" min="1" max="100" value="1" tabindex="0">
+</p>
+</div>
+<div class="slider-container" style="margin-top:14px;height:20px;">
+  <span class="mdl-slider__label">Simulation Speed</span>
+  </div>
             <button class="mdl-snackbar__action" type="button"></button>
         </div>
     </div>
