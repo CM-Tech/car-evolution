@@ -628,6 +628,8 @@ function render() {
 				: "rgba(0,0,0,0)";
 			ctx.lineWidth = 2/ scale;
 			ctx.save();
+			if (f.m_shape.getType() == "polygon") 
+				ctx.translate(0,-2/scale);
 			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
 			if (f.m_shape.getType() == "polygon") 
@@ -708,7 +710,7 @@ function polygonS(shape, f) {
 	ctx.shadowBlur = 2;
 	ctx.fillStyle = "rgba(0,0,0,.26)";
 	ctx.shadowColor = "rgba(0,0,0,.26)";
-	ctx.shadowOffsetY = 2;
+	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
 	ctx.closePath();
 	//ctx.stroke();
