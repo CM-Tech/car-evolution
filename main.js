@@ -587,6 +587,9 @@ function tick() {
 }
 function loop() {
 	for (var i = 0; i < simSpeed; i++) {
+		autoFast = document
+			.getElementById("switch-1")
+			.checked;
 		if (autoFast) {
 			if (carScore > worstScore()) {
 				simSpeed = 1;
