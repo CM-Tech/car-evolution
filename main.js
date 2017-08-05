@@ -603,7 +603,7 @@ document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Scor
 		tick();
 	}
 }
-window.setInterval(loop, 0);
+window.setInterval(loop, 100/60);
 window.addEventListener("resize", function () {
 	c.width = window.innerWidth;
 	c.height = window.innerHeight;
