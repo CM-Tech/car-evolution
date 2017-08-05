@@ -270,7 +270,7 @@ Car.prototype.exportCar = function () {
 }
 Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     var interp = Math.max(1, this.score) / (Math.max(1, this.score) + Math.max(1, other.score));
-    var interpL = 2;
+    var interpL = 0.9;
     var wheelMax = this.maxWheels;
     var wheelProb = this.wheelProb;
     if (maxWheels) 
@@ -278,7 +278,7 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     var wheelProb = this.wheelProb;
     if (wheelProbablity) 
         wheelProb = wheelProbablity;
-    var mutationRate = 0.1;
+    var mutationRate = 0.05;
     var explorationRate = 0.05;
     this.fixAngleWeights();
     other.fixAngleWeights();

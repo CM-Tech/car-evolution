@@ -205,6 +205,7 @@ function insertNewCarScore(car, score) {
 }
 
 function switchCar(first) {
+carScore = Math.max(boxCar.getPosition().x,carScore);
 	var score = carScore + 0;
 	if (first) {
 		scoreRecord = [];
@@ -593,6 +594,7 @@ function loop() {
 				simSpeed = 10;
 			}
 		}
+document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Score: " + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
 		world.step(1 / 60);
 		tick();
 	}
