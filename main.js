@@ -598,7 +598,7 @@ function loop() {
 				simSpeed = 10;
 			}
 		}
-document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Score: " + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
+document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Score:\n" + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
 		world.step(1 / 60);
 		tick();
 	}
