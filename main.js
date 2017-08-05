@@ -155,8 +155,8 @@ genGround();
 var topScores = [];
 var prevGen = [];
 var curGen = [];
-var maxTops = 3;
-var genSize = 6;
+var maxTops = 6;
+var genSize = 12;
 var carDNA = new Car();
 
 function genCarFromOldParents() {
@@ -226,7 +226,7 @@ function switchCar(first) {
 				.sort(function (a, b) {
 					return a.score - b.score;
 				});
-			curGen.splice(0, curGen.length - 3);
+			curGen.splice(0, curGen.length - 4);
 			prevGen = curGen;
 			curGen = [];
 		}
@@ -625,11 +625,28 @@ function render() {
 			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
 			if (f.m_shape.getType() == "polygon") 
-				polygon(f.m_shape);
+				polygonS(f.m_shape);
 			if (f.m_shape.getType() == "circle") 
 				circle(f.m_shape);
 			if (f.m_shape.getType() == "edge") 
 				edge(f.m_shape);
+			ctx.restore();
+		}
+	}
+	for (var body = world.getBodyList(); body; body = body.getNext()) {
+		for (var f = body.getFixtureList(); f; f = f.getNext()) {
+			ctx.strokeStyle = f.render && f.render.stroke
+				? f.render.stroke
+				: "#000000";
+			ctx.fillStyle = f.render && f.render.fill
+				? f.render.fill
+				: "rgba(0,0,0,0)";
+			ctx.lineWidth = 2 / scale;
+			ctx.save();
+			ctx.translate(f.m_body.m_xf.p.x, f.m_body.m_xf.p.y);
+			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
+			if (f.m_shape.getType() == "polygon") 
+				polygon(f.m_shape);
 			ctx.restore();
 		}
 	}
@@ -647,6 +664,7 @@ function circle(shape, f) {
 	//ctx.stroke();
 	ctx.fill();
 	ctx.beginPath()
+	ctx.strokeStyle = "white";
 	ctx.moveTo(shape.m_p.x, shape.m_p.y);
 	ctx.lineTo(shape.m_p.x + shape.m_radius, shape.m_p.y);
 	ctx.stroke();
@@ -666,7 +684,23 @@ function polygon(shape, f) {
 	for (var i = 1; i < shape.m_vertices.length; i++) {
 		ctx.lineTo(shape.m_vertices[i].x, shape.m_vertices[i].y);
 	}
+	ctx.shadowBlur = 0;
+	ctx.shadowColor = "rgba(0,0,0,0)";
+	ctx.shadowOffsetY = 2;
+	ctx.shadowOffsetX = 0;
+	ctx.closePath();
+	//ctx.stroke();
+	ctx.fill();
+}
+function polygonS(shape, f) {
+	ctx.lineJoin = "round"
+	ctx.beginPath();
+	ctx.moveTo(shape.m_vertices[0].x, shape.m_vertices[0].y);
+	for (var i = 1; i < shape.m_vertices.length; i++) {
+		ctx.lineTo(shape.m_vertices[i].x, shape.m_vertices[i].y);
+	}
 	ctx.shadowBlur = 2;
+	ctx.fillStyle = "rgba(0,0,0,.26)";
 	ctx.shadowColor = "rgba(0,0,0,.26)";
 	ctx.shadowOffsetY = 2;
 	ctx.shadowOffsetX = 0;
