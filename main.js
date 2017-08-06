@@ -730,12 +730,14 @@ scale = Math.min(c.width/40,c.height/40);
 	
 			
 	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.translate(-camera.x*scale, -camera.y*scale);
 	ctx.globalAlpha = 1;
 			ctx.globalCompositeOperation = "multiply";
 			ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
-			ctx.fillRect(0, 0, c.width, c.height);
+			ctx.fillRect(camera.x*scale, camera.y*scale, c.width, c.height);
 			ctx.globalCompositeOperation = "source-over";
 			ctx.globalAlpha = 1.0;
+	ctx.translate(camera.x*scale, camera.y*scale);
 	ctx.translate(c.width / 2, c.height / 2);
 	ctx.scale(1, -1);
 	ctx.translate(-camera.x*scale, camera.y*scale);
