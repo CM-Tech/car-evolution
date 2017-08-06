@@ -64,7 +64,7 @@ function Car(data, maxWheels, wheelProbablity) {
                 });
         }
     }
-    this.fixAngleWeights();
+    //this.fixAngleWeights();
     this.materialize();
 }
 Car.prototype.bodyParts = 8;
@@ -73,8 +73,8 @@ Car.prototype.wheelProb = 0.5;
 Car.prototype.maxLength = 10;
 Car.prototype.maxRadius = 5;
 Car.prototype.minRadius = 1;
-Car.prototype.minAngleWeight = 0.5;
-Car.prototype.maxAngleWeight = 2;
+Car.prototype.minAngleWeight = 0.001;
+Car.prototype.maxAngleWeight = 10;
 Car.prototype.score = 0;
 Car.prototype.fixAngleWeights = function () {
     var total = 0;
@@ -238,7 +238,7 @@ Car.prototype.getAreaOfPiece = function (index) {
 Car.prototype.exportCar = function () {
     var string = [];
     var curAngle = 0;
-    this.fixAngleWeights();
+   // this.fixAngleWeights();
     var total = 0;
     for (var i = 0; i < this.bodyParts; i++) {
         total += this.data.angleWeights[i];
@@ -246,7 +246,7 @@ Car.prototype.exportCar = function () {
     var angles = [];
     for (var i = 0; i < this.bodyParts; i++) {
 
-        string.push(Math.PI * 2 * this.data.angleWeights[i] / total);
+        string.push(this.data.angleWeights[i] );
         string.push(this.data.lengths[i] / this.maxLength * 3);
         curAngle += Math.PI * 2 * this.data.angleWeights[i] / total;
         angles.push(curAngle);
@@ -256,7 +256,7 @@ Car.prototype.exportCar = function () {
     for (var i = 0; i < this.data.wheels.length; i++) {
         if (this.data.wheels[i].o) {
             string.push(this.data.wheels[i].index);
-            string.push(angles[this.data.wheels[i].index] + Math.PI);
+            string.push(this.data.wheels[i].axelAngle);
             string.push(this.data.wheels[i].r / this.maxRadius * 1.5); //*1.25)
             //console.log("wheel");
             wheelCount++;

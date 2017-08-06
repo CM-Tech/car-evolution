@@ -83,7 +83,7 @@ var groundFD = {
 };
 var currentTicks=0;
 var distTicks=0;
-var restartTicks = 100;
+var restartTicks = 300;
 var restartCurrent = 0;
 var carScore = 0;
 
