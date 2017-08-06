@@ -13,7 +13,7 @@
     </script>
     <script src="lib/planck.min.js"></script>
     <script src="lib/perlin.js"></script>
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 
@@ -25,7 +25,8 @@
         html,
         body,
         canvas,
-        #overlay,#dialog-overlay {
+        #overlay,
+        #dialog-overlay {
             width: 100%;
             height: 100%;
             margin: 0;
@@ -35,7 +36,8 @@
         }
 
         canvas,
-        #overlay ,#dialog-overlay{
+        #overlay,
+        #dialog-overlay {
             position: absolute;
         }
 
@@ -43,17 +45,19 @@
             float: right;
             margin: 10px;
         }
-         #dialog-overlay .mdl-card {
-        transform: translate(-50%,0%);
-    left: 50%;
-    top: 100%;
-    transition: transform 0.5s,top 0.5s;
+
+        #dialog-overlay .mdl-card {
+            transform: translate(-50%, 0%);
+            left: 50%;
+            top: 100%;
+            transition: transform 0.5s, top 0.5s;
         }
- #dialog-overlay .mdl-card[open="true"] {
-        transform: translate(-50%,-50%);
-    left: 50%;
-    top: 50%;
-    transition: transform 0.5s,top 0.5s;
+
+        #dialog-overlay .mdl-card[open="true"] {
+            transform: translate(-50%, -50%);
+            left: 50%;
+            top: 50%;
+            transition: transform 0.5s, top 0.5s;
         }
 
         #overlay .mdl-data-table {
@@ -98,33 +102,34 @@
             line-height: 24px;
         }
     </style>
+    <title>Car Evolution</title>
 </head>
 
 <body>
     <canvas id="c"></canvas>
     <div id="dialog-overlay">
         <div class="import-dialog mdl-card mdl-shadow--2dp">
-  <div class="mdl-card__title">
-    <h2 class="mdl-card__title-text">Import Car</h2>
-  </div>
-<!-- Floating Multiline Textfield -->
-<form action="#">
-  <div class="mdl-textfield mdl-js-textfield" style="margin-left: 15px;">
-    <textarea class="mdl-textfield__input" type="text" rows= "3" id="car-code-area" ></textarea>
-    <label class="mdl-textfield__label" for="car-code-area">Car Code...</label>
-  </div>
-</form>
+            <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">Import Car</h2>
+            </div>
+            <!-- Floating Multiline Textfield -->
+            <form action="#">
+                <div class="mdl-textfield mdl-js-textfield" style="margin-left: 15px;">
+                    <textarea class="mdl-textfield__input" type="text" rows="3" id="car-code-area"></textarea>
+                    <label class="mdl-textfield__label" for="car-code-area">Car Code...</label>
+                </div>
+            </form>
 
-  <div class="mdl-card__actions mdl-card--border">
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="importCarFromDialog()">
+            <div class="mdl-card__actions mdl-card--border">
+                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="importCarFromDialog()">
       Import
     </a>
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="closeImportDialog()">
+                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="closeImportDialog()">
       Cancel
     </a>
-  </div>
-</div>
-        
+            </div>
+        </div>
+
     </div>
     <div id="overlay">
 

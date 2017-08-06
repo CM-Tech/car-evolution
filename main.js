@@ -22,12 +22,12 @@ var c = document.getElementById("c");
 var ctx = c.getContext("2d");
 c.width = window.innerWidth;
 c.height = window.innerHeight;
-var tickSpeed=1;
+var tickSpeed = 1;
 var camera = {
 	x: 0,
 	y: 0
 };
-var paused=false;
+var paused = false;
 var doubleWheelParent = false;
 var SMALL_GROUP = 1;
 var LARGE_GROUP = -1;
@@ -82,8 +82,8 @@ var groundFD = {
 	density: 0.0,
 	friction: 2.0
 };
-var currentTicks=0;
-var distTicks=0;
+var currentTicks = 0;
+var distTicks = 0;
 var restartTicks = 300;
 var restartCurrent = 0;
 var carScore = 0;
@@ -93,36 +93,36 @@ function updateProgress(x) {
 		restartCurrent = 0;
 		carScore = x + 0;
 		boxCar.score = x + 0
-		distTicks=currentTicks+0;
+		distTicks = currentTicks + 0;
 	}
 }
 
 function terrain1(x) {
-	if (x < flatLandEndX) 
+	if (x < flatLandEndX)
 		return 0;
 	return noise.perlin2((x - flatLandEndX) / 20, 0) * 10 + noise.perlin2((x - flatLandEndX) / 10, (x - flatLandEndX) / 10) * 10 - Math.pow(Math.max(x - flatLandEndX, 0) / 10, 1.2) / 4 * 10;
 }
 
 function terrain2(x) {
-	if (x < flatLandEndX) 
+	if (x < flatLandEndX)
 		return 0;
 	return noise.perlin2((x - flatLandEndX) / 15, 0) * (12 - 2 / ((x - flatLandEndX + 10) / 7)) + noise.perlin2((x - flatLandEndX) / 7, (x - flatLandEndX) / 7);
 }
 
 function terrain3(x) {
-	if (x < flatLandEndX) 
+	if (x < flatLandEndX)
 		return 0;
 	return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.5) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5) % 2) / 2 > 0.5
 		? 0.3
 		: 0);
 }
 function terrain4(x) {
-	if (x < flatLandEndX) 
+	if (x < flatLandEndX)
 		return 0;
-	var m=1;
-	if (x < flatLandEndX+100) 
-		m=Math.max(x - flatLandEndX, 0)/100;
-	return -Math.sin(Math.max(x - flatLandEndX, 0)/20+Math.pow(Math.max(x - flatLandEndX, 0)/20,1.75)/20)*10*m;// / (10+40/(Math.pow(Math.max(x - flatLandEndX, 0),0.5)+1)))*10;
+	var m = 1;
+	if (x < flatLandEndX + 100)
+		m = Math.max(x - flatLandEndX, 0) / 100;
+	return -Math.sin(Math.max(x - flatLandEndX, 0) / 20 + Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.75) / 20) * 10 * m;// / (10+40/(Math.pow(Math.max(x - flatLandEndX, 0),0.5)+1)))*10;
 }
 
 var terrains = [];
@@ -157,11 +157,11 @@ function genGround() {
 		t_fix.render = {
 			fill: "rgba(255,255,255,1)",
 			stroke: "rgba(255,255,255,1)",
-			layer:6
+			layer: 6
 		};
 		genX = nextX;
 	}
-	
+
 }
 genGround();
 
@@ -211,8 +211,8 @@ function worstScore() {
 	}
 	return s;
 }
-function insertNewCarScore(car, score,ticks) {
-	topScores.push({score: score,ticks:ticks, car: car});
+function insertNewCarScore(car, score, ticks) {
+	topScores.push({ score: score, ticks: ticks, car: car });
 	topScores.sort(function (a, b) {
 		return a.score - b.score;
 	});
@@ -220,41 +220,41 @@ function insertNewCarScore(car, score,ticks) {
 		topScores.splice(0, topScores.length - maxTops);
 	}
 }
-function updateScoreTable(){
+function updateScoreTable() {
 	topScores.sort(function (a, b) {
 		return a.score - b.score;
 	});
-	var innerHtml="";
-	for(var i=0;i<topScores.length;i++){
-		var entry=topScores[topScores.length-i-1];
-		var tableEntry="<tr title='Copy car to clipboard' data-clipboard-target='#score"+i+"'>";
-		tableEntry+="<td>";
-		tableEntry+=(entry.score).toFixed(2);
-		tableEntry+="</td>";
-		tableEntry+="<td>";
-		tableEntry+=(entry.ticks*1/60).toFixed(2);
-		tableEntry+="</td>";
-		tableEntry+="</tr>";
-		
-		innerHtml+=tableEntry;
-		
+	var innerHtml = "";
+	for (var i = 0; i < topScores.length; i++) {
+		var entry = topScores[topScores.length - i - 1];
+		var tableEntry = "<tr title='Copy car to clipboard' data-clipboard-target='#score" + i + "'>";
+		tableEntry += "<td>";
+		tableEntry += (entry.score).toFixed(2);
+		tableEntry += "</td>";
+		tableEntry += "<td>";
+		tableEntry += (entry.ticks * 1 / 60).toFixed(2);
+		tableEntry += "</td>";
+		tableEntry += "</tr>";
+
+		innerHtml += tableEntry;
+
 	}
-	
-	for(var i=0;i<topScores.length;i++){
-		var entry=topScores[topScores.length-i-1];
-		
-		innerHtml+='<input class="hidden-score-export" id="score'+i+'" value="'+entry.car.exportCar()+'">';
+
+	for (var i = 0; i < topScores.length; i++) {
+		var entry = topScores[topScores.length - i - 1];
+
+		innerHtml += '<input class="hidden-score-export" id="score' + i + '" value="' + entry.car.exportCar() + '">';
 	}
-	if(document.querySelectorAll(".score-table tbody")[0].innerHTML!=innerHtml){
-		document.querySelectorAll(".score-table tbody")[0].innerHTML=innerHtml;
+	if (document.querySelectorAll(".score-table tbody")[0].innerHTML != innerHtml) {
+		document.querySelectorAll(".score-table tbody")[0].innerHTML = innerHtml;
 	}
 	//document.querySelectorAll(".hidden-score-exports")[0].innerHTML=clipboardInnerHtml;
-	
+
 }
 function switchCar(first) {
-carScore = Math.max(boxCar.getPosition().x,carScore);
+	carScore = Math.max(boxCar.getPosition().x, carScore);
 	var score = carScore + 0;
-	var ticks=distTicks+0;
+	var ticks = distTicks + 0;
 	if (first) {
 		scoreRecord = [];
 		topScores = [];
@@ -266,10 +266,10 @@ carScore = Math.max(boxCar.getPosition().x,carScore);
 		if (score > 0) {
 			curGen.push({
 				score: score,
-				ticks:distTicks,
+				ticks: distTicks,
 				car: carDNA.clone()
 			});
-			insertNewCarScore(carDNA.clone(), score,ticks);
+			insertNewCarScore(carDNA.clone(), score, ticks);
 		}
 		if (curGen.length >= genSize) {
 			curGen
@@ -343,23 +343,23 @@ function removeOldCar() {
 		world.destroyBody(connectedPartsOld[i].m_body);
 	}
 	for (var i = 0; i < wheels.length; i++) {
-		if(wheels[i]){
-		world.destroyBody(wheels[i]);
+		if (wheels[i]) {
+			world.destroyBody(wheels[i]);
 		}
 	}
 	for (var i = 0; i < connectedWheelsOld.length; i++) {
-		if(connectedWheelsOld[i]){
-		world.destroyBody(connectedWheelsOld[i]);
+		if (connectedWheelsOld[i]) {
+			world.destroyBody(connectedWheelsOld[i]);
 		}
 	}
 	for (var i = 0; i < springs.length; i++) {
-		if(springs[i]){
-		world.destroyBody(springs[i]);
+		if (springs[i]) {
+			world.destroyBody(springs[i]);
 		}
 	}
 	for (var i = 0; i < connectedSpringsOld.length; i++) {
-		if(connectedSpringsOld[i]){
-		world.destroyBody(connectedSpringsOld[i]);
+		if (connectedSpringsOld[i]) {
+			world.destroyBody(connectedSpringsOld[i]);
 		}
 	}
 	world.destroyBody(boxCar);
@@ -421,18 +421,18 @@ function createCar(carData) {
 		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
 		//var bodyColor = decodeRGB(carData.data.colors[i]||0);
 		//console.log("#"+(carData.data.colors[i]||0).toString(16).padStart(6,"0"));
-		var bodyColor = decodeRGB(parseInt(convertToMaterial((carData.data.colors[i]||0).toString(16).padStart(6,"0")).substring(1),16));
-var colorLerp = 0;
-/*m_piece.render = {
-fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)"//"rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
-		};*/
-var matHex=convertToMaterial((carData.data.colors[i]||0).toString(16).padStart(6,"0"));
+		var bodyColor = decodeRGB(parseInt(convertToMaterial((carData.data.colors[i] || 0).toString(16).padStart(6, "0")).substring(1), 16));
+		var colorLerp = 0;
+		/*m_piece.render = {
+		fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+		stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)"//"rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
+				};*/
+		var matHex = convertToMaterial((carData.data.colors[i] || 0).toString(16).padStart(6, "0"));
 		m_piece.render = {
-fill : matHex,
-stroke : matHex,
-layer:6
-};
+			fill: matHex,
+			stroke: matHex,
+			layer: 6
+		};
 		connectedParts.push(m_piece);
 		connectedPartsI.push(i);
 		connectedShapes.push(m_shape);
@@ -457,7 +457,7 @@ layer:6
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
 				w_fix.render = {
 					fill: "rgba(0,0,0,1)",
-					layer:3
+					layer: 3
 				};
 				var colorLerp = 1;
 				/*s_b_fix.render = {
@@ -471,18 +471,18 @@ s_fix.render = {
 				layer:4
 
 			};*/
-			var matHex=convertToMaterial((carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length]||0).toString(16).padStart(6,"0"));
-			s_b_fix.render = {
-fill : matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : matHex,
-layer:5
+				var matHex = convertToMaterial((carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length] || 0).toString(16).padStart(6, "0"));
+				s_b_fix.render = {
+					fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+					stroke: matHex,
+					layer: 5
 				};
-s_fix.render = {
-fill : matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-stroke : matHex,
-layer:4
+				s_fix.render = {
+					fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+					stroke: matHex,
+					layer: 4
 
-			};
+				};
 				var bounceJoint = world.createJoint(pl.PrismaticJoint({
 					enableMotor: true,
 					lowerTranslation: -carData.maxRadius * carScale / 3,
@@ -518,21 +518,21 @@ layer:4
 		p_angle = new_p_angle;
 	}
 	boxCar.resetMassData();
-	boxCar.setPosition(Vec2(boxCar.getPosition().x,boxCar.getPosition().y-lowestY));
-	for(var i=0;i<springsF.length;i++){
-		var toTransform=springsF[i].m_body;
-		toTransform.setPosition(Vec2(toTransform.getPosition().x,toTransform.getPosition().y-lowestY));
+	boxCar.setPosition(Vec2(boxCar.getPosition().x, boxCar.getPosition().y - lowestY));
+	for (var i = 0; i < springsF.length; i++) {
+		var toTransform = springsF[i].m_body;
+		toTransform.setPosition(Vec2(toTransform.getPosition().x, toTransform.getPosition().y - lowestY));
 	}
-	for(var i=0;i<wheelsF.length;i++){
-		
-		var toTransform=wheelsF[i].m_body;
-		toTransform.setPosition(Vec2(toTransform.getPosition().x,toTransform.getPosition().y-lowestY));
+	for (var i = 0; i < wheelsF.length; i++) {
+
+		var toTransform = wheelsF[i].m_body;
+		toTransform.setPosition(Vec2(toTransform.getPosition().x, toTransform.getPosition().y - lowestY));
 	}
 	carScore = 0;
 	camera.x = 0;
 	restartCurrent = 0;
-	distTicks=0;
-	currentTicks=0;
+	distTicks = 0;
+	currentTicks = 0;
 	genX = -200;
 	destroyGround();
 	genGround();
@@ -544,19 +544,19 @@ world.on('post-solve', function (contact, impulse) {
 	while (a) {
 		for (var j = 0; j < connectedParts.length; j++) {
 			var m_piece = connectedParts[j];
-			var strength = 50 * connectedParts[j].m_body.m_mass /2; //Math.sqrt(connectedPartsArea[j]) * 3;
+			var strength = 50 * connectedParts[j].m_body.m_mass / 2; //Math.sqrt(connectedPartsArea[j]) * 3;
 			//console.log("s",strength);
 			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
 				var partBreak = false;
 				var impulseSum = 0;
 				for (var i = 0; i < a.v_points.length; i++) {
-					if (a.v_points[i].normalImpulse > strength) 
+					if (a.v_points[i].normalImpulse > strength)
 						partBreak = true;
-					}
-				if (partBreak) 
-					partsToBreak.push(m_piece);
 				}
+				if (partBreak)
+					partsToBreak.push(m_piece);
 			}
+		}
 		a = a.m_next;
 	}
 });
@@ -573,9 +573,9 @@ function Break(m_piece) {
 		// Create two bodies from one.
 		var f1 = boxCar.m_fixtureList;
 		var f1s = f1.m_shape;
-		if (!f1.m_shape) 
+		if (!f1.m_shape)
 			return;
-		if (!f1.getBody()) 
+		if (!f1.getBody())
 			return;
 		var index = connectedParts.indexOf(f1);
 		var body1 = f1.getBody();
@@ -614,7 +614,7 @@ function Break(m_piece) {
 		});
 		m_piece = body2.createFixture(m_shape, bodyBrokeShapeDef);
 		m_piece.render = renderData;
-		m_piece.render.layer=2;
+		m_piece.render.layer = 2;
 		connectedPartsOld.push(m_piece);
 		// Compute consistent velocities for new bodies based on cached velocity.
 		var center1 = body1.getWorldCenter();
@@ -628,7 +628,7 @@ function Break(m_piece) {
 		boxCar.resetMassData();
 	}
 }
-window.setInterval(resetGround,1000);
+window.setInterval(resetGround, 1000);
 function tick() {
 	genGround();
 	var cMass = boxCar.m_mass;
@@ -643,7 +643,7 @@ function tick() {
 				cMass += springJoints[j].m_bodyB.m_mass;
 			}
 		}
-	} catch (e) {}
+	} catch (e) { }
 	cMass = cMass / carScale / carScale;
 	var torque = MASS_MULT * GRAVITY / wheelJoints.length * cMass;
 	var baseSpringForce = 7.5 * cMass / 1.5;
@@ -683,61 +683,61 @@ function tick() {
 	m_angularVelocity = boxCar.getAngularVelocity();
 }
 function loop() {
-	
+
 	for (var i = 0; i < simSpeed; i++) {
-		if(!paused){
-		if(autoFast !== document
-			.getElementById("switch-1")
-			.checked){
-simSpeed = 1;
-		}
-		autoFast = document
-			.getElementById("switch-1")
-			.checked;
-			//autoFast=false;
-		if (autoFast) {
-			if (carScore > worstScore()) {
+		if (!paused) {
+			if (autoFast !== document
+				.getElementById("switch-1")
+				.checked) {
 				simSpeed = 1;
-			} else {
-				simSpeed = 10;
 			}
-		}else{
-			simSpeed = document.getElementById("sim-speed").value;
-		}
-document.querySelectorAll(".score-text")[0].innerText = "Score: " + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
-		world.step(1 / 60);
-		var tickStart=new Date().getTime();
-		tick();
-		var t=(new Date().getTime()-tickStart);
-		//tickSpeed=t/2+tickSpeed/2;
-		//console.log(tickSpeed/2+t/2,t);
+			autoFast = document
+				.getElementById("switch-1")
+				.checked;
+			//autoFast=false;
+			if (autoFast) {
+				if (carScore > worstScore()) {
+					simSpeed = 1;
+				} else {
+					simSpeed = 10;
+				}
+			} else {
+				simSpeed = document.getElementById("sim-speed").value;
+			}
+			document.querySelectorAll(".score-text")[0].innerText = "Score: " + Math.round(Math.max(boxCar.getPosition().x, carScore) * 100) / 100;
+			world.step(1 / 60);
+			var tickStart = new Date().getTime();
+			tick();
+			var t = (new Date().getTime() - tickStart);
+			//tickSpeed=t/2+tickSpeed/2;
+			//console.log(tickSpeed/2+t/2,t);
 		}
 	}
-	window.setTimeout(loop,0);
-	
+	window.setTimeout(loop, 0);
+
 }
-function importCarFromDialog(){
-	var carCode=document.getElementById("car-code-area").value;
-	var car=new Car().importCar(carCode);
-	if(car){
+function importCarFromDialog() {
+	var carCode = document.getElementById("car-code-area").value;
+	var car = new Car().importCar(carCode);
+	if (car) {
 		importCar(carCode);
 		closeImportDialog();
 	}
 }
-function closeImportDialog(){
-	document.getElementById("car-code-area").value="";
-	var imptT=document.querySelector(".import-dialog .mdl-textfield");
+function closeImportDialog() {
+	document.getElementById("car-code-area").value = "";
+	var imptT = document.querySelector(".import-dialog .mdl-textfield");
 	imptT.MaterialTextfield.checkDirty();
-	paused=false;
+	paused = false;
 
-	document.querySelector("div.import-dialog").setAttribute("open","false");
+	document.querySelector("div.import-dialog").setAttribute("open", "false");
 }
-function openImportDialog(){
-	document.getElementById("car-code-area").value="";
-	var imptT=document.querySelector(".import-dialog .mdl-textfield");
+function openImportDialog() {
+	document.getElementById("car-code-area").value = "";
+	var imptT = document.querySelector(".import-dialog .mdl-textfield");
 	imptT.MaterialTextfield.checkDirty();
-	paused=true;
-	document.querySelector("div.import-dialog").setAttribute("open","true");
+	paused = true;
+	document.querySelector("div.import-dialog").setAttribute("open", "true");
 }
 loop();
 //window.setInterval(loop, 100/60);
@@ -746,58 +746,58 @@ window.addEventListener("resize", function () {
 	c.height = window.innerHeight;
 });
 
-var patternC=document.createElement("canvas");
-var patternCtx=patternC.getContext("2d");
-var scale = Math.min(c.width/40,c.height/40);
+var patternC = document.createElement("canvas");
+var patternCtx = patternC.getContext("2d");
+var scale = Math.min(c.width / 40, c.height / 40);
 function render() {
-	
-scale = Math.min(c.width/40,c.height/40);
+
+	scale = Math.min(c.width / 40, c.height / 40);
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, c.width, c.height);
 	ctx.fillStyle = "#2196F3";
-	
-			
+
+
 	ctx.fillRect(0, 0, c.width, c.height);
-	ctx.translate(-camera.x*scale, -camera.y*scale);
+	ctx.translate(-camera.x * scale, -camera.y * scale);
 	ctx.globalAlpha = 1;
-			ctx.globalCompositeOperation = "multiply";
-			ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
-			ctx.fillRect(camera.x*scale, camera.y*scale, c.width, c.height);
-			ctx.globalCompositeOperation = "source-over";
-			ctx.globalAlpha = 1.0;
-	ctx.translate(camera.x*scale, camera.y*scale);
+	ctx.globalCompositeOperation = "multiply";
+	ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
+	ctx.fillRect(camera.x * scale, camera.y * scale, c.width, c.height);
+	ctx.globalCompositeOperation = "source-over";
+	ctx.globalAlpha = 1.0;
+	ctx.translate(camera.x * scale, camera.y * scale);
 	ctx.translate(c.width / 2, c.height / 2);
 	ctx.scale(1, -1);
-	ctx.translate(-camera.x*scale, camera.y*scale);
-	var renderLayers=[];
-	function addToLayer(layer,f,b){
-		var found=false;
-		for(var i=0;i<renderLayers.length;i++){
-			if(renderLayers[i].index==layer){
-				found=true;
-				renderLayers[i].pairs.push({f:f,b:b});
+	ctx.translate(-camera.x * scale, camera.y * scale);
+	var renderLayers = [];
+	function addToLayer(layer, f, b) {
+		var found = false;
+		for (var i = 0; i < renderLayers.length; i++) {
+			if (renderLayers[i].index == layer) {
+				found = true;
+				renderLayers[i].pairs.push({ f: f, b: b });
 			}
 		}
-		if(!found){
-renderLayers.push({index:layer,pairs:[{f:f,b:b}]});
+		if (!found) {
+			renderLayers.push({ index: layer, pairs: [{ f: f, b: b }] });
 		}
 	}
 	for (var body = world.getBodyList(); body; body = body.getNext()) {
 		for (var f = body.getFixtureList(); f; f = f.getNext()) {
-			var layer=0;
-			if(f.render &&f.render.layer){
-				layer=f.render.layer;
+			var layer = 0;
+			if (f.render && f.render.layer) {
+				layer = f.render.layer;
 			}
-			addToLayer(layer,f,body);
+			addToLayer(layer, f, body);
 		}
 	}
 	renderLayers.sort(function (a, b) {
 		return a.index - b.index;
 	});
-	for (var i=0;i<renderLayers.length;i++){
-		for(var j=0;j<renderLayers[i].pairs.length;j++){
-			var f=renderLayers[i].pairs[j].f;
-			var body=renderLayers[i].pairs[j].b;
+	for (var i = 0; i < renderLayers.length; i++) {
+		for (var j = 0; j < renderLayers[i].pairs.length; j++) {
+			var f = renderLayers[i].pairs[j].f;
+			var body = renderLayers[i].pairs[j].b;
 			ctx.strokeStyle = f.render && f.render.stroke
 				? f.render.stroke
 				: "#000000";
@@ -806,37 +806,37 @@ renderLayers.push({index:layer,pairs:[{f:f,b:b}]});
 				: "rgba(0,0,0,0)";
 			ctx.lineWidth = 2;
 			ctx.save();
-			if (f.m_shape.getType() == "polygon") 
-				ctx.translate(0,-4);
-			if (f.m_shape.getType() == "circle") 
-				ctx.translate(0,-2);
-			ctx.translate(f.m_body.m_xf.p.x*scale, f.m_body.m_xf.p.y*scale);
+			if (f.m_shape.getType() == "polygon")
+				ctx.translate(0, -4);
+			if (f.m_shape.getType() == "circle")
+				ctx.translate(0, -2);
+			ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-			if (f.m_shape.getType() == "polygon") 
+			if (f.m_shape.getType() == "polygon")
 				polygonS(f.m_shape);
-			if (f.m_shape.getType() == "circle") 
+			if (f.m_shape.getType() == "circle")
 				circleS(f.m_shape);
-			if (f.m_shape.getType() == "edge") 
+			if (f.m_shape.getType() == "edge")
 				edge(f.m_shape);
 			ctx.restore();
 		}
-	
-	for(var j=0;j<renderLayers[i].pairs.length;j++){
-			var f=renderLayers[i].pairs[j].f;
-			var body=renderLayers[i].pairs[j].b;
+
+		for (var j = 0; j < renderLayers[i].pairs.length; j++) {
+			var f = renderLayers[i].pairs[j].f;
+			var body = renderLayers[i].pairs[j].b;
 			ctx.strokeStyle = f.render && f.render.stroke
 				? f.render.stroke
 				: "#000000";
 			ctx.fillStyle = f.render && f.render.fill
 				? f.render.fill
 				: "rgba(0,0,0,0)";
-			ctx.lineWidth = 1 ;
+			ctx.lineWidth = 1;
 			ctx.save();
-			ctx.translate(f.m_body.m_xf.p.x*scale, f.m_body.m_xf.p.y*scale);
+			ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-			if (f.m_shape.getType() == "polygon") 
+			if (f.m_shape.getType() == "polygon")
 				polygon(f.m_shape);
-			if (f.m_shape.getType() == "circle") 
+			if (f.m_shape.getType() == "circle")
 				circle(f.m_shape);
 
 			ctx.restore();
@@ -844,13 +844,13 @@ renderLayers.push({index:layer,pairs:[{f:f,b:b}]});
 			ctx.globalAlpha = 1;
 			ctx.globalCompositeOperation = "multiply";
 			ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
-			ctx.lineWidth = 1 ;
+			ctx.lineWidth = 1;
 			ctx.save();
-			ctx.translate(f.m_body.m_xf.p.x*scale, f.m_body.m_xf.p.y*scale);
+			ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-			if (f.m_shape.getType() == "polygon") 
+			if (f.m_shape.getType() == "polygon")
 				polygon(f.m_shape);
-			if (f.m_shape.getType() == "circle") 
+			if (f.m_shape.getType() == "circle")
 				circle(f.m_shape);
 			ctx.restore();
 			ctx.globalCompositeOperation = "source-over";
@@ -868,7 +868,7 @@ function circleS(shape, f) {
 	ctx.shadowColor = "rgba(0,0,0,.26)";
 	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
-	ctx.arc(shape.m_p.x*scale, shape.m_p.y*scale, shape.m_radius*scale, 0, 2 * Math.PI);
+	ctx.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
 	//ctx.stroke();
 	ctx.fill();
 	/*ctx.beginPath()
@@ -883,28 +883,28 @@ function circle(shape, f) {
 	ctx.shadowColor = "rgba(0,0,0,0)";
 	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
-	ctx.arc(shape.m_p.x*scale, shape.m_p.y*scale, shape.m_radius*scale, 0, 2 * Math.PI);
+	ctx.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
 	//ctx.stroke();
 	ctx.fill();
 	ctx.beginPath()
 	ctx.strokeStyle = "white";
-	ctx.moveTo(shape.m_p.x*scale, shape.m_p.y*scale);
-	ctx.lineTo(shape.m_p.x*scale + shape.m_radius*scale, shape.m_p.y*scale);
+	ctx.moveTo(shape.m_p.x * scale, shape.m_p.y * scale);
+	ctx.lineTo(shape.m_p.x * scale + shape.m_radius * scale, shape.m_p.y * scale);
 	ctx.stroke();
 }
 function edge(shape, f) {
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertex1.x*scale, shape.m_vertex1.y*scale);
-	ctx.lineTo(shape.m_vertex2.x*scale, shape.m_vertex2.y*scale);
+	ctx.moveTo(shape.m_vertex1.x * scale, shape.m_vertex1.y * scale);
+	ctx.lineTo(shape.m_vertex2.x * scale, shape.m_vertex2.y * scale);
 	ctx.stroke();
 }
 
 function polygon(shape, f) {
 	ctx.lineJoin = "round"
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertices[0].x*scale, shape.m_vertices[0].y*scale);
+	ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
 	for (var i = 1; i < shape.m_vertices.length; i++) {
-		ctx.lineTo(shape.m_vertices[i].x*scale, shape.m_vertices[i].y*scale);
+		ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
 	}
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = "rgba(0,0,0,0)";
@@ -917,9 +917,9 @@ function polygon(shape, f) {
 function polygonS(shape, f) {
 	ctx.lineJoin = "round"
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertices[0].x*scale, shape.m_vertices[0].y*scale);
+	ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
 	for (var i = 1; i < shape.m_vertices.length; i++) {
-		ctx.lineTo(shape.m_vertices[i].x*scale, shape.m_vertices[i].y*scale);
+		ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
 	}
 	ctx.shadowBlur = 4;
 	ctx.fillStyle = "rgba(0,0,0,.26)";
