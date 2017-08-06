@@ -74,7 +74,7 @@ Car.prototype.maxLength = 10;
 Car.prototype.maxRadius = 5;
 Car.prototype.minRadius = 1;
 Car.prototype.minAngleWeight = 0.001;
-Car.prototype.maxAngleWeight = 10;
+Car.prototype.maxAngleWeight = 4;
 Car.prototype.score = 0;
 Car.prototype.fixAngleWeights = function () {
     var total = 0;
@@ -132,12 +132,15 @@ function stringToData(str) {
 }
 
 Car.prototype.importCar = function (str) {
+    var ret=new Car();
+    try{
     var list = str;
     if (str.split(",").length < 3) {
         list = hashToList(str);
     } else {
         list = str.split(",");
     }
+    
     var data = {
         lengths: [],
         angleWeights: [],
@@ -168,8 +171,12 @@ Car.prototype.importCar = function (str) {
             .colors
             .push(parseInt(list[40 + i]));
     }
-        var ret=new Car(data);
-        ret.materialize();
+        ret=new Car(data);
+        
+    }catch(e){
+        return false;
+    }
+    ret.materialize();
     return ret;
 
 }

@@ -244,7 +244,9 @@ function updateScoreTable(){
 		
 		innerHtml+='<input class="hidden-score-export" id="score'+i+'" value="'+entry.car.exportCar()+'">';
 	}
-	document.querySelectorAll(".score-table tbody")[0].innerHTML=innerHtml;
+	if(document.querySelectorAll(".score-table tbody")[0].innerHTML!=innerHtml){
+		document.querySelectorAll(".score-table tbody")[0].innerHTML=innerHtml;
+	}
 	//document.querySelectorAll(".hidden-score-exports")[0].innerHTML=clipboardInnerHtml;
 	
 }
@@ -700,7 +702,7 @@ simSpeed = 1;
 		}else{
 			simSpeed = document.getElementById("sim-speed").value;
 		}
-document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Score:\n" + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
+document.querySelectorAll(".score-text")[0].innerText = "Score: " + Math.round(Math.max(boxCar.getPosition().x,carScore) * 100) / 100;
 		world.step(1 / 60);
 		var tickStart=new Date().getTime();
 		tick();
@@ -710,6 +712,27 @@ document.querySelectorAll(".mdl-snackbar__text.score-text")[0].innerText = "Scor
 	}
 	window.setTimeout(loop,0);
 	
+}
+function importCarFromDialog(){
+	var carCode=document.getElementById("car-code-area").value;
+	var car=new Car().importCar(carCode);
+	if(car){
+		importCar(carCode);
+		closeImportDialog();
+	}
+}
+function closeImportDialog(){
+	document.getElementById("car-code-area").value="";
+	var imptT=document.querySelector(".import-dialog .mdl-textfield");
+	imptT.MaterialTextfield.checkDirty();
+
+	document.querySelector("div.import-dialog").setAttribute("open","false");
+}
+function openImportDialog(){
+	document.getElementById("car-code-area").value="";
+	var imptT=document.querySelector(".import-dialog .mdl-textfield");
+	imptT.MaterialTextfield.checkDirty();
+	document.querySelector("div.import-dialog").setAttribute("open","true");
 }
 loop();
 //window.setInterval(loop, 100/60);
