@@ -27,6 +27,7 @@ var camera = {
 	x: 0,
 	y: 0
 };
+var paused=false;
 var doubleWheelParent = false;
 var SMALL_GROUP = 1;
 var LARGE_GROUP = -1;
@@ -684,6 +685,7 @@ function tick() {
 function loop() {
 	
 	for (var i = 0; i < simSpeed; i++) {
+		if(!paused){
 		if(autoFast !== document
 			.getElementById("switch-1")
 			.checked){
@@ -709,6 +711,7 @@ document.querySelectorAll(".score-text")[0].innerText = "Score: " + Math.round(M
 		var t=(new Date().getTime()-tickStart);
 		//tickSpeed=t/2+tickSpeed/2;
 		//console.log(tickSpeed/2+t/2,t);
+		}
 	}
 	window.setTimeout(loop,0);
 	
@@ -725,6 +728,7 @@ function closeImportDialog(){
 	document.getElementById("car-code-area").value="";
 	var imptT=document.querySelector(".import-dialog .mdl-textfield");
 	imptT.MaterialTextfield.checkDirty();
+	paused=false;
 
 	document.querySelector("div.import-dialog").setAttribute("open","false");
 }
@@ -732,6 +736,7 @@ function openImportDialog(){
 	document.getElementById("car-code-area").value="";
 	var imptT=document.querySelector(".import-dialog .mdl-textfield");
 	imptT.MaterialTextfield.checkDirty();
+	paused=true;
 	document.querySelector("div.import-dialog").setAttribute("open","true");
 }
 loop();
