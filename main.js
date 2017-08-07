@@ -53,11 +53,11 @@ bodyShapeDef.friction = 10.0;
 bodyShapeDef.restitution = 0.05;
 
 var negBodyShapeDef = {};
-bodyShapeDef.filterCategoryBits = BODY_CATEGORY;
-bodyShapeDef.filterMaskBits = BODY_MASK;
-bodyShapeDef.density = -2;
-bodyShapeDef.friction = 10.0;
-bodyShapeDef.restitution = 0.05;
+negBodyShapeDef.filterCategoryBits = BODY_CATEGORY;
+negBodyShapeDef.filterMaskBits = BODY_MASK;
+negBodyShapeDef.density = -2;
+negBodyShapeDef.friction = 10.0;
+negBodyShapeDef.restitution = 0.05;
 var springShapeDef = {};
 springShapeDef.filterCategoryBits = WHEEL_CATEGORY;
 springShapeDef.filterMaskBits = WHEEL_MASK;
@@ -425,8 +425,9 @@ function createCar(carData) {
 			Vec2(Math.cos(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale, Math.sin(new_p_angle + 0) * carData.data.lengths[(i + 1) % carData.data.lengths.length] * carScale)
 		]);
 		var bDef=bodyShapeDef;
-		if(((new_p_angle-p_angle+360)%360+360)>180){
+		if((((new_p_angle-p_angle+0)/Math.PI*180+360)%360+360)%360>180){
 			bDef=negBodyShapeDef;
+			console.log("neg");
 		}
 		var m_piece = boxCar.createFixture(m_shape, bDef);
 		lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
