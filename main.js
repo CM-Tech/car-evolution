@@ -154,7 +154,7 @@ function genGround() {
 	//resetGround()
 	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
 		var nextX = genX + 2; //2 for terrain 3 or 4 otherwise 7
-		var terrainFunc = terrain4;
+		var terrainFunc = terrain3;
 		var curPos = Vec2(genX, terrainFunc(genX));
 		var nextPos = Vec2(nextX, terrainFunc(nextX));
 		var angle = Math.atan2(nextPos.y - curPos.y, nextPos.x - curPos.x);
@@ -415,7 +415,10 @@ function createCar(carData) {
 	connectedSpringsOld = [];
 	center_vec = carCreationPoint.clone();
 	var lowestY = carCreationPoint.y + 0;
-	var p_angle = carData.data.angleWeights[0] / carData.totalAngleWeights() * Math.PI * 2;
+	var p_angle = Math.abs((carData.data.angleWeights[0] / carData.totalAngleWeights() * Math.PI * 2)%(Math.PI * 2) );
+	if((p_angle+Math.PI)%(Math.PI * 2)-Math.PI<0){
+		p_angle=Math.PI/2-((p_angle+Math.PI)%(Math.PI * 2)-Math.PI);
+	}
 	for (var i = 0; i < carData.bodyParts; i++) {
 		connectedPartsArea.push(carData.getAreaOfPiece(i));
 		var new_p_angle = p_angle + carData.data.angleWeights[(i + 1) % carData.data.angleWeights.length] / carData.totalAngleWeights() * Math.PI * 2;
