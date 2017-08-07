@@ -121,7 +121,7 @@ function terrain3(x) {
 		return 0;
 	var r=(250-25);
 	if(r-Math.sqrt(1-Math.pow(Math.max(x - flatLandEndX, 0)/r,2))*r){
-		return (r-Math.sqrt(1-Math.pow(Math.max(x - flatLandEndX, 0)/r,2))*r)*1.5;
+		return (r-Math.sqrt(1-Math.pow(Math.max(x - flatLandEndX, 0)/r,2))*r)*1.75;
 	}else{
 		return noise.perlin2((x - flatLandEndX) / 15, 0) * (12 - 2 / ((x - flatLandEndX + 10) / 7)) + noise.perlin2((x - flatLandEndX) / 7, (x - flatLandEndX) / 7);
 	}
@@ -724,7 +724,7 @@ function loop() {
 				if (carScore > worstScore()) {
 					simSpeed = 1;
 				} else {
-					simSpeed = 10;
+					simSpeed = 100;
 				}
 			} else {
 				simSpeed = document.getElementById("sim-speed").value;
