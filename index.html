@@ -164,8 +164,11 @@
             </div>
             </div>
             <!-- Accent-colored raised button with ripple -->
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--4-col-phone" onclick="openImportDialog()">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone" onclick="openImportDialog()" style="margin:5px;">
                 Import Car
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone copy-best-button" style="margin:5px;">
+                Copy Best
             </button>
 
         </div>
@@ -173,6 +176,7 @@
     <div class="hidden-score-exports">
 
     </div>
+    <input class="hidden-score-export" id="score-best" value="">
     <script src="car.js"></script>
     <script src="main.js"></script>
 </body>

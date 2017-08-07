@@ -203,6 +203,9 @@ function genCarFromOldParents() {
 }
 
 function exportBestCar() {
+	if(topScores.length<1){
+		return "";
+	}
 	topScores.sort(function (a, b) {
 		return a.score - b.score;
 	});
@@ -241,6 +244,9 @@ function updateScoreTable() {
 	topScores.sort(function (a, b) {
 		return a.score - b.score;
 	});
+	if(topScores.length>0){
+	document.querySelectorAll("#score-best")[0].setAttribute("value",topScores[topScores.length-1].car.exportCar());
+	}
 	var innerHtml = "";
 	for (var i = 0; i < topScores.length; i++) {
 		var entry = topScores[topScores.length - i - 1];
@@ -956,3 +962,8 @@ function polygonS(shape, f) {
 	ctx.fill();
 }
 new Clipboard('.score-table tbody tr');
+new Clipboard('.copy-best-button', {
+  text: function(trigger) {
+    return exportBestCar();
+  }
+});
