@@ -91,7 +91,7 @@ var groundFD = {
 };
 var currentTicks = 0;
 var distTicks = 0;
-var restartTicks = 300;
+var restartTicks = 400;
 var restartCurrent = 0;
 var carScore = 0;
 
@@ -119,9 +119,16 @@ function terrain2(x) {
 function terrain3(x) {
 	if (x < flatLandEndX)
 		return 0;
-	return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.5) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5) % 2) / 2 > 0.5
+	var r=(250-25);
+	if(r-Math.sqrt(1-Math.pow(Math.max(x - flatLandEndX, 0)/r,2))*r){
+		return (r-Math.sqrt(1-Math.pow(Math.max(x - flatLandEndX, 0)/r,2))*r)*1.5;
+	}else{
+		return noise.perlin2((x - flatLandEndX) / 15, 0) * (12 - 2 / ((x - flatLandEndX + 10) / 7)) + noise.perlin2((x - flatLandEndX) / 7, (x - flatLandEndX) / 7);
+	}
+	
+	/*return Math.pow(Math.max(x - flatLandEndX, 0) / 5, 3) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5) % 2) / 2 > 0.5
 		? 0.1
-		: 0);
+		: 0);*/
 }
 function terrain4(x) {
 	if (x < flatLandEndX)
@@ -417,7 +424,7 @@ function createCar(carData) {
 	var lowestY = carCreationPoint.y + 0;
 	var p_angle = Math.abs((carData.data.angleWeights[0] / carData.totalAngleWeights() * Math.PI * 2)%(Math.PI * 2) );
 	if((p_angle+Math.PI)%(Math.PI * 2)-Math.PI<0){
-		p_angle=Math.PI/2-((p_angle+Math.PI)%(Math.PI * 2)-Math.PI);
+		p_angle=Math.PI-1-((p_angle+Math.PI)%(Math.PI * 2)-Math.PI);
 	}
 	for (var i = 0; i < carData.bodyParts; i++) {
 		connectedPartsArea.push(carData.getAreaOfPiece(i));
