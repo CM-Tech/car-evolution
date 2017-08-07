@@ -120,7 +120,7 @@ function terrain3(x) {
 	if (x < flatLandEndX)
 		return 0;
 	return Math.pow(Math.max(x - flatLandEndX, 0) / 20, 1.5) / 4 * 8 + (((Math.max(x - flatLandEndX, 0) / 5) % 2) / 2 > 0.5
-		? 0.3
+		? 0.1
 		: 0);
 }
 function terrain4(x) {
