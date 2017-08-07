@@ -195,6 +195,9 @@ function genCarFromOldParents() {
 	for (var i = 0; i < prevGen.length; i++) {
 		parentPool.push(prevGen[prevGen.length - i - 1].car);
 	}
+	for (var i = 0; i <curGen.length; i++) {
+		parentPool.push(curGen[curGen.length - i - 1].car);
+	}
 	var pPow = 1;
 	return parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)].breed(parentPool[Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)]);
 }
@@ -679,9 +682,9 @@ function tick() {
 		springJoints[j].enableMotor(true);
 		if (springJoints[j].m_bodyB) {
 			var force = 0;
-			springJoints[j].setMaxMotorForce(baseSpringForce + 40 / 40 * baseSpringForce * Math.pow(20 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
+			springJoints[j].setMaxMotorForce(baseSpringForce + 40 / 40 * baseSpringForce * Math.pow(10 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
 			//console.log(springJoints[j].getJointTranslation());
-			springJoints[j].setMotorSpeed(-20 / 20 * 20 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
+			springJoints[j].setMotorSpeed(-20 / 20 * 10 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
 
 			//springJoints[j].setMaxMotorForce(force  );
 		}
