@@ -296,7 +296,7 @@ Car.prototype.breed = function (other, maxWheels, wheelProbablity) {
     if (wheelProbablity)
         wheelProb = wheelProbablity;
     var mutationRate = 0.001;
-    var explorationRate = 0.01;
+    var explorationRate = 0.025;
     this.fixAngleWeights();
     other.fixAngleWeights();
     this

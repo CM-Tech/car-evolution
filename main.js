@@ -61,7 +61,7 @@ negBodyShapeDef.restitution = 0.05;
 var springShapeDef = {};
 springShapeDef.filterCategoryBits = WHEEL_CATEGORY;
 springShapeDef.filterMaskBits = WHEEL_MASK;
-springShapeDef.density = 20;
+springShapeDef.density = 15;
 springShapeDef.friction = 10.0;
 springShapeDef.restitution = 0.05;
 
@@ -255,7 +255,7 @@ function updateScoreTable() {
 		tableEntry += (entry.score).toFixed(2);
 		tableEntry += "</td>";
 		tableEntry += "<td>";
-		tableEntry += (entry.ticks * 1 / 60).toFixed(2);
+		tableEntry += (entry.ticks * 1 / 75).toFixed(2);
 		tableEntry += "</td>";
 		tableEntry += "</tr>";
 
@@ -485,7 +485,7 @@ function createCar(carData) {
 					.m_body
 					.createFixture(pl.Box(0.2 * carScale * carData.maxRadius / 1.5, 0.1 * carScale * carData.maxRadius / 1.5, Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale), wheelData.axelAngle), springShapeDef);
 				var wheel = world.createDynamicBody(wheelPos);
-				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale), wheelFD);
+				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale*0.92), wheelFD);
 				w_fix.render = {
 					fill: "rgba(0,0,0,1)",
 					layer: 3
@@ -517,7 +517,7 @@ s_fix.render = {
 				var bounceJoint = world.createJoint(pl.PrismaticJoint({
 					enableMotor: true,
 					lowerTranslation: -carData.maxRadius * carScale / 3,
-					upperTranslation: 0,
+					upperTranslation: carData.maxRadius * carScale / 3*0.075,
 					enableLimit: true
 
 				}, m_piece.m_body, spring, wheel.getWorldCenter(), Vec2(-Math.cos(wheelData.axelAngle) / 1, -Math.sin(wheelData.axelAngle) / 1)));
@@ -548,6 +548,7 @@ s_fix.render = {
 		connectedPartsSprings.push([totSpringAdditions]);
 		p_angle = new_p_angle;
 	}
+	lowestY=0;//lowestY+0.1*carScale;
 	boxCar.resetMassData();
 	boxCar.setPosition(Vec2(boxCar.getPosition().x, boxCar.getPosition().y - lowestY));
 	for (var i = 0; i < springsF.length; i++) {
@@ -688,9 +689,9 @@ function tick() {
 		springJoints[j].enableMotor(true);
 		if (springJoints[j].m_bodyB) {
 			var force = 0;
-			springJoints[j].setMaxMotorForce(baseSpringForce + 40 / 40 * baseSpringForce * Math.pow(10 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
+			springJoints[j].setMaxMotorForce(baseSpringForce + 40 / 40 * baseSpringForce * Math.pow(5 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3), 2));
 			//console.log(springJoints[j].getJointTranslation());
-			springJoints[j].setMotorSpeed(-20 / 20 * 10 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
+			springJoints[j].setMotorSpeed(-20 / 20 * 5 * springJoints[j].getJointTranslation() / carScale / (carDNA.maxRadius * carScale / 3));
 
 			//springJoints[j].setMaxMotorForce(force  );
 		}
@@ -736,7 +737,7 @@ function loop() {
 				simSpeed = document.getElementById("sim-speed").value;
 			}
 			document.querySelectorAll(".score-text")[0].innerText = "Score: " + Math.round(Math.max(boxCar.getPosition().x, carScore) * 100) / 100;
-			world.step(1 / 60);
+			world.step( 1 / 75);
 			var tickStart = new Date().getTime();
 			tick();
 			var t = (new Date().getTime() - tickStart);
