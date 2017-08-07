@@ -485,7 +485,7 @@ function createCar(carData) {
 					.m_body
 					.createFixture(pl.Box(0.2 * carScale * carData.maxRadius / 1.5, 0.1 * carScale * carData.maxRadius / 1.5, Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale), wheelData.axelAngle), springShapeDef);
 				var wheel = world.createDynamicBody(wheelPos);
-				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale*0.92), wheelFD);
+				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale*0.89), wheelFD);
 				w_fix.render = {
 					fill: "rgba(0,0,0,1)",
 					layer: 3
@@ -678,7 +678,7 @@ function tick() {
 	} catch (e) { }
 	cMass = cMass / carScale / carScale;
 	var torque = MASS_MULT * GRAVITY / wheelJoints.length * cMass;
-	var baseSpringForce = 7.5 * cMass / 1.5;
+	var baseSpringForce = 7.5 * cMass / 6;
 	for (var j = 0; j < wheelJoints.length; j++) {
 		//wheelJoints[j].setMotorSpeed(-SPEED);
 		//wheelJoints[j].enableMotor(true);
