@@ -807,7 +807,7 @@ function render() {
 	ctx.translate(-camera.x * scale, -camera.y * scale);
 	ctx.globalAlpha = 1;
 	ctx.globalCompositeOperation = "multiply";
-	ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
+	// ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
 	// ctx.fillRect(camera.x * scale, camera.y * scale, c.width, c.height);
 	ctx.globalCompositeOperation = "source-over";
 	ctx.globalAlpha = 1.0;
