@@ -2,16 +2,6 @@
 
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" type="module"></script>
-    <!-- <script src="./lib/jsxcompressor/jsxcompressor.min.js" type="module"></script>
-    <script src="./lib/binary-parser.js" type="module"></script>
-    <script>
-        JXG.decompress = function (str) {
-            return unescape(
-                (new JXG.Util.Unzip(JXG.Util.Base64.decodeAsArray(str))).unzip()[0][0]
-            );
-        };
-    </script> -->
-    <!-- <script src="./lib/planck.min.js"></script> -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -19,9 +9,8 @@
     
     
     
-    
     <title>Car Evolution</title>
-  <script type="module" crossorigin src="./assets/index.0117e2a4.js"></script>
+  <script type="module" crossorigin src="./assets/index.0a5177f0.js"></script>
   <link rel="modulepreload" href="./assets/vendor.979894d9.js">
   <link rel="stylesheet" href="./assets/index.6ff51e7d.css">
 </head>
@@ -54,7 +43,7 @@
     </div>
     <div id="overlay">
 
-        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp score-table">
+        <table class="mdl-data-table mdl-js-data-table score-table">
             <thead>
                 <tr>
                     <th>Score</th>
@@ -66,7 +55,7 @@
         </table>
 
 
-        <div class="stats-snackbar mdl-color--primary-contrast mdl-grid">
+        <div class="stats-snackbar mdl-grid" style="background-color: transparent;">
             <div style="margin-top: 6px;margin-bottom: 6px;display:inline;" class="mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--2-col-phone">
                 <span class="score-text">Score:</span>
             </div>
@@ -78,17 +67,17 @@
             </div>
             <div style="margin-top: 0px;margin-bottom: 0px;display:inline;" class="mdl-cell--6-col mdl-cell--8-col-tablet mdl-cell--4-col-phone">
             <div style="margin-top: 9px;margin-bottom: 9px;display:inline-block;">
-                <input id="sim-speed" class="mdl-slider mdl-js-slider" type="range" min="1" max="100" value="5" tabindex="1">
+                <input id="sim-speed" class="mdl-slider mdl-js-slider" type="range" min="10" max="100" value="10" tabindex="1">
             </div>
             <div style="margin-top: 6px;margin-bottom: 6px;display:inline-block;">
                 <span class="mdl-slider__label">Simulation Speed</span>
             </div>
             </div>
             <!-- Accent-colored raised button with ripple -->
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone" id="openImportDialog" style="margin:5px;">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone" id="openImportDialog" style="margin:5px;background-color: #44372F;box-shadow: none;">
                 Import Car
             </button>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone copy-best-button" style="margin:5px;">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-cell--6-col mdl-cell--4-col-tablet mdl-cell--2-col-phone copy-best-button" style="margin:5px;background-color: #44372F;box-shadow: none;">
                 Copy Best
             </button>
 
