@@ -29,7 +29,7 @@ let PALETTE = {
   WHITE: "#DDDDDB",
   WHITER: "#EDEDEB",
   BLACK: "#2F3436",
-  HUES: ["#FF9157", "#FDCF51", "#7EB0EA"],
+  HUES: ["#68BAC8", "#E35362", "#E5CC5C"],
 };
 
 let COLOR_MUL = PALETTE.HUES.map((x) => {
@@ -459,7 +459,7 @@ function removeOldCar() {
 }
 
 var carScale = 1;
-let cO = PALETTE.HUES;
+let cols = COLOR_MUL;
 function createCar(carData) {
   restartCurrent = 0;
   carDNA = carData;
@@ -542,10 +542,10 @@ function createCar(carData) {
 		stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)"//"rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
 				};*/
     let m = carData.data.colors[i] || 0;
-    var matHex = cO[m % cO.length]; //
-    matHex = convertToMaterial(
-      (carData.data.colors[i] || 0).toString(16).padStart(6, "0")
-    );
+    var matHex = cols[m % cols.length]; //
+    // matHex = convertToMaterial(
+    //   (carData.data.colors[i] || 0).toString(16).padStart(6, "0")
+    // );
     m_piece.render = {
       fill: matHex,
       stroke: matHex,
@@ -636,17 +636,17 @@ s_fix.render = {
             (carData.data.wheels.indexOf(wheelData) + 8) %
               carData.data.colors.length
           ] || 0;
-        var matHex = cO[m % cO.length]; //
-        matHex = convertToMaterial(
-          (
-            carData.data.colors[
-              (carData.data.wheels.indexOf(wheelData) + 8) %
-                carData.data.colors.length
-            ] || 0
-          )
-            .toString(16)
-            .padStart(6, "0")
-        );
+        var matHex = cols[m % cols.length]; //
+        // matHex = convertToMaterial(
+        //   (
+        //     carData.data.colors[
+        //       (carData.data.wheels.indexOf(wheelData) + 8) %
+        //         carData.data.colors.length
+        //     ] || 0
+        //   )
+        //     .toString(16)
+        //     .padStart(6, "0")
+        // );
         s_b_fix.render = {
           fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
           stroke: matHex,
@@ -1065,7 +1065,7 @@ function render() {
       ctx.lineWidth = 1;
       ctx.save();
 
-      ctx.globalCompositeOperation = "source-over";
+      ctx.globalCompositeOperation = "multiply";
       ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
       ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
       if (f.m_shape.getType() == "polygon") {
@@ -1131,13 +1131,13 @@ function circle(shape, f) {
   ctx.shadowOffsetY = 0;
   ctx.shadowOffsetX = 0;
   ctx.strokeStyle = PALETTE.BLACK;
-  ctx.lineWidth = 8;
+  ctx.lineWidth = scale/2;
   let orig = ctx.globalCompositeOperation;
   if (true) {
-    ctx.globalCompositeOperation = "source-over";
+    // ctx.globalCompositeOperation = "source-over";
     ctx.strokeStyle = PALETTE.BLACK;
 
-    ctx.fillStyle = chroma(PALETTE.BLACK).brighten(1);
+    ctx.fillStyle = PALETTE.WHITER;//chroma(PALETTE.WHITER).brighten(1);
     ctx.arc(
       shape.m_p.x * scale,
       shape.m_p.y * scale,
@@ -1145,7 +1145,7 @@ function circle(shape, f) {
       0,
       2 * Math.PI
     );
-    ctx.fill();
+    // ctx.fill();
 
     ctx.beginPath();
   }
@@ -1162,7 +1162,7 @@ function circle(shape, f) {
   ctx.stroke();
   ctx.beginPath();
   ctx.strokeStyle = PALETTE.BLACK;
-  ctx.lineWidth = 4;
+  ctx.lineWidth = scale/4;
   ctx.moveTo(shape.m_p.x * scale, shape.m_p.y * scale);
   ctx.lineTo(shape.m_p.x * scale + shape.m_radius * scale, shape.m_p.y * scale);
   ctx.stroke();
@@ -1238,7 +1238,7 @@ function polygon(shape, f, isground) {
     ctx.fill();
 
     ctx.beginPath();
-    ctx.lineWidth = 8;
+    ctx.lineWidth = scale/2;
     ctx.moveTo(shape.m_vertices[1].x * scale, shape.m_vertices[1].y * scale);
     ctx.lineTo(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale);
     // ctx.moveTo(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale);
@@ -1255,7 +1255,9 @@ function polygon(shape, f, isground) {
   ctx.shadowColor = "rgba(0,0,0,0)";
   ctx.shadowOffsetY = 0;
   ctx.shadowOffsetX = 0;
-	ctx.fillStyle = chroma(f.render?.stroke ?? ctx.strokeStyle).brighten(1);
+  ctx.fillStyle = chroma(f.render?.stroke ?? ctx.strokeStyle).brighten(1);
+  
+  // ctx.fillStyle = PALETTE.WHITER;
 	let m = ctx.strokeStyle + "";
 	ctx.strokeStyle=ctx.fillStyle;
   ctx.lineWidth = 8;
@@ -1263,8 +1265,10 @@ function polygon(shape, f, isground) {
 	if (!isground) {
 		// ctx.restore();
 		// ctx.save();
-		ctx.fill();
-		ctx.lineWidth = 1;
+    // ctx.globalCompositeOperation = "source-over";
+    ctx.fill();
+    ctx.globalCompositeOperation = "multiply";
+		ctx.lineWidth = 0.0001;
 		ctx.stroke();
 
 		ctx.strokeStyle = m;
@@ -1284,13 +1288,13 @@ function polygon(shape, f, isground) {
 			
 			ctx.stroke();
 		}
-		ctx.lineWidth = 8;
+		ctx.lineWidth = scale/2;
 		ctx.clip(polygonPath);
 		if (shape.m_vertices.length === 3) {
 			ctx.beginPath();
 			let f=true;
 			for (var i = 0; i < 3; i++) {
-				if (Math.hypot(shape.m_vertices[i].x,shape.m_vertices[i].y)>0.1) {
+				if (Math.hypot(shape.m_vertices[i].x,shape.m_vertices[i].y)>0.01) {
 					if(f)
 					ctx.moveTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
 					ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
