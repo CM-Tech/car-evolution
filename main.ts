@@ -1,32 +1,19 @@
-/*
- * Copyright (c) 2016-2017 Ali Shakiba http://shakiba.me/planck.js
- * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
- *
- * This software is provided 'as-is', without any express or implied
- * warranty.  In no event will the authors be held liable for any damages
- * arising from the use of this software.
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- * 1. The origin of this software must not be misrepresented; you must not
- * claim that you wrote the original software. If you use this software
- * in a product, an acknowledgment in the product documentation would be
- * appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- * misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- */
-
+import { decodeRGB,Car } from "./car";
+import * as planck from 'planck-js';
+import { convertToMaterial } from "./material-color";
+import { noise } from "./lib/perlin";
+import chroma from "chroma-js";
 noise.seed(3);
-var c = document.getElementById("c");
-var ctx = c.getContext("2d");
-c.width = window.innerWidth;
-c.height = window.innerHeight;
+var canvas = document.getElementById("c") as HTMLCanvasElement;
+var ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 var tickSpeed = 1;
 var camera = {
 	x: 0,
 	y: 0
 };
+var scoreRecord = [];
 var paused = false;
 var doubleWheelParent = false;
 var SMALL_GROUP = 1;
@@ -37,6 +24,20 @@ var WHEEL_CATEGORY = 0x0004;
 var BODY_MASK = 0xFFFF;
 var BODY_BROKE_MASK = 0xFFFF ^ BODY_CATEGORY ^ WHEEL_CATEGORY;
 var WHEEL_MASK = 0xFFFF ^ WHEEL_CATEGORY ^ BODY_CATEGORY;
+
+let PALETTE={
+	WHITE: "#DDDDDB",
+	WHITER:"#EDEDEB",
+	BLACK: "#2F3436",
+	HUES:["#FF9157","#FDCF51","#7EB0EA"],
+}
+
+let COLOR_MUL= PALETTE.HUES.map(x => {
+	let a = chroma(x).rgb(false);
+	let b = chroma(PALETTE.WHITE).rgb(false);
+	return chroma.rgb(Math.min(a[0] / b[0],1)*255, Math.min(a[1] / b[1],1)*255,Math.min(a[2] / b[2],1)*255).hex();
+})
+console.log(COLOR_MUL);
 
 var wheelShapeDef = {};
 wheelShapeDef.filterCategoryBits = WHEEL_CATEGORY;
@@ -143,7 +144,7 @@ var terrains = [];
 function resetGround() {
 	terrains
 		.filter(function (t) {
-			return t.m_body.m_xf.p.x + t.m_shape.m_centroid.x < camera.x - Math.max(c.width / scale / 2, 100);
+			return t.m_body.m_xf.p.x + t.m_shape.m_centroid.x < camera.x - Math.max(canvas.width / scale / 2, 100);
 		})
 		.forEach(function (a) {
 			terrains.splice(terrains.indexOf(a), 1)
@@ -159,21 +160,27 @@ function destroyGround() {
 
 function genGround() {
 	//resetGround()
-	while (genX < camera.x + Math.max(c.width / scale / 2, 100)) {
+	while (genX < camera.x + Math.max(canvas.width / scale / 2, 100)) {
+		var thickness = 0.5;
+		var curX = genX;
 		var nextX = genX + 2; //2 for terrain 3 or 4 otherwise 7
-		var terrainFunc = terrain3;
-		var curPos = Vec2(genX, terrainFunc(genX));
+		genX = nextX;
+		var terrainFunc = terrain4;
+		var curPos = Vec2(curX, terrainFunc(curX));
 		var nextPos = Vec2(nextX, terrainFunc(nextX));
 		var angle = Math.atan2(nextPos.y - curPos.y, nextPos.x - curPos.x);
-		var shape = pl.Box(Math.sqrt(Math.pow(nextPos.x - curPos.x, 2) + Math.pow(nextPos.y - curPos.y, 2)) / 2, 0.5, Vec2(curPos.x / 2 + nextPos.x / 2, curPos.y / 2 + nextPos.y / 2), angle);
+		let va = Vec2(nextPos.y - curPos.y, curPos.x - nextPos.x);
+		va.normalize();
+		var shape = pl.Box(Math.sqrt(Math.pow(nextPos.x - curPos.x, 2) + Math.pow(nextPos.y - curPos.y, 2)) / 2, thickness, Vec2(curPos.x / 2 + nextPos.x / 2, curPos.y / 2 + nextPos.y / 2).add(va.mul(thickness/2)), angle);
 		var t_fix = ground.createFixture(shape, groundFD);
 		terrains.push(t_fix);
 		t_fix.render = {
-			fill: "rgba(255,255,255,1)",
-			stroke: "rgba(255,255,255,1)",
-			layer: 6
+			special:"ground",
+			fill: PALETTE.BLACK,
+			stroke: PALETTE.BLACK,
+			layer: 0
 		};
-		genX = nextX;
+		// genX = nextX;
 	}
 
 }
@@ -408,6 +415,7 @@ function removeOldCar() {
 }
 
 var carScale = 1;
+let cO=PALETTE.HUES;
 function createCar(carData) {
 	restartCurrent = 0;
 	carDNA = carData;
@@ -458,7 +466,8 @@ function createCar(carData) {
 		fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
 		stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)"//"rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
 				};*/
-		var matHex = convertToMaterial((carData.data.colors[i] || 0).toString(16).padStart(6, "0"));
+		let m=(carData.data.colors[i] || 0);
+		var matHex =cO[m%cO.length];//  convertToMaterial((carData.data.colors[i] || 0).toString(16).padStart(6, "0"));
 		m_piece.render = {
 			fill: matHex,
 			stroke: matHex,
@@ -482,13 +491,13 @@ function createCar(carData) {
 
 				var s_fix = spring.createFixture(pl.Box(0.2 * carScale * carData.maxRadius / 1.5, 0.05 * carScale * carData.maxRadius / 1.5, Vec2(0, 0), wheelData.axelAngle), springShapeDef);
 				var s_b_fix = m_piece
-					.m_body
+					.getBody()
 					.createFixture(pl.Box(0.2 * carScale * carData.maxRadius / 1.5, 0.1 * carScale * carData.maxRadius / 1.5, Vec2(Math.cos(p_angle) * carData.data.lengths[i] * carScale, Math.sin(p_angle) * carData.data.lengths[i] * carScale), wheelData.axelAngle), springShapeDef);
 				var wheel = world.createDynamicBody(wheelPos);
 				var w_fix = wheel.createFixture(pl.Circle(wheelData.r * carScale*0.89), wheelFD);
 				w_fix.render = {
-					fill: "rgba(0,0,0,1)",
-					layer: 3
+					fill: PALETTE.BLACK,
+					layer: 7
 				};
 				var colorLerp = 1;
 				/*s_b_fix.render = {
@@ -502,16 +511,18 @@ s_fix.render = {
 				layer:4
 
 			};*/
-				var matHex = convertToMaterial((carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length] || 0).toString(16).padStart(6, "0"));
+			
+			let m=(carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length] || 0);
+			var matHex =cO[m%cO.length];//var matHex = convertToMaterial((carData.data.colors[(carData.data.wheels.indexOf(wheelData) + 8) % carData.data.colors.length] || 0).toString(16).padStart(6, "0"));
 				s_b_fix.render = {
 					fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
 					stroke: matHex,
-					layer: 5
+					layer: 9
 				};
 				s_fix.render = {
 					fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
 					stroke: matHex,
-					layer: 4
+					layer: 8
 
 				};
 				var bounceJoint = world.createJoint(pl.PrismaticJoint({
@@ -520,15 +531,15 @@ s_fix.render = {
 					upperTranslation: carData.maxRadius * carScale / 3*0.075,
 					enableLimit: true
 
-				}, m_piece.m_body, spring, wheel.getWorldCenter(), Vec2(-Math.cos(wheelData.axelAngle) / 1, -Math.sin(wheelData.axelAngle) / 1)));
+				}, m_piece.getBody(), spring, wheel.getWorldCenter(), Vec2(-Math.cos(wheelData.axelAngle) / 1, -Math.sin(wheelData.axelAngle) / 1)));
 
 				var turnJoint = world.createJoint(pl.RevoluteJoint({
 					motorSpeed: -SPEED,
 					maxMotorTorque: 42 / 2,
 					enableMotor: true,
-					frequencyHz: 4,
-					dampingRatio: 0.1
-				}, s_fix.m_body, wheel, wheel.getWorldCenter(), Vec2(-Math.cos(wheelData.axelAngle) / 1, -Math.sin(wheelData.axelAngle) / 1)));
+					// frequencyHz: 4,
+					// dampingRatio: 0.1
+				}, s_fix.getBody(), wheel, wheel.getWorldCenter()));
 				wheelJoints.push(turnJoint);
 				totWheelAdditions.push(turnJoint);
 				wheels.push(wheel);
@@ -540,7 +551,7 @@ s_fix.render = {
 				springsF.push(s_fix);
 				lowestY = Math.min(lowestY, w_fix.getAABB(0).lowerBound.y);
 				m_piece
-					.m_body
+					.getBody()
 					.resetMassData();
 			}
 		}
@@ -548,7 +559,7 @@ s_fix.render = {
 		connectedPartsSprings.push([totSpringAdditions]);
 		p_angle = new_p_angle;
 	}
-	lowestY=0;//lowestY+0.1*carScale;
+	lowestY = lowestY-0.5;//+0.1*carScale;
 	boxCar.resetMassData();
 	boxCar.setPosition(Vec2(boxCar.getPosition().x, boxCar.getPosition().y - lowestY));
 	for (var i = 0; i < springsF.length; i++) {
@@ -578,7 +589,7 @@ world.on('post-solve', function (contact, impulse) {
 			var m_piece = connectedParts[j];
 			var strength = 50 * connectedParts[j].m_body.m_mass / 2; //Math.sqrt(connectedPartsArea[j]) * 3;
 			//console.log("s",strength);
-			if ((a.m_fixtureA == m_piece && connectedPartsOld.indexOf(a.m_fixtureB) < 0 && wheelsF.indexOf(a.m_fixtureB) < 0) || (a.m_fixtureB == m_piece && connectedPartsOld.indexOf(a.m_fixtureA) < 0 && wheelsF.indexOf(a.m_fixtureA) < 0)) {
+			if ((a.getFixtureA() == m_piece && connectedPartsOld.indexOf(a.getFixtureB()) < 0 && wheelsF.indexOf(a.getFixtureB()) < 0) || (a.getFixtureB() == m_piece && connectedPartsOld.indexOf(a.getFixtureA()) < 0 && wheelsF.indexOf(a.getFixtureA()) < 0)) {
 				var partBreak = false;
 				var impulseSum = 0;
 				for (var i = 0; i < a.v_points.length; i++) {
@@ -721,7 +732,7 @@ function loop() {
 			if (autoFast !== document
 				.getElementById("switch-1")
 				.checked) {
-				simSpeed = 1;
+				simSpeed = 5;
 			}
 			autoFast = document
 				.getElementById("switch-1")
@@ -729,7 +740,7 @@ function loop() {
 			//autoFast=false;
 			if (autoFast) {
 				if (carScore > worstScore()) {
-					simSpeed = 1;
+					simSpeed = 5;
 				} else {
 					simSpeed = 100;
 				}
@@ -756,6 +767,7 @@ function importCarFromDialog() {
 		closeImportDialog();
 	}
 }
+document.getElementById("importCarFromDialog").onclick = importCarFromDialog;
 function closeImportDialog() {
 	document.getElementById("car-code-area").value = "";
 	var imptT = document.querySelector(".import-dialog .mdl-textfield");
@@ -764,6 +776,7 @@ function closeImportDialog() {
 
 	document.querySelector("div.import-dialog").setAttribute("open", "false");
 }
+document.getElementById("closeImportDialog").onclick = closeImportDialog;
 function openImportDialog() {
 	document.getElementById("car-code-area").value = "";
 	var imptT = document.querySelector(".import-dialog .mdl-textfield");
@@ -771,34 +784,35 @@ function openImportDialog() {
 	paused = true;
 	document.querySelector("div.import-dialog").setAttribute("open", "true");
 }
+document.getElementById("openImportDialog").onclick = openImportDialog;
 loop();
 //window.setInterval(loop, 100/60);
 window.addEventListener("resize", function () {
-	c.width = window.innerWidth;
-	c.height = window.innerHeight;
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 });
 
 var patternC = document.createElement("canvas");
 var patternCtx = patternC.getContext("2d");
-var scale = Math.min(c.width / 40, c.height / 40);
+var scale = Math.min(canvas.width / 40, canvas.height / 40);
 function render() {
 
-	scale = Math.min(c.width / 40, c.height / 40);
+	scale = Math.min(canvas.width / 40, canvas.height / 40);
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
-	ctx.clearRect(0, 0, c.width, c.height);
-	ctx.fillStyle = "#2196F3";
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = PALETTE.WHITE;
 
 
-	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.translate(-camera.x * scale, -camera.y * scale);
 	ctx.globalAlpha = 1;
 	ctx.globalCompositeOperation = "multiply";
 	ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
-	ctx.fillRect(camera.x * scale, camera.y * scale, c.width, c.height);
+	// ctx.fillRect(camera.x * scale, camera.y * scale, c.width, c.height);
 	ctx.globalCompositeOperation = "source-over";
 	ctx.globalAlpha = 1.0;
 	ctx.translate(camera.x * scale, camera.y * scale);
-	ctx.translate(c.width / 2, c.height / 2);
+	ctx.translate(canvas.width / 2, canvas.height / 2);
 	ctx.scale(1, -1);
 	ctx.translate(-camera.x * scale, camera.y * scale);
 	var renderLayers = [];
@@ -827,31 +841,31 @@ function render() {
 		return a.index - b.index;
 	});
 	for (var i = 0; i < renderLayers.length; i++) {
-		for (var j = 0; j < renderLayers[i].pairs.length; j++) {
-			var f = renderLayers[i].pairs[j].f;
-			var body = renderLayers[i].pairs[j].b;
-			ctx.strokeStyle = f.render && f.render.stroke
-				? f.render.stroke
-				: "#000000";
-			ctx.fillStyle = f.render && f.render.fill
-				? f.render.fill
-				: "rgba(0,0,0,0)";
-			ctx.lineWidth = 2;
-			ctx.save();
-			if (f.m_shape.getType() == "polygon")
-				ctx.translate(0, -4);
-			if (f.m_shape.getType() == "circle")
-				ctx.translate(0, -2);
-			ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
-			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-			if (f.m_shape.getType() == "polygon")
-				polygonS(f.m_shape);
-			if (f.m_shape.getType() == "circle")
-				circleS(f.m_shape);
-			if (f.m_shape.getType() == "edge")
-				edge(f.m_shape);
-			ctx.restore();
-		}
+		// for (var j = 0; j < renderLayers[i].pairs.length; j++) {
+		// 	var f = renderLayers[i].pairs[j].f;
+		// 	var body = renderLayers[i].pairs[j].b;
+		// 	ctx.strokeStyle = f.render && f.render.stroke
+		// 		? f.render.stroke
+		// 		: "#000000";
+		// 	ctx.fillStyle = f.render && f.render.fill
+		// 		? f.render.fill
+		// 		: "rgba(0,0,0,0)";
+		// 	ctx.lineWidth = 2;
+		// 	ctx.save();
+		// 	if (f.m_shape.getType() == "polygon")
+		// 		ctx.translate(0, -4);
+		// 	if (f.m_shape.getType() == "circle")
+		// 		ctx.translate(0, -2);
+		// 	ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
+		// 	ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
+		// 	if (f.m_shape.getType() == "polygon")
+		// 		polygonS(f.m_shape);
+		// 	if (f.m_shape.getType() == "circle")
+		// 		circleS(f.m_shape);
+		// 	if (f.m_shape.getType() == "edge")
+		// 		edge(f.m_shape);
+		// 	ctx.restore();
+		// }
 
 		for (var j = 0; j < renderLayers[i].pairs.length; j++) {
 			var f = renderLayers[i].pairs[j].f;
@@ -864,27 +878,31 @@ function render() {
 				: "rgba(0,0,0,0)";
 			ctx.lineWidth = 1;
 			ctx.save();
+
+			ctx.globalCompositeOperation = "source-over";
 			ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
 			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-			if (f.m_shape.getType() == "polygon")
-				polygon(f.m_shape);
+			if (f.m_shape.getType() == "polygon") {
+				
+				polygon(f.m_shape,f,f.render?.special==="ground");
+			}
 			if (f.m_shape.getType() == "circle")
 				circle(f.m_shape);
 
 			ctx.restore();
-			ctx.strokeStyle = "rgba(0,0,0,0)";
-			ctx.globalAlpha = 1;
-			ctx.globalCompositeOperation = "multiply";
-			ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
-			ctx.lineWidth = 1;
-			ctx.save();
-			ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
-			ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
-			if (f.m_shape.getType() == "polygon")
-				polygon(f.m_shape);
-			if (f.m_shape.getType() == "circle")
-				circle(f.m_shape);
-			ctx.restore();
+			// ctx.strokeStyle = "rgba(0,0,0,0)";
+			// ctx.globalAlpha = 1;
+			// ctx.globalCompositeOperation = "multiply";
+			// ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
+			// ctx.lineWidth = 1;
+			// ctx.save();
+			// ctx.translate(f.m_body.m_xf.p.x * scale, f.m_body.m_xf.p.y * scale);
+			// ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
+			// if (f.m_shape.getType() == "polygon")
+			// 	polygon(f.m_shape);
+			// if (f.m_shape.getType() == "circle")
+			// 	circle(f.m_shape);
+			// ctx.restore();
 			ctx.globalCompositeOperation = "source-over";
 			ctx.globalAlpha = 1.0;
 		}
@@ -894,15 +912,15 @@ function render() {
 window.requestAnimationFrame(render);
 
 function circleS(shape, f) {
-	ctx.beginPath()
-	ctx.shadowBlur = 2;
-	ctx.fillStyle = "rgba(0,0,0,.26)";
-	ctx.shadowColor = "rgba(0,0,0,.26)";
-	ctx.shadowOffsetY = 0;
-	ctx.shadowOffsetX = 0;
-	ctx.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
-	//ctx.stroke();
-	ctx.fill();
+	// ctx.beginPath()
+	// ctx.shadowBlur = 2;
+	// ctx.fillStyle = "rgba(0,0,0,.26)";
+	// ctx.shadowColor = "rgba(0,0,0,.26)";
+	// ctx.shadowOffsetY = 0;
+	// ctx.shadowOffsetX = 0;
+	// ctx.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
+	// ctx.stroke();
+	// ctx.fill();
 	/*ctx.beginPath()
 	ctx.strokeStyle = "white";
 	ctx.moveTo(shape.m_p.x, shape.m_p.y);
@@ -910,19 +928,45 @@ function circleS(shape, f) {
 	ctx.stroke();*/
 }
 function circle(shape, f) {
+	ctx.save();
+	let cPath = new Path2D();
+	cPath.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
+	
+	ctx.clip(cPath);
 	ctx.beginPath()
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = "rgba(0,0,0,0)";
 	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
+	ctx.strokeStyle = PALETTE.BLACK;
+	ctx.lineWidth = 8;
+	let orig = ctx.globalCompositeOperation;
+	if (true) {
+		ctx.globalCompositeOperation = "source-over";
+		ctx.strokeStyle = PALETTE.BLACK;
+
+		ctx.fillStyle = chroma(PALETTE.BLACK).brighten(1);
+		ctx.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
+		ctx.fill();
+		
+	ctx.beginPath();
+		
+		
+	}
 	ctx.arc(shape.m_p.x * scale, shape.m_p.y * scale, shape.m_radius * scale, 0, 2 * Math.PI);
-	//ctx.stroke();
-	ctx.fill();
+	// ctx.fillStyle = PALETTE.WHITER;
+	
+	// ctx.fill();
+	ctx.stroke();
 	ctx.beginPath()
-	ctx.strokeStyle = "white";
+	ctx.strokeStyle = PALETTE.BLACK;
+	ctx.lineWidth=4;
 	ctx.moveTo(shape.m_p.x * scale, shape.m_p.y * scale);
 	ctx.lineTo(shape.m_p.x * scale + shape.m_radius * scale, shape.m_p.y * scale);
 	ctx.stroke();
+
+	ctx.globalCompositeOperation = "orig";
+	ctx.restore();
 }
 function edge(shape, f) {
 	ctx.beginPath();
@@ -931,36 +975,90 @@ function edge(shape, f) {
 	ctx.stroke();
 }
 
-function polygon(shape, f) {
+function polygon(shape, f,isground) {
+	ctx.save();
+	let cPath = new Path2D();
+	cPath.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
+	for (var i = 1; i < shape.m_vertices.length; i++) {
+		cPath.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
+	}
+	if(!isground)
+	ctx.clip(cPath);
 	ctx.lineJoin = "round"
 	ctx.beginPath();
-	ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
-	for (var i = 1; i < shape.m_vertices.length; i++) {
-		ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
+	let orig = ctx.globalCompositeOperation;
+	if (isground) {
+		ctx.globalCompositeOperation = "source-over";
+		ctx.strokeStyle = "#8B9B56";
+
+		ctx.fillStyle = chroma("#8B9B56").brighten(1);
+		ctx.moveTo(shape.m_vertices[1].x * scale, shape.m_vertices[1].y * scale);
+		ctx.lineTo(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale);
+
+		let a = ctx.getTransform().transformPoint(new DOMPoint(shape.m_vertices[1].x * scale, shape.m_vertices[1].y * scale))
+		let b=ctx.getTransform().transformPoint(new DOMPoint(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale))
+		let c = ctx.getTransform().inverse().transformPoint(new DOMPoint(b.x, canvas.height));
+		ctx.lineTo(c.x, c.y);
+		let d = ctx.getTransform().inverse().transformPoint(new DOMPoint(a.x, canvas.height));
+		ctx.lineTo(d.x, d.y);
+		
+		ctx.save();
+		ctx.clip();
+		ctx.moveTo(shape.m_vertices[1].x * scale, shape.m_vertices[1].y * scale);
+		ctx.lineTo(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale);
+
+		ctx.lineTo(c.x, c.y);
+		ctx.lineTo(d.x, d.y);
+			// ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
+			// for (var i = 1; i < shape.m_vertices.length; i++) {
+			// 	ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
+			// }
+		ctx.fill();
+		
+		ctx.beginPath();
+		ctx.lineWidth=8;
+		ctx.moveTo(shape.m_vertices[1].x * scale, shape.m_vertices[1].y * scale);
+		ctx.lineTo(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale);
+		// ctx.moveTo(shape.m_vertices[2].x * scale, shape.m_vertices[2].y * scale);
+		// ctx.lineTo(shape.m_vertices[3].x * scale, shape.m_vertices[3].y * scale);
+	ctx.stroke();
+		ctx.restore();
+	} else {
+		ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
+		for (var i = 1; i < shape.m_vertices.length; i++) {
+			ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
+		}
 	}
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = "rgba(0,0,0,0)";
 	ctx.shadowOffsetY = 0;
 	ctx.shadowOffsetX = 0;
+	ctx.fillStyle=chroma(f.render?.stroke??ctx.strokeStyle).brighten(1);;
+	ctx.lineWidth=8;
 	ctx.closePath();
-	ctx.stroke();
-	ctx.fill();
+	if (!isground) {
+		ctx.fill();
+		ctx.stroke();
+	}
+	
+	ctx.globalCompositeOperation = orig;
+	ctx.restore();
 }
 function polygonS(shape, f) {
-	ctx.lineJoin = "round"
-	ctx.beginPath();
-	ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
-	for (var i = 1; i < shape.m_vertices.length; i++) {
-		ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
-	}
-	ctx.shadowBlur = 4;
-	ctx.fillStyle = "rgba(0,0,0,.26)";
-	ctx.shadowColor = "rgba(0,0,0,.26)";
-	ctx.shadowOffsetY = 0;
-	ctx.shadowOffsetX = 0;
-	ctx.closePath();
-	//ctx.stroke();
-	ctx.fill();
+	// ctx.lineJoin = "round"
+	// ctx.beginPath();
+	// ctx.moveTo(shape.m_vertices[0].x * scale, shape.m_vertices[0].y * scale);
+	// for (var i = 1; i < shape.m_vertices.length; i++) {
+	// 	ctx.lineTo(shape.m_vertices[i].x * scale, shape.m_vertices[i].y * scale);
+	// }
+	// ctx.shadowBlur = 4;
+	// ctx.fillStyle = "rgba(0,0,0,.26)";
+	// ctx.shadowColor = "rgba(0,0,0,.26)";
+	// ctx.shadowOffsetY = 0;
+	// ctx.shadowOffsetX = 0;
+	// ctx.closePath();
+	// // ctx.stroke();
+	// ctx.fill();
 }
 new Clipboard('.score-table tbody tr');
 new Clipboard('.copy-best-button', {
