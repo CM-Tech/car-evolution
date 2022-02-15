@@ -83,6 +83,8 @@ export const makeStepHandler = (
     handleImportCarRef,
     removeOldCarRef,
     GRAVITY,
+    simSpeedValueRef,
+    autoFastValueRef,
   }: HandlerInfos
 ) => {
   let simSpeed = 1;
@@ -849,10 +851,8 @@ export const makeStepHandler = (
     for (var i = 0; i < simSpeed; i++) {
       let paused = false;
       if (!paused) {
-        let cb = { af: true, simSpeed: 100 };
-        if (autoFast !== cb.af) {
-          simSpeed = 10;
-        }
+        let cb = { af: autoFastValueRef.current, simSpeed: simSpeedValueRef.current };
+       
         autoFast = cb.af;
         //autoFast=false;
         if (autoFast) {

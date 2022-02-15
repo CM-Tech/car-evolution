@@ -14,12 +14,15 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { CYAN_MUL, MAGENTA_MUL, PALETTE, YELLOW_MUL } from "./colors";
+import chroma from "chroma-js";
 const t = createTheme({
   palette: {
     primary: { main: "#312D32", contrastText: "#EAE8E5" },
-    warning: { main: "#D6BC5C", contrastText: "#EAE8E5" },
-    error: { main: "#DD424E", contrastText: "#EAE8E5" },
-    success:{main:"#8B9B56",contrastText: "#EAE8E5" },
+    warning: { main: chroma.blend(YELLOW_MUL,PALETTE.WHITE,'multiply').hex(), contrastText: "#EAE8E5" },
+    error: { main: chroma.blend(YELLOW_MUL,chroma.blend(MAGENTA_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex(), contrastText: "#EAE8E5" },
+    info:{main: chroma.blend(CYAN_MUL,chroma.blend(MAGENTA_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex(),contrastText: "#EAE8E5" },
+    success: { main: chroma.blend(CYAN_MUL,chroma.blend(YELLOW_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex(), contrastText: "#EAE8E5" },
     divider: "#44372f",
   },
   typography: {

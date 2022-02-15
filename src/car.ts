@@ -88,7 +88,7 @@ export class Car {
             }
         }
         //this.fixAngleWeights();
-        this.materialize();
+        // this.materialize();
     }
     fixAngleWeights () {
         var total = 0;
@@ -145,7 +145,7 @@ export class Car {
             console.log("E",e)
             return ret;
         }
-        ret.materialize();
+        // ret.materialize();
         return ret;
     
     }
@@ -441,7 +441,7 @@ export class Car {
                     .splice(Math.floor(Math.random() * offspring.data.wheels.length), 1);
             }
         }
-        offspring.materialize();
+        // offspring.materialize();
         offspring.fixAngleWeights();
         return offspring;
     }
@@ -655,7 +655,7 @@ export class Car {
                     .splice(Math.floor(Math.random() * offspring.data.wheels.length), 1);
             }
         }
-        offspring.materialize();
+        // offspring.materialize();
         offspring.fixAngleWeights();
         return offspring;
     }
@@ -684,7 +684,7 @@ export class Car {
                 .wheels
                 .push(newWheel);
         }
-        offspring.materialize();
+        // offspring.materialize();
         return offspring;
     }
 }

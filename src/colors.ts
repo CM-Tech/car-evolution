@@ -1,11 +1,15 @@
 import chroma from "chroma-js";
 
+export const CYAN_MUL = "#55EEEE";
+export const YELLOW_MUL = "#EEBB66";
+export const MAGENTA_MUL = "#EE55EE";
+export const WHITE = "#EBE8E7";
 export const PALETTE = {
-  WHITE: "#EBE8E7",
+  WHITE,
   WHITISH:"#E2E0D8",
   WHITER: "#FFFEFD",
   BLACK: "#393538",
-  HUES: ["#68BAC8", "#E35362", "#E5CC5C"],
+  HUES: [chroma.blend(CYAN_MUL,WHITE,'multiply').hex(),chroma.blend(MAGENTA_MUL,WHITE,'multiply').hex(),chroma.blend(YELLOW_MUL,WHITE,'multiply').hex()]//', "#E35362", "#E5CC5C"],
 };
 
 export const COLOR_MUL = PALETTE.HUES.map((x) => {

@@ -1,8 +1,9 @@
-import { Download, Upload, Terrain } from "@mui/icons-material";
+import { Download, Upload, Terrain, Speed } from "@mui/icons-material";
 import {
   Grid,
   ThemeProvider,
   createTheme,
+  Switch,
   Button,
   Paper,
   Table,
@@ -17,6 +18,7 @@ import {
   TextField,
   DialogContent,
   Stack,
+  Slider,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useRef, useState } from "react";
@@ -46,15 +48,20 @@ export const App = () => {
     { score: number; ticks: number; car: Car }[]
   >([]);
   const handleImportCarRef = useRef((s: string) => {});
-  const [terrain, setTerrain] = useState(
-    Ts[
-      Math.floor(Math.random() * 3)
-    ]
-  );
+  const [terrain, setTerrain] = useState(Ts[Math.floor(Math.random() * 3)]);
   const [open, setOpen] = useState(false);
   const [importCarString, setImportCarString] = useState("");
   const [exportCarString, setExportCarString] = useState("");
-
+  const [simSpeedValue, setSimSpeedValue] = useState(5);
+  const simSpeedValueRef = useRef(simSpeedValue);
+  useEffect(() => {
+    simSpeedValueRef.current = simSpeedValue;
+  }, [simSpeedValue]);
+  const [autoFastValue, setAutoFastValue] = useState(true);
+  const autoFastValueRef = useRef(autoFastValue);
+  useEffect(() => {
+    autoFastValueRef.current = autoFastValue;
+  }, [autoFastValue]);
   const [exportOpen, setExportOpen] = useState(false);
   const handleExportClose = () => {
     setExportOpen(false);
@@ -69,6 +76,8 @@ export const App = () => {
         setScore={throttle((x) => setScore(x))}
         setLeaderboard={throttle((x) => setLeaderboard(x))}
         terrain={terrain}
+        simSpeedValueRef={simSpeedValueRef}
+        autoFastValueRef={autoFastValueRef}
       />
       <Box sx={{ top: 0, position: "absolute", padding: 1 }}>
         <TableContainer
@@ -142,13 +151,52 @@ export const App = () => {
             <Button onClick={handleExportClose}>Done</Button>
           </DialogActions>
         </Dialog>
-        
+
         <Grid container sx={{ width: 1 }} gap={1}>
           <Grid item container flex="1" alignItems="end">
-
-            <Box sx={{ typography: "h4", color: "primary" }}>
-          Score: {score.toFixed(2)}
-            </Box>
+            <Stack>
+              <Box sx={{ typography: "h4", color: "primary" }}>
+                Score: {score.toFixed(2)}
+              </Box>
+              <Box sx={{ width: 256 }}>
+                <Stack
+                  spacing={2}
+                  direction="row"
+                  sx={{ mb: 1 }}
+                  alignItems="center"
+                >
+                  <Speed sx={{ fontSize: "48px" }} />
+                  <Slider
+                    value={simSpeedValue}
+                    min={1}
+                    max={100}
+                    onChange={(e) => {
+                      setSimSpeedValue(e.target.value);
+                    }}
+                    sx={{
+                      "& .MuiSlider-thumb": {},
+                    }}
+                  />
+                </Stack>
+              </Box>
+              <Box>
+                <Stack
+                  spacing={2}
+                  direction="row"
+                  sx={{ mb: 1 }}
+                  alignItems="center"
+                >
+                  Auto Speed:
+                  <Switch
+                    checked={autoFastValue}
+                    onChange={(e) => {
+                      setAutoFastValue(e.target.checked);
+                    }}
+                    
+                  />
+                </Stack>
+              </Box>
+            </Stack>
           </Grid>
           <Grid item flex="1">
             <Stack gap={1} alignItems={"end"}>
@@ -163,15 +211,15 @@ export const App = () => {
                   padding: 0,
                   ":hover div": {
                     paddingRight: 3,
-                    transition:"padding-right 0.25s"
-                  }
+                    transition: "padding-right 0.25s",
+                  },
                 }}
               >
                 <Upload
                   sx={{ fontSize: "48px", marginRight: 1, marginLeft: 1 }}
                 />
                 <Box
-                component="div"
+                  component="div"
                   sx={{
                     letterSpacing: "-0.05em",
                     bgcolor: "warning.main",
@@ -179,8 +227,7 @@ export const App = () => {
                     color: "warning.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition:"padding-right 0.25s",
-                    
+                    transition: "padding-right 0.25s",
                   }}
                 >
                   Import Car
@@ -200,8 +247,8 @@ export const App = () => {
                   padding: 0,
                   ":hover div": {
                     paddingRight: 3,
-                    transition:"padding-right 0.25s"
-                  }
+                    transition: "padding-right 0.25s",
+                  },
                 }}
               >
                 <Download
@@ -215,8 +262,7 @@ export const App = () => {
                     color: "error.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition:"padding-right 0.25s",
-                
+                    transition: "padding-right 0.25s",
                   }}
                 >
                   Export Best
@@ -226,14 +272,14 @@ export const App = () => {
                 disableElevation
                 size="large"
                 onClick={() => {
-                  setTerrain(Ts[(Ts.indexOf(terrain) + 1) % (Ts.length)]);
-                  }}
+                  setTerrain(Ts[(Ts.indexOf(terrain) + 1) % Ts.length]);
+                }}
                 sx={{
                   padding: 0,
                   ":hover div": {
                     paddingRight: 3,
-                    transition:"padding-right 0.25s"
-                  }
+                    transition: "padding-right 0.25s",
+                  },
                 }}
               >
                 <Terrain
@@ -247,8 +293,7 @@ export const App = () => {
                     color: "success.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition:"padding-right 0.25s",
-                
+                    transition: "padding-right 0.25s",
                   }}
                 >
                   Switch Terrain

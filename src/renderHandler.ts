@@ -1,7 +1,7 @@
 import chroma from "chroma-js";
 import { Vec2 } from "planck-js"
 import { MutableRefObject } from "react"
-import { PALETTE } from "./colors";
+import { CYAN_MUL, PALETTE, YELLOW_MUL } from "./colors";
 import { HandlerInfos } from "./simulation";
 const dpr = () => window.devicePixelRatio ?? 1;
 
@@ -295,9 +295,9 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
 
       ctx.lineTo(c.x, c.y);
       ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = "#8B9B56";
+      ctx.strokeStyle = chroma.blend(CYAN_MUL,chroma.blend(YELLOW_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex();
 
-      ctx.fillStyle = chroma("#8B9B56").brighten(1).hex();
+      ctx.fillStyle = chroma(chroma.blend(CYAN_MUL,chroma.blend(YELLOW_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex()).brighten(1).hex();
     
       ctx.lineWidth = scaleRef.current *(0.5-0.5*0.5);
       ctx.fill();

@@ -12,12 +12,17 @@ import { makeRenderHandler } from "./renderHandler";
 import { Body, Vec2, World } from "planck-js";
 import { TerrainPreset } from "./terrain";
 export type SimulationProperties = {
+
+  simSpeedValueRef: MutableRefObject<number>;
+  autoFastValueRef: MutableRefObject<boolean>;
   setScore: (v: number) => void;
   setLeaderboard: (v: { score: number; ticks: number; car: Car }[]) => void;
   terrain: TerrainPreset;
   handleImportCarRef:MutableRefObject<(s:string)=>void>;
 };
 export type HandlerInfos = {
+  simSpeedValueRef: MutableRefObject<number>;
+  autoFastValueRef: MutableRefObject<boolean>;
   cameraRef: MutableRefObject<Vec2>;
   world: World;
   ground: Body;
@@ -42,6 +47,8 @@ export const Simulation = ({
   setLeaderboard,
   handleImportCarRef,
   terrain,
+  simSpeedValueRef,
+  autoFastValueRef
 }: SimulationProperties) => {
   const [canvasNode, setCanvasNode] = useState<HTMLCanvasElement | null>(null);
   const cameraRef = useRef(Vec2(0, 0));
@@ -85,7 +92,9 @@ export const Simulation = ({
         scaleRef,
         terrainXSRef,
         handleImportCarRef,
-        removeOldCarRef
+        removeOldCarRef,
+        simSpeedValueRef,
+        autoFastValueRef
       };
       console.log("REGO");
       const stepHandle = setInterval(
