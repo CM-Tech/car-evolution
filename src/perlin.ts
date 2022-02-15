@@ -14,21 +14,24 @@
  *
  */
 
-var mm = {};
+class Grad {
+  x: number;
+  y: number;
+  z: number;
+  constructor(x: number, y: number, z: number) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
 
-function Grad(x, y, z) {
-  this.x = x;
-  this.y = y;
-  this.z = z;
+  dot2(x: number, y: number) {
+    return this.x * x + this.y * y;
+  }
+
+  dot3(x: number, y: number, z: number) {
+    return this.x * x + this.y * y + this.z * z;
+  }
 }
-
-Grad.prototype.dot2 = function (x, y) {
-  return this.x * x + this.y * y;
-};
-
-Grad.prototype.dot3 = function (x, y, z) {
-  return this.x * x + this.y * y + this.z * z;
-};
 
 var grad3 = [
   new Grad(1, 1, 0),
@@ -69,7 +72,7 @@ var gradP = new Array(512);
 
 // This isn't a very good seeding function, but it works ok. It supports 2^16
 // different seed values. Write something better if you need more seeds.
-mm.seed = function (seed) {
+export const seed = function (seed: number) {
   if (seed > 0 && seed < 1) {
     // Scale the seed out
     seed *= 65536;
@@ -93,7 +96,7 @@ mm.seed = function (seed) {
   }
 };
 
-mm.seed(0);
+seed(0);
 
 /*
   for(var i=0; i<256; i++) {
@@ -109,7 +112,7 @@ var F3 = 1 / 3;
 var G3 = 1 / 6;
 
 // 2D simplex noise
-mm.simplex2 = function (xin, yin) {
+export const simplex2 = function (xin: number, yin: number) {
   var n0, n1, n2; // Noise contributions from the three corners
   // Skew the input space to determine which simplex cell we're in
   var s = (xin + yin) * F2; // Hairy factor for 2D
@@ -171,7 +174,7 @@ mm.simplex2 = function (xin, yin) {
 };
 
 // 3D simplex noise
-mm.simplex3 = function (xin, yin, zin) {
+export const simplex3 = function (xin: number, yin: number, zin: number) {
   var n0, n1, n2, n3; // Noise contributions from the four corners
 
   // Skew the input space to determine which simplex cell we're in
@@ -297,16 +300,16 @@ mm.simplex3 = function (xin, yin, zin) {
 
 // ##### Perlin noise stuff
 
-function fade(t) {
+function fade(t: number) {
   return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-function lerp(a, b, t) {
+function lerp(a: number, b: number, t: number) {
   return (1 - t) * a + t * b;
 }
 
 // 2D Perlin Noise
-mm.perlin2 = function (x, y) {
+export const perlin2 = function (x: number, y: number) {
   // Find unit grid cell containing point
   var X = Math.floor(x),
     Y = Math.floor(y);
@@ -331,7 +334,7 @@ mm.perlin2 = function (x, y) {
 };
 
 // 3D Perlin Noise
-mm.perlin3 = function (x, y, z) {
+export const perlin3 = function (x: number, y: number, z: number) {
   // Find unit grid cell containing point
   var X = Math.floor(x),
     Y = Math.floor(y),
@@ -368,4 +371,4 @@ mm.perlin3 = function (x, y, z) {
   );
 };
 
-export const noise = mm;
+export const noise = { seed, simplex2, simplex3, perlin2, perlin3 };

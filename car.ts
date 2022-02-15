@@ -142,7 +142,8 @@ export class Car {
             ret = new Car(data);
     
         } catch (e) {
-            return false;
+            console.log("E",e)
+            return ret;
         }
         ret.materialize();
         return ret;
@@ -255,7 +256,8 @@ export class Car {
     }
     breed (other, maxWheels, wheelProbablity) {
         var interp = Math.max(1, this.score) / (Math.max(1, this.score) + Math.max(1, other.score));
-        var interpL = 1;
+        interp = Math.sign(interp - 0.5)*0.6 + 0.5;
+        var interpL = 0.9;
         var wheelMax = this.maxWheels;
         var wheelProb = this.wheelProb;
         if (maxWheels)
@@ -280,7 +282,7 @@ export class Car {
         for (var i = 0; i < this.bodyParts; i++) {
             if (Math.random() > explorationRate) {
                 var lerp = (Math.random() - 0.5) / 10 + 0.5;
-                lerp = lerp * (1 - interpL) + interp * interpL;
+                lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
                 offspring.data.lengths[i] = Math.min(Math.max((this.data.lengths[i] * lerp + other.data.lengths[i] * (1 - lerp)) * (1 - mutationRate) + mutationRate * Math.random() * this.maxLength, 0), this.maxLength);
                 offspring.data.angleWeights[i] = Math.max((this.data.angleWeights[i] / this.totalAngleWeights() * lerp + other.data.angleWeights[i] / other.totalAngleWeights() * (1 - lerp)) * (1 - mutationRate) + mutationRate *( Math.random() * (this.maxAngleWeight-this.minAngleWeight)+this.minAngleWeight), 0);
     
@@ -289,14 +291,14 @@ export class Car {
         /*for (var i = 0; i < this.bodyParts; i++) {
             if (Math.random() > explorationRate) {
                 var lerp = (Math.random() - 0.5) / 10 + 0.5;
-                lerp = lerp * (1 - interpL) + interp * interpL;
+                lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
                 offspring.data.angleWeights[i] = Math.max((this.data.angleWeights[i] / this.totalAngleWeights() * lerp + other.data.angleWeights[i] / other.totalAngleWeights() * (1 - lerp)) * (1 - mutationRate) + mutationRate * Math.random() * 1 / this.bodyParts, 0);
             }
         }*/
         for (var i = 0; i < this.bodyParts * 2; i++) {
             if (Math.random() > explorationRate) {
                 var lerp = (Math.random() - 0.5) / 10 + 0.5;
-                lerp = lerp * (1 - interpL) + interp * interpL;
+                lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
                 var cA = decodeRGB(this.data.colors[i]);
                 var cB = decodeRGB(other.data.colors[i]);
                 var cO = decodeRGB(0);
@@ -318,7 +320,7 @@ export class Car {
                 ? other.data.wheels[i]
                 : a;
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
-            lerp = lerp * (1 - interpL) + interp * interpL;
+            lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
             var aR = a.o
                 ? a.r
                 : 0;
@@ -327,7 +329,7 @@ export class Car {
                 : 0;
             var newR = Math.min(Math.max((a.r * lerp + b.r * (1 - lerp)) * (1 - mutationRate) + mutationRate * (Math.random()) * this.maxRadius, this.minRadius), this.maxRadius);
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
-            lerp = lerp * (1 - interpL) + interp * interpL;
+            lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
             var newO = ((a.o
                 ? 1
                 : 0) * lerp + (b.o
@@ -342,7 +344,7 @@ export class Car {
                 y: Math.sin(b.index * Math.PI * 2 / this.bodyParts)
             };
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
-            lerp = lerp * (1 - interpL) + interp * interpL;
+            lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
             var dirIndex = {
                 x: dirIndexA.x * lerp + dirIndexB.x * (1 - lerp),
                 y: dirIndexA.y * lerp + dirIndexB.y * (1 - lerp)
@@ -470,7 +472,7 @@ export class Car {
         for (var i = 0; i < this.bodyParts; i++) {
             if (Math.random() > explorationRate) {
                 var lerp = (Math.random() - 0.5) / 10 + 0.5;
-                lerp = lerp * (1 - interpL) + interp * interpL;
+                lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
                 var mutationRate = mutationRate > Math.random()
                     ? 1
                     : 0;
@@ -485,14 +487,14 @@ export class Car {
         /*for (var i = 0; i < this.bodyParts; i++) {
             if (Math.random() > explorationRate) {
                 var lerp = (Math.random() - 0.5) / 10 + 0.5;
-                lerp = lerp * (1 - interpL) + interp * interpL;
+                lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
                 offspring.data.angleWeights[i] = Math.max((this.data.angleWeights[i] / this.totalAngleWeights() * lerp + other.data.angleWeights[i] / other.totalAngleWeights() * (1 - lerp)) * (1 - mutationRate) + mutationRate * Math.random() * 1 / this.bodyParts, 0);
             }
         }*/
         for (var i = 0; i < this.bodyParts * 2; i++) {
             if (Math.random() > explorationRate) {
                 var lerp = (Math.random() - 0.5) / 10 + 0.5;
-                lerp = lerp * (1 - interpL) + interp * interpL;
+                lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
                 var cA = decodeRGB(this.data.colors[i]);
                 var cB = decodeRGB(other.data.colors[i]);
                 var cO = decodeRGB(0);
@@ -523,7 +525,7 @@ export class Car {
                 ? other.data.wheels[i]
                 : a;
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
-            lerp = lerp * (1 - interpL) + interp * interpL;
+            lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
             var aR = a.o
                 ? a.r
                 : 0;
@@ -535,7 +537,7 @@ export class Car {
                 : 0;
             var newR = Math.min(Math.max((a.r * lerp + b.r * (1 - lerp)) * (1 - mutationRate) + mutationRate * (Math.random()) * this.maxRadius, this.minRadius), this.maxRadius);
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
-            lerp = lerp * (1 - interpL) + interp * interpL;
+            lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
             var mutationRate = mutationRate > Math.random()
                 ? 1
                 : 0;
@@ -553,7 +555,7 @@ export class Car {
                 y: Math.sin(b.index * Math.PI * 2 / this.bodyParts)
             };
             var lerp = (Math.random() - 0.5) / 10 + 0.5;
-            lerp = lerp * (1 - interpL) + interp * interpL;
+            lerp = 0.5 + (lerp - 0.5) * (1 - interpL) + (interp - 0.5) * interpL;
             var dirIndex = {
                 x: dirIndexA.x * lerp + dirIndexB.x * (1 - lerp),
                 y: dirIndexA.y * lerp + dirIndexB.y * (1 - lerp)
