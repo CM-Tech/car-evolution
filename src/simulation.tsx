@@ -5,7 +5,7 @@ import React, {
   MutableRefObject,
   useMemo,
 } from "react";
-import { Car } from "../car";
+import { Car } from "./car";
 import { D_GRAVITY, makeStepHandler } from "./stepHandler";
 
 import { makeRenderHandler } from "./renderHandler";
@@ -34,7 +34,8 @@ export type HandlerInfos = {
   restartCurrentRef:MutableRefObject<number>;
   carScoreRef:MutableRefObject<number>;
   terrainXSRef:MutableRefObject<Vec2[]>;
-  handleImportCarRef:MutableRefObject<(s:string)=>void>;
+  handleImportCarRef: MutableRefObject<(s: string) => void>;
+  removeOldCarRef: MutableRefObject<() => void>;
 };
 export const Simulation = ({
   setScore,
@@ -63,6 +64,7 @@ export const Simulation = ({
   const restartTicksRef = useRef(400);
   const restartCurrentRef = useRef(0);
   const carScoreRef = useRef(0);
+  const removeOldCarRef = useRef(() => { });
   useEffect(() => {
     if (canvasNode) {
       const ops = {
@@ -82,7 +84,8 @@ export const Simulation = ({
         boxCarRef,
         scaleRef,
         terrainXSRef,
-        handleImportCarRef
+        handleImportCarRef,
+        removeOldCarRef
       };
       console.log("REGO");
       const stepHandle = setInterval(
@@ -96,8 +99,9 @@ export const Simulation = ({
       return () => {
         clearInterval(renderHandle);
         clearInterval(stepHandle);
+        removeOldCarRef.current();
       };
     }
-  }, [canvasNode]);
+  }, [canvasNode,terrain]);
   return <canvas ref={(node) => setCanvasNode(node)} />;
 };

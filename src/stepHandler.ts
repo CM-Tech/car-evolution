@@ -9,7 +9,7 @@ import {
   Shape,
   Vec2,
 } from "planck-js";
-import { Car, decodeRGB } from "../car";
+import { Car, decodeRGB } from "./car";
 import { convertToMaterial } from "../material-color";
 import { COLOR_MUL, PALETTE } from "./colors";
 import { HandlerInfos } from "./simulation";
@@ -81,6 +81,7 @@ export const makeStepHandler = (
     setScore,
     restartTicksRef,
     handleImportCarRef,
+    removeOldCarRef,
     GRAVITY,
   }: HandlerInfos
 ) => {
@@ -362,6 +363,7 @@ export const makeStepHandler = (
     connectedSpringsOld = [];
     center_vec = carCreationPoint.clone();
   }
+  removeOldCarRef.current = removeOldCar;
 
   var carScale = 1;
   let cols = COLOR_MUL;

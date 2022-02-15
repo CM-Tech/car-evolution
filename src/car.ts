@@ -1,4 +1,4 @@
-import { convertNumberToMaterial } from "./material-color";
+import { convertNumberToMaterial } from "../material-color";
 
 export function encodeRGB(color) {
     return (Math.floor(color.r) * 256 + Math.floor(color.g)) * 256 + Math.floor(color.b);
@@ -254,7 +254,7 @@ export class Car {
         }
         return string.join(",");
     }
-    breed (other, maxWheels, wheelProbablity) {
+    breed (other:Car, maxWheels:number, wheelProbablity:number) {
         var interp = Math.max(1, this.score) / (Math.max(1, this.score) + Math.max(1, other.score));
         interp = Math.sign(interp - 0.5)*(0.5+0.25*Math.random()) + 0.5;
         var interpL = Math.random();

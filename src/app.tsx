@@ -1,4 +1,4 @@
-import { Download, Upload } from "@mui/icons-material";
+import { Download, Upload, Terrain } from "@mui/icons-material";
 import {
   Grid,
   ThemeProvider,
@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useRef, useState } from "react";
-import { Car } from "../car";
+import { Car } from "./car";
 import { PALETTE } from "./colors";
 import { go } from "./main";
 import { Simulation } from "./simulation";
@@ -39,6 +39,7 @@ function throttle(func, timeout = 100) {
     }
   };
 }
+const Ts = [TerrainPreset.Rocky, TerrainPreset.Hills, TerrainPreset.Sisyphus];
 export const App = () => {
   const [score, setScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState<
@@ -46,7 +47,7 @@ export const App = () => {
   >([]);
   const handleImportCarRef = useRef((s: string) => {});
   const [terrain, setTerrain] = useState(
-    [TerrainPreset.Rocky, TerrainPreset.Hills, TerrainPreset.Sisyphus][
+    Ts[
       Math.floor(Math.random() * 3)
     ]
   );
@@ -219,6 +220,38 @@ export const App = () => {
                   }}
                 >
                   Export Best
+                </Box>
+              </Button>
+              <Button
+                disableElevation
+                size="large"
+                onClick={() => {
+                  setTerrain(Ts[(Ts.indexOf(terrain) + 1) % (Ts.length)]);
+                  }}
+                sx={{
+                  padding: 0,
+                  ":hover div": {
+                    paddingRight: 3,
+                    transition:"padding-right 0.25s"
+                  }
+                }}
+              >
+                <Terrain
+                  sx={{ fontSize: "48px", marginRight: 1, marginLeft: 1 }}
+                />
+                <Box
+                  sx={{
+                    letterSpacing: "-0.05em",
+                    bgcolor: "success.main",
+                    padding: 1,
+                    color: "success.contrastText",
+                    fontSize: "48px",
+                    lineHeight: 1,
+                    transition:"padding-right 0.25s",
+                
+                  }}
+                >
+                  Switch Terrain
                 </Box>
               </Button>
             </Stack>

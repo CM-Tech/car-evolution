@@ -19,6 +19,7 @@ const t = createTheme({
     primary: { main: "#312D32", contrastText: "#EAE8E5" },
     warning: { main: "#D6BC5C", contrastText: "#EAE8E5" },
     error: { main: "#DD424E", contrastText: "#EAE8E5" },
+    success:{main:"#8B9B56",contrastText: "#EAE8E5" },
     divider: "#44372f",
   },
   typography: {
