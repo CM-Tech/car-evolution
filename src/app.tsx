@@ -1,8 +1,17 @@
-import { Download, Upload, Terrain, Speed } from "@mui/icons-material";
+import {
+  Download,
+  Upload,
+  Terrain,
+  Speed,
+  FastForward,
+  PlayArrow,
+} from "@mui/icons-material";
 import {
   Grid,
   ThemeProvider,
   createTheme,
+  Typography,
+  Collapse,
   Switch,
   Button,
   Paper,
@@ -21,7 +30,7 @@ import {
   Slider,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useEffect,useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Car } from "./car";
 import { PALETTE } from "./colors";
 import { Simulation } from "./simulation";
@@ -88,7 +97,14 @@ export const App = () => {
           elevation={0}
           sx={{ bgcolor: PALETTE.WHITISH }}
         >
-          <Table sx={{ minWidth: 104 }} aria-label="simple table">
+          <Table
+            sx={{
+              minWidth: 104,
+              "& th, & td": { fontWeight: 600 },
+              "& td": { fontFamily: "'IBM Plex Mono', monospace" },
+            }}
+            aria-label="simple table"
+          >
             <TableHead>
               <TableRow>
                 <TableCell align="right">Score</TableCell>
@@ -111,6 +127,18 @@ export const App = () => {
           </Table>
         </TableContainer>
       </Box>
+      <Box sx={{ top: 0, right: 0, position: "absolute", padding: 1 }}>
+        <Box
+          sx={{
+            typography: "h4",
+            color: "primary.main",
+            fontWeight: 700,
+            fontFamily: "'IBM Plex Mono', monospace",
+          }}
+        >
+          {score.toFixed(2)}
+        </Box>
+      </Box>
       <Box
         sx={{
           bottom: 0,
@@ -124,7 +152,7 @@ export const App = () => {
           <DialogTitle>Import Car</DialogTitle>
           <DialogContent>
             <TextField
-            margin="dense"
+              margin="dense"
               label=""
               variant="outlined"
               value={importCarString}
@@ -133,7 +161,7 @@ export const App = () => {
           </DialogContent>
           <DialogActions>
             <Button
-              disabled={importCarValue===null }
+              disabled={importCarValue === null}
               onClick={() => {
                 handleClose();
                 handleImportCarRef.current(importCarString);
@@ -146,11 +174,7 @@ export const App = () => {
         <Dialog onClose={handleExportClose} open={exportOpen}>
           <DialogTitle>Export Car</DialogTitle>
           <DialogContent>
-            <TextField
-              label="Copyable Car Data"
-              variant="outlined"
-              value={exportCarString}
-            />
+            <TextField label="" variant="outlined" value={exportCarString} />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleExportClose}>Done</Button>
@@ -159,19 +183,11 @@ export const App = () => {
 
         <Grid container sx={{ width: 1 }} gap={1}>
           <Grid item container flex="1" alignItems="end">
-            <Stack>
-              <Box sx={{ typography: "h4", color: "primary" }}>
-                Score: {score.toFixed(2)}
-              </Box>
-              <Box sx={{ width: 256 }}>
-                <Stack
-                  spacing={2}
-                  direction="row"
-                  sx={{ mb: 1 }}
-                  alignItems="center"
-                >
-                  <Speed sx={{ fontSize: "48px" }} />
+            <Stack gap={1}>
+              <Collapse in={!autoFastValue}>
+                <Box sx={{ height: 128, margin: 1 }}>
                   <Slider
+                    orientation="vertical"
                     value={simSpeedValue}
                     min={1}
                     max={100}
@@ -179,32 +195,64 @@ export const App = () => {
                       setSimSpeedValue(e.target.value);
                     }}
                     sx={{
-                      "& .MuiSlider-thumb": {},
+                      "& .MuiSlider-track": {
+                        border: "none",
+                      },
+                      "& .MuiSlider-thumb": {
+                        borderRadius: 0,
+                        "&:before": {
+                          borderRadius: 0,
+
+                          boxShadow: "none",
+                        },
+                        boxShadow: "none",
+                        "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+                          boxShadow: "inherit",
+                        },
+                      },
                     }}
                   />
-                </Stack>
-              </Box>
+                </Box>
+              </Collapse>
               <Box>
                 <Stack
-                  spacing={2}
+                  spacing={1}
                   direction="row"
-                  sx={{ mb: 1 }}
                   alignItems="center"
+                  onClick={(e) => {
+                    setAutoFastValue(!autoFastValue);
+                  }}
+                  sx={{ color: "primary.main" }}
                 >
-                  Auto Speed:
-                  <Switch
-                    checked={autoFastValue}
-                    onChange={(e) => {
-                      setAutoFastValue(e.target.checked);
-                    }}
-                    
-                  />
+                  {autoFastValue ? (
+                    <FastForward sx={{ fontSize: "48px" }} />
+                  ) : (
+                    <PlayArrow sx={{ fontSize: "48px" }} />
+                  )}
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{ color: "primary.main" }}
+                  >
+                    {autoFastValue ? (
+                      <Box component="span" sx={{ fontStyle: "italic" }}>
+                        Automatic
+                      </Box>
+                    ) : (
+                      <Box component="span">Adjustable</Box>
+                    )}
+                  </Typography>
                 </Stack>
               </Box>
             </Stack>
           </Grid>
           <Grid item flex="1">
-            <Stack gap={1} alignItems={"end"}>
+            <Stack
+              gap={1}
+              alignItems={"end"}
+              justifyContent={"end"}
+              sx={{ height: 1 }}
+            >
               <Button
                 disableElevation
                 size="large"
@@ -217,7 +265,7 @@ export const App = () => {
                   ":hover div": {
                     paddingRight: 3,
                     transition: "padding-right 0.25s",
-                  }
+                  },
                 }}
               >
                 <Upload
@@ -227,7 +275,7 @@ export const App = () => {
                   component="div"
                   sx={{
                     letterSpacing: "-0.044em",
-                    fontWeight:600,
+                    fontWeight: 600,
                     bgcolor: "warning.main",
                     padding: 1,
                     color: "warning.contrastText",
@@ -264,13 +312,14 @@ export const App = () => {
                 <Box
                   sx={{
                     letterSpacing: "-0.044em",
-                    fontWeight:600,
+                    fontWeight: 600,
                     bgcolor: "error.main",
                     padding: 1,
                     color: "error.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition: "padding-right 0.25s",borderRadius: 1,
+                    transition: "padding-right 0.25s",
+                    borderRadius: 1,
                   }}
                 >
                   Export Best
@@ -296,13 +345,14 @@ export const App = () => {
                 <Box
                   sx={{
                     letterSpacing: "-0.044em",
-                    fontWeight:600,
+                    fontWeight: 600,
                     bgcolor: "success.main",
                     padding: 1,
                     color: "success.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition: "padding-right 0.25s",borderRadius: 1,
+                    transition: "padding-right 0.25s",
+                    borderRadius: 1,
                   }}
                 >
                   Switch Terrain
