@@ -21,10 +21,9 @@ import {
   Slider,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect,useMemo, useRef, useState } from "react";
 import { Car } from "./car";
 import { PALETTE } from "./colors";
-import { go } from "./main";
 import { Simulation } from "./simulation";
 import { TerrainPreset } from "./terrain";
 
@@ -51,6 +50,10 @@ export const App = () => {
   const [terrain, setTerrain] = useState(Ts[Math.floor(Math.random() * 3)]);
   const [open, setOpen] = useState(false);
   const [importCarString, setImportCarString] = useState("");
+  const [importCarValue, setImportCarValue] = useState<Car | null>(null);
+  useEffect(() => {
+    new Car().importCar(importCarString).then((v) => setImportCarValue(v));
+  }, [importCarString]);
   const [exportCarString, setExportCarString] = useState("");
   const [simSpeedValue, setSimSpeedValue] = useState(5);
   const simSpeedValueRef = useRef(simSpeedValue);
@@ -121,7 +124,8 @@ export const App = () => {
           <DialogTitle>Import Car</DialogTitle>
           <DialogContent>
             <TextField
-              label="Car Data"
+            margin="dense"
+              label=""
               variant="outlined"
               value={importCarString}
               onChange={(e) => setImportCarString(e.target.value)}
@@ -129,6 +133,7 @@ export const App = () => {
           </DialogContent>
           <DialogActions>
             <Button
+              disabled={importCarValue===null }
               onClick={() => {
                 handleClose();
                 handleImportCarRef.current(importCarString);
@@ -212,7 +217,7 @@ export const App = () => {
                   ":hover div": {
                     paddingRight: 3,
                     transition: "padding-right 0.25s",
-                  },
+                  }
                 }}
               >
                 <Upload
@@ -221,13 +226,15 @@ export const App = () => {
                 <Box
                   component="div"
                   sx={{
-                    letterSpacing: "-0.05em",
+                    letterSpacing: "-0.044em",
+                    fontWeight:600,
                     bgcolor: "warning.main",
                     padding: 1,
                     color: "warning.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
                     transition: "padding-right 0.25s",
+                    borderRadius: 1,
                   }}
                 >
                   Import Car
@@ -256,13 +263,14 @@ export const App = () => {
                 />
                 <Box
                   sx={{
-                    letterSpacing: "-0.05em",
+                    letterSpacing: "-0.044em",
+                    fontWeight:600,
                     bgcolor: "error.main",
                     padding: 1,
                     color: "error.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition: "padding-right 0.25s",
+                    transition: "padding-right 0.25s",borderRadius: 1,
                   }}
                 >
                   Export Best
@@ -287,13 +295,14 @@ export const App = () => {
                 />
                 <Box
                   sx={{
-                    letterSpacing: "-0.05em",
+                    letterSpacing: "-0.044em",
+                    fontWeight:600,
                     bgcolor: "success.main",
                     padding: 1,
                     color: "success.contrastText",
                     fontSize: "48px",
                     lineHeight: 1,
-                    transition: "padding-right 0.25s",
+                    transition: "padding-right 0.25s",borderRadius: 1,
                   }}
                 >
                   Switch Terrain

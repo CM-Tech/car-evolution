@@ -26,13 +26,14 @@ const t = createTheme({
     divider: "#44372f",
   },
   typography: {
+    fontFamily:"'Inter var', sans-serif",
     button: {
       textTransform: "capitalize",
       // fontSize: 0.875 * 1.75 + "rem",
       // lineHeight: 1.75 / 1.75,
     },
   },
-  shape: { borderRadius: 0 },
+  shape: { borderRadius: 8 },
 });
 render(
   <ThemeProvider theme={t}>

@@ -277,13 +277,13 @@ export const makeStepHandler = (
     }
     updateScoreTable();
   }
-  function importCar(str:string) {
+  async function importCar(str:string) {
     var score = carScoreRef.current + 0;
 
     topScores = [];
     prevGen = [];
     curGen = [];
-    carDNA = new Car().importCar(str);
+    carDNA = await new Car().importCar(str);
     createCar(carDNA);
   }
   handleImportCarRef.current = importCar;

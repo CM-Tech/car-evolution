@@ -13,6 +13,7 @@
     "@mui/material": "^5.0.0",
     "@react-hook/resize-observer": "^1.2.4",
     "chroma-js": "^2.4.2",
+    "pako": "^2.0.4",
     "planck": "^1.0.0-alpha.3",
     "planck-js": "0.3",
     "react": "^17.0.0",
