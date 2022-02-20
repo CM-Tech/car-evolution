@@ -13,7 +13,13 @@ import { Car, decodeRGB } from "./car";
 import { convertToMaterial } from "../material-color";
 import { COLOR_MUL, PALETTE } from "./colors";
 import { HandlerInfos } from "./simulation";
-import { terrainSisyphus, terrainHills, TerrainPreset, terrainRocky,terrainCrescendo } from "./terrain";
+import {
+  terrainSisyphus,
+  terrainHills,
+  TerrainPreset,
+  terrainRocky,
+  terrainCrescendo,
+} from "./terrain";
 import { PlanckFixtureUserData } from "./renderHandler";
 
 export const BODY_CATEGORY = 0b0000000000000010;
@@ -60,9 +66,9 @@ export const groundFD: FixtureOpt = {
 export const D_GRAVITY = 10;
 export const MASS_MULT = 1.5;
 
-var HZ = 4.0;
-var ZETA = 0.7;
-var SPEED = 6 * Math.PI;
+let HZ = 4.0;
+let ZETA = 0.7;
+let SPEED = 6 * Math.PI;
 export const makeStepHandler = (
   canvas: HTMLCanvasElement,
   {
@@ -97,13 +103,13 @@ export const makeStepHandler = (
       distTicksRef.current = currentTicksRef.current + 0;
     }
   }
-  var terrains = [];
+  let terrains: Fixture[] = [];
   terrainXSRef.current = [];
   function resetGround() {
     terrains
       .filter(function (t) {
         return (
-          t.m_body.m_xf.p.x + t.m_shape.m_centroid.x <
+          t.m_body.m_xf.p.x + (t.m_shape as Box).m_centroid.x <
           cameraRef.current.x -
             Math.max(canvas.width / scaleRef.current / 2, 100)
         );
@@ -130,23 +136,29 @@ export const makeStepHandler = (
       genXRef.current <
       cameraRef.current.x + Math.max(canvas.width / scaleRef.current / 2, 100)
     ) {
-      var thickness = 0.5;
-      var curX = genXRef.current;
-      var nextX =
+      let thickness = 0.5;
+      let curX = genXRef.current;
+      let nextX =
         genXRef.current +
         (terrain === TerrainPreset.Hills || terrain === TerrainPreset.Sisyphus
           ? 2
           : 7); //2 for terrain 3 (Sisyphus) or 4 (hills) otherwise 7
       genXRef.current = nextX;
-      var terrainFunc =
-        terrain === TerrainPreset.Hills ? terrainHills : (terrain === TerrainPreset.Sisyphus ? terrainSisyphus: (terrain === TerrainPreset.Crescendo ? terrainCrescendo: terrainRocky));
-      var curPos = Vec2(curX, terrainFunc(curX));
-      var nextPos = Vec2(nextX, terrainFunc(nextX));
+      let terrainFunc =
+        terrain === TerrainPreset.Hills
+          ? terrainHills
+          : terrain === TerrainPreset.Sisyphus
+          ? terrainSisyphus
+          : terrain === TerrainPreset.Crescendo
+          ? terrainCrescendo
+          : terrainRocky;
+      let curPos = Vec2(curX, terrainFunc(curX));
+      let nextPos = Vec2(nextX, terrainFunc(nextX));
 
-      var angle = Math.atan2(nextPos.y - curPos.y, nextPos.x - curPos.x);
+      let angle = Math.atan2(nextPos.y - curPos.y, nextPos.x - curPos.x);
       let va = Vec2(nextPos.y - curPos.y, curPos.x - nextPos.x);
       va.normalize();
-      var shape = Box(
+      let shape = Box(
         Math.sqrt(
           Math.pow(nextPos.x - curPos.x, 2) + Math.pow(nextPos.y - curPos.y, 2)
         ) / 2,
@@ -156,7 +168,7 @@ export const makeStepHandler = (
         ),
         angle
       );
-      var t_fix = ground.createFixture(shape, groundFD);
+      let t_fix = ground.createFixture(shape, groundFD);
       terrains.push(t_fix);
       terrainXSRef.current.push(nextPos);
       t_fix.setUserData({
@@ -165,30 +177,30 @@ export const makeStepHandler = (
           fill: PALETTE.BLACK,
           stroke: PALETTE.BLACK,
           layer: 0,
-        }
+        },
       });
       // genX = nextX;
     }
   }
   genGround();
-  var topScores = [];
-  var prevGen = [];
-  var curGen = [];
-  var maxTops = 6;
-  var genSize = 16;
-  var carDNA = new Car();
+  let topScores: { score: number; ticks: number; car: Car }[] = [];
+  let prevGen: { score: number; ticks: number; car: Car }[] = [];
+  let curGen: { score: number; ticks: number; car: Car }[] = [];
+  let maxTops = 6;
+  let genSize = 16;
+  let carDNA = new Car();
   function genCarFromOldParents() {
-    var parentPool = [];
-    for (var i = 0; i < topScores.length; i++) {
+    let parentPool = [];
+    for (let i = 0; i < topScores.length; i++) {
       parentPool.push(topScores[topScores.length - i - 1].car);
     }
-    for (var i = 0; i < prevGen.length; i++) {
+    for (let i = 0; i < prevGen.length; i++) {
       parentPool.push(prevGen[prevGen.length - i - 1].car);
     }
-    for (var i = 0; i < curGen.length; i++) {
+    for (let i = 0; i < curGen.length; i++) {
       parentPool.push(curGen[curGen.length - i - 1].car);
     }
-    var pPow = 2;
+    let pPow = 2;
     return parentPool[
       Math.floor(Math.pow(Math.random(), pPow) * parentPool.length)
     ].breed(
@@ -210,13 +222,13 @@ export const makeStepHandler = (
     if (topScores.length < 1) {
       return 0;
     }
-    var s = topScores[0].score;
-    for (var i = 0; i < topScores.length; i++) {
+    let s = topScores[0].score;
+    for (let i = 0; i < topScores.length; i++) {
       s = Math.min(s, topScores[i].score);
     }
     return s;
   }
-  function insertNewCarScore(car, score, ticks) {
+  function insertNewCarScore(car: Car, score: number, ticks: number) {
     topScores.push({ score: score, ticks: ticks, car: car });
     topScores.sort(function (a, b) {
       return a.score - b.score;
@@ -236,13 +248,13 @@ export const makeStepHandler = (
         .setAttribute("value", topScores[0].car.exportCar());
     }
   }
-  function switchCar(first) {
+  function switchCar(first?: boolean) {
     carScoreRef.current = Math.max(
       boxCarRef.current.getPosition().x,
       carScoreRef.current
     );
-    var score = carScoreRef.current + 0;
-    var ticks = distTicksRef.current + 0;
+    let score = carScoreRef.current + 0;
+    let ticks = distTicksRef.current + 0;
     if (first) {
       topScores = [];
       prevGen = [];
@@ -280,69 +292,70 @@ export const makeStepHandler = (
     }
     updateScoreTable();
   }
-  async function importCar(str:string) {
-    var score = carScoreRef.current + 0;
+  async function importCar(str: string) {
+    let score = carScoreRef.current + 0;
 
     topScores = [];
     prevGen = [];
     curGen = [];
-    carDNA = await new Car().importCar(str);
+    carDNA = (await new Car().importCar(str)) ?? new Car();
+    // FIXME: SHOW ERROR MESSAGE IF IMPORT FAILS
     createCar(carDNA);
   }
   handleImportCarRef.current = importCar;
 
   // Breakable dynamic body
-  var m_velocity;
-  var m_angularVelocity;
-  var carCreationPoint = Vec2(0.0, 10.0);
+  let m_velocity: Vec2;
+  let m_angularVelocity: number;
+  let carCreationPoint = Vec2(0.0, 10.0);
   boxCarRef.current = world.createDynamicBody({
     position: carCreationPoint.clone(),
   });
-  var wheelFD = wheelShapeDef;
+  let wheelFD = wheelShapeDef;
   wheelFD.friction = 1;
-  var autoFast = false;
-  var partsToBreak:Fixture[] = [];
-  var connectedParts: Fixture[] = [];
-  var connectedPartsI = [];
-  var connectedPartsArea = [];
-  var connectedPartsOld: Fixture[] = [];
-  var connectedShapes: Shape[] = [];
-  var wheels = [];
-  var wheelsF = [];
-  var wheelJoints = [];
-  var springs = [];
-  var springsF = [];
-  var springJoints = [];
-  var connectedPartsWheels: Fixture[][] = [];
-  var connectedPartsSprings: Fixture[][] = [];
-  var connectedSpringsOld: Fixture[][] = [];
-  var connectedWheelsOld: Fixture[][] = [];
-  var center_vec = carCreationPoint.clone();
+  let autoFast = false;
+  let partsToBreak: Fixture[] = [];
+  let connectedParts: Fixture[] = [];
+  let connectedPartsI: number[] = [];
+  let connectedPartsArea: number[] = [];
+  let connectedPartsOld: Fixture[] = [];
+  let connectedShapes: Shape[] = [];
+  let wheels = [];
+  let wheelsF = [];
+  let wheelJoints = [];
+  let springs = [];
+  let springsF = [];
+  let springJoints = [];
+  let connectedPartsWheels: Fixture[][] = [];
+  let connectedPartsSprings: Fixture[][] = [];
+  let connectedSpringsOld: Fixture[][] = [];
+  let connectedWheelsOld: Fixture[][] = [];
+  let center_vec = carCreationPoint.clone();
 
   //create car from data
   function removeOldCar() {
-    for (var i = 0; i < connectedParts.length; i++) {
+    for (let i = 0; i < connectedParts.length; i++) {
       world.destroyBody(connectedParts[i].m_body);
     }
-    for (var i = 0; i < connectedPartsOld.length; i++) {
+    for (let i = 0; i < connectedPartsOld.length; i++) {
       world.destroyBody(connectedPartsOld[i].m_body);
     }
-    for (var i = 0; i < wheels.length; i++) {
+    for (let i = 0; i < wheels.length; i++) {
       if (wheels[i]) {
         world.destroyBody(wheels[i]);
       }
     }
-    for (var i = 0; i < connectedWheelsOld.length; i++) {
+    for (let i = 0; i < connectedWheelsOld.length; i++) {
       if (connectedWheelsOld[i]) {
         world.destroyBody(connectedWheelsOld[i]);
       }
     }
-    for (var i = 0; i < springs.length; i++) {
+    for (let i = 0; i < springs.length; i++) {
       if (springs[i]) {
         world.destroyBody(springs[i]);
       }
     }
-    for (var i = 0; i < connectedSpringsOld.length; i++) {
+    for (let i = 0; i < connectedSpringsOld.length; i++) {
       if (connectedSpringsOld[i]) {
         world.destroyBody(connectedSpringsOld[i]);
       }
@@ -370,7 +383,7 @@ export const makeStepHandler = (
   }
   removeOldCarRef.current = removeOldCar;
 
-  var carScale = 1;
+  let carScale = 1;
   let cols = COLOR_MUL;
   function createCar(carData: Car) {
     restartCurrentRef.current = 0;
@@ -394,8 +407,8 @@ export const makeStepHandler = (
     connectedPartsSprings = [];
     connectedSpringsOld = [];
     center_vec = carCreationPoint.clone();
-    var lowestY = carCreationPoint.y + 0;
-    var p_angle = Math.abs(
+    let lowestY = carCreationPoint.y + 0;
+    let p_angle = Math.abs(
       ((carData.data.angleWeights[0] / carData.totalAngleWeights()) *
         Math.PI *
         2) %
@@ -404,15 +417,15 @@ export const makeStepHandler = (
     if (((p_angle + Math.PI) % (Math.PI * 2)) - Math.PI < 0) {
       p_angle = Math.PI - 1 - (((p_angle + Math.PI) % (Math.PI * 2)) - Math.PI);
     }
-    for (var i = 0; i < carData.bodyParts; i++) {
+    for (let i = 0; i < carData.bodyParts; i++) {
       connectedPartsArea.push(carData.getAreaOfPiece(i));
-      var new_p_angle =
+      let new_p_angle =
         p_angle +
         (carData.data.angleWeights[(i + 1) % carData.data.angleWeights.length] /
           carData.totalAngleWeights()) *
           Math.PI *
           2;
-      var m_shape = Polygon([
+      let m_shape = Polygon([
         Vec2(0, 0),
         Vec2(
           Math.cos(p_angle + 0) * carData.data.lengths[i] * carScale,
@@ -427,7 +440,7 @@ export const makeStepHandler = (
             carScale
         ),
       ]);
-      var bDef = bodyShapeDef;
+      let bDef = bodyShapeDef;
       if (
         (((((new_p_angle - p_angle + 0) / Math.PI) * 180 + 360) % 360) + 360) %
           360 >
@@ -436,11 +449,11 @@ export const makeStepHandler = (
         bDef = negBodyShapeDef;
         console.log("neg");
       }
-      var m_piece = boxCarRef.current.createFixture(m_shape, bDef);
+      let m_piece = boxCarRef.current.createFixture(m_shape, bDef);
       lowestY = Math.min(lowestY, m_piece.getAABB(0).lowerBound.y);
-      //var bodyColor = decodeRGB(carData.data.colors[i]||0);
+      //let bodyColor = decodeRGB(carData.data.colors[i]||0);
       //console.log("#"+(carData.data.colors[i]||0).toString(16).padStart(6,"0"));
-      var bodyColor = decodeRGB(
+      let bodyColor = decodeRGB(
         parseInt(
           convertToMaterial(
             (carData.data.colors[i] || 0).toString(16).padStart(6, "0")
@@ -448,13 +461,13 @@ export const makeStepHandler = (
           16
         )
       );
-      var colorLerp = 0;
+      let colorLerp = 0;
       /*m_piece.render = {
       fill : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
       stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)"//"rgba(255,255,255,1)" //stroke : "rgba(" + bodyColor.r * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.g * (1 - colorLerp) + 255 * colorLerp + "," + bodyColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)"
           };*/
       let m = carData.data.colors[i] || 0;
-      var matHex = cols[m % cols.length]; //
+      let matHex = cols[m % cols.length]; //
       // matHex = convertToMaterial(
       //   (carData.data.colors[i] || 0).toString(16).padStart(6, "0")
       // );
@@ -463,24 +476,24 @@ export const makeStepHandler = (
           fill: matHex,
           stroke: matHex,
           layer: 6,
-        }
+        },
       });
       connectedParts.push(m_piece);
       connectedPartsI.push(i);
       connectedShapes.push(m_shape);
-      var wheelsThere = carData.wheelsAt(i);
-      var totWheelAdditions = [];
-      var totSpringAdditions = [];
-      for (var j = 0; j < wheelsThere.length; j++) {
-        var wheelData = wheelsThere[j];
+      let wheelsThere = carData.wheelsAt(i);
+      let totWheelAdditions = [];
+      let totSpringAdditions = [];
+      for (let j = 0; j < wheelsThere.length; j++) {
+        let wheelData = wheelsThere[j];
         if (wheelData.o) {
-          var wheelColor = decodeRGB(
+          let wheelColor = decodeRGB(
             carData.data.colors[
               (carData.data.wheels.indexOf(wheelData) + 8) %
                 carData.data.colors.length
             ]
           );
-          var wheelPos = Vec2(
+          let wheelPos = Vec2(
             Math.cos(p_angle) * carData.data.lengths[i] * carScale,
             Math.sin(p_angle) * carData.data.lengths[i] * carScale
           )
@@ -493,7 +506,7 @@ export const makeStepHandler = (
                   3
               )
             );
-          var wheelAxelPos = Vec2(
+          let wheelAxelPos = Vec2(
             (Math.cos(wheelData.axelAngle) *
               0.2 *
               carScale *
@@ -505,9 +518,9 @@ export const makeStepHandler = (
               carData.maxRadius) /
               3
           ).add(wheelPos);
-          var spring = world.createDynamicBody(wheelAxelPos);
+          let spring = world.createDynamicBody(wheelAxelPos);
 
-          var s_fix = spring.createFixture(
+          let s_fix = spring.createFixture(
             Box(
               (0.2 * carScale * carData.maxRadius) / 1.5,
               (0.05 * carScale * carData.maxRadius) / 1.5,
@@ -516,7 +529,7 @@ export const makeStepHandler = (
             ),
             springShapeDef
           );
-          var s_b_fix = m_piece
+          let s_b_fix = m_piece
             .getBody()
             .createFixture(
               Box(
@@ -530,8 +543,8 @@ export const makeStepHandler = (
               ),
               springShapeDef
             );
-          var wheel = world.createDynamicBody(wheelPos);
-          var w_fix = wheel.createFixture(
+          let wheel = world.createDynamicBody(wheelPos);
+          let w_fix = wheel.createFixture(
             Circle(wheelData.r * carScale * 0.89),
             wheelFD
           );
@@ -539,9 +552,9 @@ export const makeStepHandler = (
             render: {
               fill: PALETTE.BLACK,
               layer: 7,
-            }
+            },
           });
-          var colorLerp = 1;
+          let colorLerp = 1;
           /*s_b_fix.render = {
   fill : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
   stroke : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",0.75)",
@@ -559,7 +572,7 @@ export const makeStepHandler = (
               (carData.data.wheels.indexOf(wheelData) + 8) %
                 carData.data.colors.length
             ] || 0;
-          var matHex = cols[m % cols.length]; //
+          let matHex = cols[m % cols.length]; //
           // matHex = convertToMaterial(
           //   (
           //     carData.data.colors[
@@ -575,16 +588,16 @@ export const makeStepHandler = (
               fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
               stroke: matHex,
               layer: 9,
-            }
+            },
           });
           s_fix.setUserData({
             render: {
               fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
               stroke: matHex,
               layer: 8,
-            }
+            },
           });
-          var bounceJoint = world.createJoint(
+          let bounceJoint = world.createJoint(
             PrismaticJoint(
               {
                 enableMotor: true,
@@ -602,7 +615,7 @@ export const makeStepHandler = (
             )
           );
 
-          var turnJoint = world.createJoint(
+          let turnJoint = world.createJoint(
             RevoluteJoint(
               {
                 motorSpeed: -SPEED,
@@ -641,13 +654,13 @@ export const makeStepHandler = (
         boxCarRef.current.getPosition().y - lowestY
       )
     );
-    for (var i = 0; i < springsF.length; i++) {
+    for (let i = 0; i < springsF.length; i++) {
       let toTransform = springsF[i].m_body;
       toTransform.setPosition(
         Vec2(toTransform.getPosition().x, toTransform.getPosition().y - lowestY)
       );
     }
-    for (var i = 0; i < wheelsF.length; i++) {
+    for (let i = 0; i < wheelsF.length; i++) {
       let toTransform = wheelsF[i].m_body;
       toTransform.setPosition(
         Vec2(toTransform.getPosition().x, toTransform.getPosition().y - lowestY)
@@ -665,11 +678,11 @@ export const makeStepHandler = (
   }
   switchCar(true);
   world.on("post-solve", function (contact, impulse) {
-    var a = contact;
+    let a = contact;
     while (a) {
-      for (var j = 0; j < connectedParts.length; j++) {
-        var m_piece = connectedParts[j];
-        var strength = (50 * connectedParts[j].m_body.m_mass) / 2; //Math.sqrt(connectedPartsArea[j]) * 3;
+      for (let j = 0; j < connectedParts.length; j++) {
+        let m_piece = connectedParts[j];
+        let strength = (50 * connectedParts[j].m_body.m_mass) / 2; //Math.sqrt(connectedPartsArea[j]) * 3;
         //console.log("s",strength);
         if (
           (a.getFixtureA() == m_piece &&
@@ -679,9 +692,9 @@ export const makeStepHandler = (
             connectedPartsOld.indexOf(a.getFixtureA()) < 0 &&
             wheelsF.indexOf(a.getFixtureA()) < 0)
         ) {
-          var partBreak = false;
-          var impulseSum = 0;
-          for (var i = 0; i < a.v_points.length; i++) {
+          let partBreak = false;
+          let impulseSum = 0;
+          for (let i = 0; i < a.v_points.length; i++) {
             if (a.v_points[i].normalImpulse > strength) partBreak = true;
           }
           if (partBreak) partsToBreak.push(m_piece);
@@ -693,37 +706,37 @@ export const makeStepHandler = (
   //Break can only be called in step
   function Break(m_piece: Fixture) {
     if (connectedParts.indexOf(m_piece) >= 0) {
-      var mIndex = connectedParts.indexOf(m_piece);
-      var m_shape = connectedShapes.splice(
+      let mIndex = connectedParts.indexOf(m_piece);
+      let m_shape = connectedShapes.splice(
         connectedParts.indexOf(m_piece),
         1
       )[0];
-      var m_area = connectedPartsArea.splice(
+      let m_area = connectedPartsArea.splice(
         connectedParts.indexOf(m_piece),
         1
       )[0];
-      var m_index = connectedPartsI.splice(
+      let m_index = connectedPartsI.splice(
         connectedParts.indexOf(m_piece),
         1
       )[0];
-      var m_wheels = connectedPartsWheels.splice(
+      let m_wheels = connectedPartsWheels.splice(
         connectedParts.indexOf(m_piece),
         1
       )[0];
-      var m_springs = connectedPartsSprings.splice(
+      let m_springs = connectedPartsSprings.splice(
         connectedParts.indexOf(m_piece),
         1
       )[0];
       connectedParts.splice(connectedParts.indexOf(m_piece), 1);
       // Create two bodies from one.
-      var f1 = boxCarRef.current.m_fixtureList;
+      let f1 = boxCarRef.current.m_fixtureList;
       if (!f1?.m_shape) return;
       if (!f1?.getBody()) return;
-      var index = connectedParts.indexOf(f1);
-      var body1 = f1.getBody();
-      var center = body1.getWorldCenter();
+      let index = connectedParts.indexOf(f1);
+      let body1 = f1.getBody();
+      let center = body1.getWorldCenter();
       if (m_wheels[1]) {
-        for (var j = 0; j < m_wheels[1].length; j++) {
+        for (let j = 0; j < m_wheels[1].length; j++) {
           connectedSpringsOld.push(
             springs.splice(springs.indexOf(m_springs[1][j].m_bodyB), 1)[0]
           );
@@ -734,18 +747,18 @@ export const makeStepHandler = (
           world.destroyJoint(m_springs[1][j]);
         }
       }
-      var prevIndexInList = connectedPartsI.indexOf(
+      let prevIndexInList = connectedPartsI.indexOf(
         (m_index + carDNA.bodyParts - 1) % carDNA.bodyParts
       );
       if (prevIndexInList >= 0 && doubleWheelParent) {
         connectedPartsWheels[prevIndexInList][1] = m_wheels[0];
         connectedPartsSprings[prevIndexInList][1] = m_springs[0];
 
-        for (var j = 0; j < m_springs[0].length; j++) {
+        for (let j = 0; j < m_springs[0].length; j++) {
           m_springs[0][j].m_bodyA = connectedParts[prevIndexInList].m_body;
         }
       } else {
-        for (var j = 0; j < m_wheels[0].length; j++) {
+        for (let j = 0; j < m_wheels[0].length; j++) {
           connectedWheelsOld.push(
             wheels.splice(wheels.indexOf(m_wheels[0][j].m_bodyB), 1)[0]
           );
@@ -757,10 +770,11 @@ export const makeStepHandler = (
         }
       }
 
-      const { render:renderData } = ((m_piece.getUserData() ?? {}) as PlanckFixtureUserData);
+      const { render: renderData } = (m_piece.getUserData() ??
+        {}) as PlanckFixtureUserData;
       boxCarRef.current.destroyFixture(m_piece);
       m_piece = null;
-      var body2 = world.createBody({
+      let body2 = world.createBody({
         type: "dynamic",
         position: body1.getPosition(),
         angle: body1.getAngle(),
@@ -769,13 +783,13 @@ export const makeStepHandler = (
       m_piece.setUserData({ render: { ...renderData, layer: 2 } });
       connectedPartsOld.push(m_piece);
       // Compute consistent velocities for new bodies based on cached velocity.
-      var center1 = body1.getWorldCenter();
-      var center2 = body2.getWorldCenter();
-      var velocity1 = Vec2.add(
+      let center1 = body1.getWorldCenter();
+      let center2 = body2.getWorldCenter();
+      let velocity1 = Vec2.add(
         m_velocity,
         Vec2.cross(m_angularVelocity, Vec2.sub(center1, center))
       );
-      var velocity2 = Vec2.add(
+      let velocity2 = Vec2.add(
         m_velocity,
         Vec2.cross(m_angularVelocity, Vec2.sub(center2, center))
       );
@@ -790,9 +804,9 @@ export const makeStepHandler = (
   function tick() {
     // resetGround();
     genGround();
-    var cMass = boxCarRef.current.m_mass;
+    let cMass = boxCarRef.current.m_mass;
     try {
-      for (var j = 0; j < wheelJoints.length; j++) {
+      for (let j = 0; j < wheelJoints.length; j++) {
         if (wheelJoints[j].m_bodyB) {
           if (wheelJoints[j].m_bodyB.m_mass) {
             cMass += wheelJoints[j].m_bodyB.m_mass;
@@ -804,9 +818,9 @@ export const makeStepHandler = (
       }
     } catch (e) {}
     cMass = cMass / carScale / carScale;
-    var torque = ((MASS_MULT * GRAVITY) / wheelJoints.length) * cMass;
-    var baseSpringForce = (7.5 * cMass) / 6;
-    for (var j = 0; j < wheelJoints.length; j++) {
+    let torque = ((MASS_MULT * GRAVITY) / wheelJoints.length) * cMass;
+    let baseSpringForce = (7.5 * cMass) / 6;
+    for (let j = 0; j < wheelJoints.length; j++) {
       //wheelJoints[j].setMotorSpeed(-SPEED);
       //wheelJoints[j].enableMotor(true);
       if (wheelJoints[j].m_bodyB) {
@@ -815,7 +829,7 @@ export const makeStepHandler = (
       springJoints[j].setMotorSpeed(SPEED);
       springJoints[j].enableMotor(true);
       if (springJoints[j].m_bodyB) {
-        var force = 0;
+        let force = 0;
         springJoints[j].setMaxMotorForce(
           baseSpringForce +
             (40 / 40) *
@@ -839,7 +853,7 @@ export const makeStepHandler = (
     }
     restartCurrentRef.current++;
     currentTicksRef.current++;
-    var cp = boxCarRef.current.getPosition();
+    let cp = boxCarRef.current.getPosition();
     cameraRef.current.x = cp.x;
     cameraRef.current.y = -cp.y;
     updateProgress(cp.x);
@@ -850,7 +864,7 @@ export const makeStepHandler = (
       switchCar();
     }
     if (partsToBreak.length > 0) {
-      for (var i = 0; i < partsToBreak.length; i++) {
+      for (let i = 0; i < partsToBreak.length; i++) {
         Break(partsToBreak[i]);
       }
       partsToBreak = [];
@@ -859,11 +873,14 @@ export const makeStepHandler = (
     m_angularVelocity = boxCarRef.current.getAngularVelocity();
   }
   function loop() {
-    for (var i = 0; i < simSpeed; i++) {
+    for (let i = 0; i < simSpeed; i++) {
       let paused = false;
       if (!paused) {
-        let cb = { af: autoFastValueRef.current, simSpeed: simSpeedValueRef.current };
-       
+        let cb = {
+          af: autoFastValueRef.current,
+          simSpeed: simSpeedValueRef.current,
+        };
+
         autoFast = cb.af;
         //autoFast=false;
         if (autoFast) {
@@ -883,9 +900,9 @@ export const makeStepHandler = (
         //   "Score: " +
         //   Math.round(Math.max(boxCarRef.current.getPosition().x, carScore) * 100) / 100;
         world.step(1 / 75);
-        var tickStart = new Date().getTime();
+        let tickStart = new Date().getTime();
         tick();
-        var t = new Date().getTime() - tickStart;
+        let t = new Date().getTime() - tickStart;
         //tickSpeed=t/2+tickSpeed/2;
         //console.log(tickSpeed/2+t/2,t);
       }

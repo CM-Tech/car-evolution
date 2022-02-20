@@ -1,17 +1,19 @@
 import chroma from "chroma-js";
-import { Vec2 } from "planck-js"
-import { MutableRefObject } from "react"
+import { Vec2 } from "planck-js";
+import { MutableRefObject } from "react";
 import { CYAN_MUL, PALETTE, YELLOW_MUL } from "./colors";
 import { HandlerInfos } from "./simulation";
 const dpr = () => window.devicePixelRatio ?? 1;
 
-export type PlanckFixtureUserData = {render?:any};
-export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,world,terrainXSRef}:HandlerInfos) => {
-  var ctx = canvas.getContext("2d")!;
-  canvas.width = window.innerWidth*dpr();
-  canvas.height = window.innerHeight*dpr();
-  function circle(shape:planck.Circle, f) {
-
+export type PlanckFixtureUserData = { render?: any };
+export const makeRenderHandler = (
+  canvas: HTMLCanvasElement,
+  { cameraRef, scaleRef, world, terrainXSRef }: HandlerInfos
+) => {
+  let ctx = canvas.getContext("2d")!;
+  canvas.width = window.innerWidth * dpr();
+  canvas.height = window.innerHeight * dpr();
+  function circle(shape: planck.Circle, f: planck.Fixture) {
     ctx.lineCap = "round";
     ctx.save();
     let cPath = new Path2D();
@@ -36,7 +38,7 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
       // ctx.globalCompositeOperation = "source-over";
       ctx.strokeStyle = PALETTE.BLACK;
 
-      ctx.fillStyle = PALETTE.WHITER;//chroma(PALETTE.WHITER).brighten(1);
+      ctx.fillStyle = PALETTE.WHITER; //chroma(PALETTE.WHITER).brighten(1);
       ctx.arc(
         shape.m_p.x * scaleRef.current,
         shape.m_p.y * scaleRef.current,
@@ -63,21 +65,33 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     ctx.strokeStyle = PALETTE.BLACK;
     ctx.lineWidth = scaleRef.current / 4;
     ctx.moveTo(shape.m_p.x * scaleRef.current, shape.m_p.y * scaleRef.current);
-    ctx.lineTo(shape.m_p.x * scaleRef.current + shape.m_radius * scaleRef.current, shape.m_p.y * scaleRef.current);
+    ctx.lineTo(
+      shape.m_p.x * scaleRef.current + shape.m_radius * scaleRef.current,
+      shape.m_p.y * scaleRef.current
+    );
     ctx.stroke();
 
     ctx.globalCompositeOperation = "orig";
     ctx.restore();
   }
 
-  function polygon(shape: planck.Polygon, f: planck.Fixture, isground: boolean) {
-    
-    const { render } = ((f.getUserData() ?? {}) as PlanckFixtureUserData);
+  function polygon(
+    shape: planck.Polygon,
+    f: planck.Fixture,
+    isground: boolean
+  ) {
+    const { render } = (f.getUserData() ?? {}) as PlanckFixtureUserData;
     ctx.save();
     let polygonPath = new Path2D();
-    polygonPath.moveTo(shape.m_vertices[0].x * scaleRef.current, shape.m_vertices[0].y * scaleRef.current);
-    for (var i = 1; i < shape.m_vertices.length; i++) {
-      polygonPath.lineTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
+    polygonPath.moveTo(
+      shape.m_vertices[0].x * scaleRef.current,
+      shape.m_vertices[0].y * scaleRef.current
+    );
+    for (let i = 1; i < shape.m_vertices.length; i++) {
+      polygonPath.lineTo(
+        shape.m_vertices[i].x * scaleRef.current,
+        shape.m_vertices[i].y * scaleRef.current
+      );
     }
     // if (!isground) ctx.clip(cPath);
     ctx.lineJoin = "round";
@@ -89,8 +103,14 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
       ctx.strokeStyle = "#8B9B56";
 
       ctx.fillStyle = chroma("#8B9B56").brighten(1).hex();
-      ctx.moveTo(shape.m_vertices[1].x * scaleRef.current, shape.m_vertices[1].y * scaleRef.current);
-      ctx.lineTo(shape.m_vertices[2].x * scaleRef.current, shape.m_vertices[2].y * scaleRef.current);
+      ctx.moveTo(
+        shape.m_vertices[1].x * scaleRef.current,
+        shape.m_vertices[1].y * scaleRef.current
+      );
+      ctx.lineTo(
+        shape.m_vertices[2].x * scaleRef.current,
+        shape.m_vertices[2].y * scaleRef.current
+      );
 
       let a = ctx
         .getTransform()
@@ -121,37 +141,57 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
 
       ctx.save();
       ctx.clip();
-      ctx.moveTo(shape.m_vertices[1].x * scaleRef.current, shape.m_vertices[1].y * scaleRef.current);
-      ctx.lineTo(shape.m_vertices[2].x * scaleRef.current, shape.m_vertices[2].y * scaleRef.current);
+      ctx.moveTo(
+        shape.m_vertices[1].x * scaleRef.current,
+        shape.m_vertices[1].y * scaleRef.current
+      );
+      ctx.lineTo(
+        shape.m_vertices[2].x * scaleRef.current,
+        shape.m_vertices[2].y * scaleRef.current
+      );
 
       ctx.lineTo(c.x, c.y);
       ctx.lineTo(d.x, d.y);
       // ctx.moveTo(shape.m_vertices[0].x * scaleRef.current, shape.m_vertices[0].y * scaleRef.current);
-      // for (var i = 1; i < shape.m_vertices.length; i++) {
+      // for (let i = 1; i < shape.m_vertices.length; i++) {
       // 	ctx.lineTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
       // }
       ctx.fill();
 
       ctx.beginPath();
       ctx.lineWidth = scaleRef.current / 2;
-      ctx.moveTo(shape.m_vertices[1].x * scaleRef.current, shape.m_vertices[1].y * scaleRef.current);
-      ctx.lineTo(shape.m_vertices[2].x * scaleRef.current, shape.m_vertices[2].y * scaleRef.current);
+      ctx.moveTo(
+        shape.m_vertices[1].x * scaleRef.current,
+        shape.m_vertices[1].y * scaleRef.current
+      );
+      ctx.lineTo(
+        shape.m_vertices[2].x * scaleRef.current,
+        shape.m_vertices[2].y * scaleRef.current
+      );
       // ctx.moveTo(shape.m_vertices[2].x * scaleRef.current, shape.m_vertices[2].y * scaleRef.current);
       // ctx.lineTo(shape.m_vertices[3].x * scaleRef.current, shape.m_vertices[3].y * scaleRef.current);
       ctx.stroke();
       ctx.restore();
     } else {
-      ctx.moveTo(shape.m_vertices[0].x * scaleRef.current, shape.m_vertices[0].y * scaleRef.current);
-      for (var i = 1; i < shape.m_vertices.length; i++) {
-        ctx.lineTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
+      ctx.moveTo(
+        shape.m_vertices[0].x * scaleRef.current,
+        shape.m_vertices[0].y * scaleRef.current
+      );
+      for (let i = 1; i < shape.m_vertices.length; i++) {
+        ctx.lineTo(
+          shape.m_vertices[i].x * scaleRef.current,
+          shape.m_vertices[i].y * scaleRef.current
+        );
       }
     }
     ctx.shadowBlur = 0;
     ctx.shadowColor = "rgba(0,0,0,0)";
     ctx.shadowOffsetY = 0;
     ctx.shadowOffsetX = 0;
-    ctx.fillStyle = chroma(render?.stroke ?? ctx.strokeStyle).brighten(2).hex();
-  
+    ctx.fillStyle = chroma(render?.stroke ?? ctx.strokeStyle)
+      .brighten(2)
+      .hex();
+
     // ctx.fillStyle = PALETTE.WHITER;
     let m = ctx.strokeStyle + "";
     ctx.strokeStyle = ctx.fillStyle;
@@ -170,17 +210,22 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
       if (shape.m_vertices.length === 3 && false) {
         ctx.beginPath();
         let f = true;
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
           if (Math.hypot(shape.m_vertices[i].x, shape.m_vertices[i].y) > 0.01) {
             if (f)
-              ctx.moveTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
-            ctx.lineTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
+              ctx.moveTo(
+                shape.m_vertices[i].x * scaleRef.current,
+                shape.m_vertices[i].y * scaleRef.current
+              );
+            ctx.lineTo(
+              shape.m_vertices[i].x * scaleRef.current,
+              shape.m_vertices[i].y * scaleRef.current
+            );
             f = false;
           }
         }
         ctx.stroke();
       } else {
-			
         ctx.stroke();
       }
       ctx.lineWidth = scaleRef.current / 4;
@@ -188,17 +233,22 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
       if (shape.m_vertices.length === 3 && false) {
         ctx.beginPath();
         let f = true;
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
           if (Math.hypot(shape.m_vertices[i].x, shape.m_vertices[i].y) > 0.01) {
             if (f)
-              ctx.moveTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
-            ctx.lineTo(shape.m_vertices[i].x * scaleRef.current, shape.m_vertices[i].y * scaleRef.current);
+              ctx.moveTo(
+                shape.m_vertices[i].x * scaleRef.current,
+                shape.m_vertices[i].y * scaleRef.current
+              );
+            ctx.lineTo(
+              shape.m_vertices[i].x * scaleRef.current,
+              shape.m_vertices[i].y * scaleRef.current
+            );
             f = false;
           }
         }
         ctx.stroke();
       } else {
-			
         ctx.stroke();
       }
     }
@@ -206,7 +256,7 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     ctx.globalCompositeOperation = orig;
     ctx.restore();
   }
-  
+
   return () => {
     let nW = Math.ceil(window.innerWidth * dpr());
     let nH = Math.ceil(window.innerHeight * dpr());
@@ -221,21 +271,33 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     ctx.fillStyle = PALETTE.WHITE;
 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(-cameraRef.current.x * scaleRef.current, -cameraRef.current.y * scaleRef.current);
+    ctx.translate(
+      -cameraRef.current.x * scaleRef.current,
+      -cameraRef.current.y * scaleRef.current
+    );
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "multiply";
     // ctx.fillStyle = ctx.createPattern(paperTex, "repeat");
     // ctx.fillRect(camera.x * scaleRef.current, camera.y * scaleRef.current, c.width, c.height);
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1.0;
-    ctx.translate(cameraRef.current.x * scaleRef.current, cameraRef.current.y * scaleRef.current);
+    ctx.translate(
+      cameraRef.current.x * scaleRef.current,
+      cameraRef.current.y * scaleRef.current
+    );
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.scale(1, -1);
-    ctx.translate(-cameraRef.current.x * scaleRef.current, cameraRef.current.y * scaleRef.current);
-    let renderLayers:{ index: number, pairs: [{ f: planck.Fixture, b: planck.Body }] }[] = [];
-    function addToLayer(layer:number, f:planck.Fixture, b:planck.Body) {
-      var found = false;
-      for (var i = 0; i < renderLayers.length; i++) {
+    ctx.translate(
+      -cameraRef.current.x * scaleRef.current,
+      cameraRef.current.y * scaleRef.current
+    );
+    let renderLayers: {
+      index: number;
+      pairs: [{ f: planck.Fixture; b: planck.Body }];
+    }[] = [];
+    function addToLayer(layer: number, f: planck.Fixture, b: planck.Body) {
+      let found = false;
+      for (let i = 0; i < renderLayers.length; i++) {
         if (renderLayers[i].index == layer) {
           found = true;
           renderLayers[i].pairs.push({ f: f, b: b });
@@ -245,10 +307,10 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
         renderLayers.push({ index: layer, pairs: [{ f: f, b: b }] });
       }
     }
-    for (var body = world.getBodyList(); body; body = body.getNext()) {
-      for (var f = body.getFixtureList(); f; f = f.getNext()) {
-        var layer = 0;
-        const { render } = ((f.getUserData() ?? {}) as PlanckFixtureUserData);
+    for (let body = world.getBodyList(); body; body = body.getNext()) {
+      for (let f = body.getFixtureList(); f; f = f.getNext()) {
+        let layer = 0;
+        const { render } = (f.getUserData() ?? {}) as PlanckFixtureUserData;
         if (render?.layer) {
           layer = render?.layer;
         }
@@ -273,8 +335,8 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
         .getTransform()
         .transformPoint(
           new DOMPoint(
-            terrainPoses[terrainPoses.length-1].x * scaleRef.current,
-            terrainPoses[terrainPoses.length-1].y * scaleRef.current
+            terrainPoses[terrainPoses.length - 1].x * scaleRef.current,
+            terrainPoses[terrainPoses.length - 1].y * scaleRef.current
           )
         );
       let c = ctx
@@ -285,12 +347,11 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
         .getTransform()
         .inverse()
         .transformPoint(new DOMPoint(a.x, canvas.height));
-      
-        ctx.moveTo(d.x, d.y);
+
+      ctx.moveTo(d.x, d.y);
       for (let i = 0; i < terrainPoses.length; i++) {
         let p = terrainPoses[i];
         if (i === 0) {
-        
           ctx.lineTo(p.x * scaleRef.current, p.y * scaleRef.current);
         } else {
           ctx.lineTo(p.x * scaleRef.current, p.y * scaleRef.current);
@@ -299,42 +360,61 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
 
       ctx.lineTo(c.x, c.y);
       ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = chroma.blend(CYAN_MUL,chroma.blend(YELLOW_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex();
+      ctx.strokeStyle = chroma
+        .blend(
+          CYAN_MUL,
+          chroma.blend(YELLOW_MUL, PALETTE.WHITE, "multiply").hex(),
+          "multiply"
+        )
+        .hex();
 
-      ctx.fillStyle = chroma(chroma.blend(CYAN_MUL,chroma.blend(YELLOW_MUL,PALETTE.WHITE,'multiply').hex(),'multiply').hex()).brighten(1).hex();
-    
-      ctx.lineWidth = scaleRef.current *(0.5-0.5*0.5);
+      ctx.fillStyle = chroma(
+        chroma
+          .blend(
+            CYAN_MUL,
+            chroma.blend(YELLOW_MUL, PALETTE.WHITE, "multiply").hex(),
+            "multiply"
+          )
+          .hex()
+      )
+        .brighten(1)
+        .hex();
+
+      ctx.lineWidth = scaleRef.current * (0.5 - 0.5 * 0.5);
       ctx.fill();
       ctx.stroke();
     }
-    
-    // 
-    for (var i = 0; i < renderLayers.length; i++) {
-      
-      for (var j = 0; j < renderLayers[i].pairs.length; j++) {
-        var f = renderLayers[i].pairs[j].f;
-        var body = renderLayers[i].pairs[j].b;
 
-        const { render } = ((f.getUserData() ?? {}) as PlanckFixtureUserData);
-        ctx.strokeStyle =render?.stroke ?? "#000000";
-        ctx.fillStyle =render?.fill ?? "rgba(0,0,0,0)";
+    //
+    for (let i = 0; i < renderLayers.length; i++) {
+      for (let j = 0; j < renderLayers[i].pairs.length; j++) {
+        let f = renderLayers[i].pairs[j].f;
+        let body = renderLayers[i].pairs[j].b;
+
+        const { render } = (f.getUserData() ?? {}) as PlanckFixtureUserData;
+        ctx.strokeStyle = render?.stroke ?? "#000000";
+        ctx.fillStyle = render?.fill ?? "rgba(0,0,0,0)";
         ctx.lineWidth = 1;
         ctx.save();
 
         ctx.globalCompositeOperation = "multiply";
-        ctx.translate(f.m_body.m_xf.p.x * scaleRef.current, f.m_body.m_xf.p.y * scaleRef.current);
+        ctx.translate(
+          f.m_body.m_xf.p.x * scaleRef.current,
+          f.m_body.m_xf.p.y * scaleRef.current
+        );
         ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
         if (f.m_shape.getType() == "polygon") {
           let isg = render?.special === "ground";
-          if(!isg)polygon(f.m_shape as planck.Polygon, f, isg);
+          if (!isg) polygon(f.m_shape as planck.Polygon, f, isg);
         }
-        if (f.m_shape.getType() == "circle") circle(f.m_shape as planck.Circle,f);
+        if (f.m_shape.getType() == "circle")
+          circle(f.m_shape as planck.Circle, f);
 
         ctx.restore();
-        
+
         ctx.globalCompositeOperation = "source-over";
         ctx.globalAlpha = 1.0;
       }
     }
-  }
-}
+  };
+};
