@@ -99,7 +99,6 @@ export const makeStepHandler = (
     if (carScoreRef.current < x - 3) {
       restartCurrentRef.current = 0;
       carScoreRef.current = x + 0;
-      boxCarRef.current.score = x + 0;
       distTicksRef.current = currentTicksRef.current + 0;
     }
   }

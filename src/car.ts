@@ -1,12 +1,12 @@
 import { convertNumberToMaterial } from "../material-color";
 
-export function encodeRGB(color) {
+export function encodeRGB(color:{r:number,g:number,b:number}) {
   return (
     (Math.floor(color.r) * 256 + Math.floor(color.g)) * 256 +
     Math.floor(color.b)
   );
 }
-export function decodeRGB(number) {
+export function decodeRGB(number:number) {
   return {
     r: Math.floor(number / 256 / 256) % 256,
     g: Math.floor(number / 256) % 256,
@@ -111,24 +111,27 @@ export class Car {
       );
     }
   }
-  importCar = async function (str:string) {
+  importCar = async function (str: string) {
     var ret = new Car();
     try {
-      var list = str;
+      var list:any[] = [];
       if (str.split(",").length < 3) {
         list = await hashToList(str);
       } else {
         list = str.split(",");
       }
 
-      var data = {
+      var data:{lengths: number[],
+        angleWeights: number[],
+        wheels: unknown[],
+        colors: number[],} = {
         lengths: [],
         angleWeights: [],
         wheels: [],
         colors: [],
       };
       for (var i = 0; i < 8; i++) {
-        data.lengths.push((this.maxLength * parseFloat(list[i * 2 + 1])) / 3);
+        data.lengths.push((ret.maxLength * parseFloat(list[i * 2 + 1])) / 3);
         data.angleWeights.push(parseFloat(list[i * 2]));
       }
       var wheelCount = parseInt(list[list.length - 1]);
@@ -141,7 +144,7 @@ export class Car {
         }
         data.wheels.push({
           index: parseInt(list[16 + i * 3]),
-          r: (this.maxRadius * parseFloat(list[16 + i * 3 + 2])) / 1.5,
+          r: (ret.maxRadius * parseFloat(list[16 + i * 3 + 2])) / 1.5,
           o: parseInt(list[16 + i * 3]) > -1,
           axelAngle: parseFloat(list[16 + i * 3 + 1]),
         });
@@ -181,7 +184,7 @@ export class Car {
       (a.index - b.index) * 2
     );
   }
-  wheelsAt(index) {
+  wheelsAt(index:number) {
     var wheels = [];
     for (var i = 0; i < this.data.wheels.length; i++) {
       if (this.data.wheels[i].index == index) {
@@ -266,17 +269,14 @@ export class Car {
     }
     return string.join(",");
   }
-  breed(other: Car, maxWheels: number, wheelProbablity: number) {
+  breed(other: Car, maxWheels?: number, wheelProbablity?: number) {
     var interp =
       Math.max(1, this.score) /
       (Math.max(1, this.score) + Math.max(1, other.score));
     interp = Math.sign(interp - 0.5) * (0.5 + 0.25 * Math.random()) + 0.5;
     var interpL = Math.random();
-    var wheelMax = this.maxWheels;
-    var wheelProb = this.wheelProb;
-    if (maxWheels) wheelMax = maxWheels;
-    var wheelProb = this.wheelProb;
-    if (wheelProbablity) wheelProb = wheelProbablity;
+    var wheelMax = maxWheels ?? this.maxWheels;
+    var wheelProb = wheelProbablity ?? this.wheelProb;
     var mutationRate = 0.001;
     var explorationRate = 0.025;
     this.fixAngleWeights();
@@ -795,8 +795,9 @@ async function hashToList(str) {
   list.push(wheels);
   return list;
 }
-import pako from 'pako';
+import pako from "pako";
 async function stringToData(str) {
-    
-    return new DataView(pako.inflate(Uint8Array.from(atob(str), c => c.charCodeAt(0))).buffer);
+  return new DataView(
+    pako.inflate(Uint8Array.from(atob(str), (c) => c.charCodeAt(0))).buffer
+  );
 }
