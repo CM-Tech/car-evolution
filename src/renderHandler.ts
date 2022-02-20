@@ -5,11 +5,12 @@ import { CYAN_MUL, PALETTE, YELLOW_MUL } from "./colors";
 import { HandlerInfos } from "./simulation";
 const dpr = () => window.devicePixelRatio ?? 1;
 
+export type PlanckFixtureUserData = {render?:any};
 export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,world,terrainXSRef}:HandlerInfos) => {
   var ctx = canvas.getContext("2d")!;
   canvas.width = window.innerWidth*dpr();
   canvas.height = window.innerHeight*dpr();
-  function circle(shape, f) {
+  function circle(shape:planck.Circle, f) {
 
     ctx.lineCap = "round";
     ctx.save();
@@ -69,7 +70,9 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     ctx.restore();
   }
 
-  function polygon(shape, f, isground) {
+  function polygon(shape: planck.Polygon, f: planck.Fixture, isground: boolean) {
+    
+    const { render } = ((f.getUserData() ?? {}) as PlanckFixtureUserData);
     ctx.save();
     let polygonPath = new Path2D();
     polygonPath.moveTo(shape.m_vertices[0].x * scaleRef.current, shape.m_vertices[0].y * scaleRef.current);
@@ -147,7 +150,7 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     ctx.shadowColor = "rgba(0,0,0,0)";
     ctx.shadowOffsetY = 0;
     ctx.shadowOffsetX = 0;
-    ctx.fillStyle = chroma(f.render?.stroke ?? ctx.strokeStyle).brighten(2);
+    ctx.fillStyle = chroma(render?.stroke ?? ctx.strokeStyle).brighten(2).hex();
   
     // ctx.fillStyle = PALETTE.WHITER;
     let m = ctx.strokeStyle + "";
@@ -229,8 +232,8 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.scale(1, -1);
     ctx.translate(-cameraRef.current.x * scaleRef.current, cameraRef.current.y * scaleRef.current);
-    var renderLayers = [];
-    function addToLayer(layer, f, b) {
+    let renderLayers:{ index: number, pairs: [{ f: planck.Fixture, b: planck.Body }] }[] = [];
+    function addToLayer(layer:number, f:planck.Fixture, b:planck.Body) {
       var found = false;
       for (var i = 0; i < renderLayers.length; i++) {
         if (renderLayers[i].index == layer) {
@@ -245,8 +248,9 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
     for (var body = world.getBodyList(); body; body = body.getNext()) {
       for (var f = body.getFixtureList(); f; f = f.getNext()) {
         var layer = 0;
-        if (f.render && f.render.layer) {
-          layer = f.render.layer;
+        const { render } = ((f.getUserData() ?? {}) as PlanckFixtureUserData);
+        if (render?.layer) {
+          layer = render?.layer;
         }
         addToLayer(layer, f, body);
       }
@@ -310,10 +314,10 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
       for (var j = 0; j < renderLayers[i].pairs.length; j++) {
         var f = renderLayers[i].pairs[j].f;
         var body = renderLayers[i].pairs[j].b;
-        ctx.strokeStyle =
-          f.render && f.render.stroke ? f.render.stroke : "#000000";
-        ctx.fillStyle =
-          f.render && f.render.fill ? f.render.fill : "rgba(0,0,0,0)";
+
+        const { render } = ((f.getUserData() ?? {}) as PlanckFixtureUserData);
+        ctx.strokeStyle =render?.stroke ?? "#000000";
+        ctx.fillStyle =render?.fill ?? "rgba(0,0,0,0)";
         ctx.lineWidth = 1;
         ctx.save();
 
@@ -321,10 +325,10 @@ export const makeRenderHandler = (canvas:HTMLCanvasElement,{cameraRef,scaleRef,w
         ctx.translate(f.m_body.m_xf.p.x * scaleRef.current, f.m_body.m_xf.p.y * scaleRef.current);
         ctx.rotate(Math.atan2(f.m_body.m_xf.q.s, f.m_body.m_xf.q.c));
         if (f.m_shape.getType() == "polygon") {
-          let isg = f.render?.special === "ground";
-          if(!isg)polygon(f.m_shape, f, isg);
+          let isg = render?.special === "ground";
+          if(!isg)polygon(f.m_shape as planck.Polygon, f, isg);
         }
-        if (f.m_shape.getType() == "circle") circle(f.m_shape);
+        if (f.m_shape.getType() == "circle") circle(f.m_shape as planck.Circle,f);
 
         ctx.restore();
         

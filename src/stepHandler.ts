@@ -14,6 +14,7 @@ import { convertToMaterial } from "../material-color";
 import { COLOR_MUL, PALETTE } from "./colors";
 import { HandlerInfos } from "./simulation";
 import { terrainSisyphus, terrainHills, TerrainPreset, terrainRocky,terrainCrescendo } from "./terrain";
+import { PlanckFixtureUserData } from "./renderHandler";
 
 export const BODY_CATEGORY = 0b0000000000000010;
 export const WHEEL_CATEGORY = 0b0000000000000100;
@@ -158,12 +159,14 @@ export const makeStepHandler = (
       var t_fix = ground.createFixture(shape, groundFD);
       terrains.push(t_fix);
       terrainXSRef.current.push(nextPos);
-      t_fix.render = {
-        special: "ground",
-        fill: PALETTE.BLACK,
-        stroke: PALETTE.BLACK,
-        layer: 0,
-      };
+      t_fix.setUserData({
+        render: {
+          special: "ground",
+          fill: PALETTE.BLACK,
+          stroke: PALETTE.BLACK,
+          layer: 0,
+        }
+      });
       // genX = nextX;
     }
   }
@@ -455,11 +458,13 @@ export const makeStepHandler = (
       // matHex = convertToMaterial(
       //   (carData.data.colors[i] || 0).toString(16).padStart(6, "0")
       // );
-      m_piece.render = {
-        fill: matHex,
-        stroke: matHex,
-        layer: 6,
-      };
+      m_piece.setUserData({
+        render: {
+          fill: matHex,
+          stroke: matHex,
+          layer: 6,
+        }
+      });
       connectedParts.push(m_piece);
       connectedPartsI.push(i);
       connectedShapes.push(m_shape);
@@ -530,10 +535,12 @@ export const makeStepHandler = (
             Circle(wheelData.r * carScale * 0.89),
             wheelFD
           );
-          w_fix.render = {
-            fill: PALETTE.BLACK,
-            layer: 7,
-          };
+          w_fix.setUserData({
+            render: {
+              fill: PALETTE.BLACK,
+              layer: 7,
+            }
+          });
           var colorLerp = 1;
           /*s_b_fix.render = {
   fill : "rgba(" + wheelColor.r * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.g * (1 - colorLerp) + 255 * colorLerp + "," + wheelColor.b * (1 - colorLerp) + 255 * colorLerp + ",1)", //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
@@ -563,16 +570,20 @@ export const makeStepHandler = (
           //     .toString(16)
           //     .padStart(6, "0")
           // );
-          s_b_fix.render = {
-            fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-            stroke: matHex,
-            layer: 9,
-          };
-          s_fix.render = {
-            fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
-            stroke: matHex,
-            layer: 8,
-          };
+          s_b_fix.setUserData({
+            render: {
+              fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+              stroke: matHex,
+              layer: 9,
+            }
+          });
+          s_fix.setUserData({
+            render: {
+              fill: matHex, //"hsla(" + Math.random() * 360 + ",100%,50%,0.5)"
+              stroke: matHex,
+              layer: 8,
+            }
+          });
           var bounceJoint = world.createJoint(
             PrismaticJoint(
               {
@@ -745,7 +756,8 @@ export const makeStepHandler = (
           world.destroyJoint(m_springs[0][j]);
         }
       }
-      var renderData = m_piece.render;
+
+      const { render:renderData } = ((m_piece.getUserData() ?? {}) as PlanckFixtureUserData);
       boxCarRef.current.destroyFixture(m_piece);
       m_piece = null;
       var body2 = world.createBody({
@@ -754,8 +766,7 @@ export const makeStepHandler = (
         angle: body1.getAngle(),
       });
       m_piece = body2.createFixture(m_shape, bodyBrokeShapeDef);
-      m_piece.render = renderData;
-      m_piece.render.layer = 2;
+      m_piece.setUserData({ render: { ...renderData, layer: 2 } });
       connectedPartsOld.push(m_piece);
       // Compute consistent velocities for new bodies based on cached velocity.
       var center1 = body1.getWorldCenter();
